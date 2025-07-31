@@ -29,6 +29,15 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
+                        "title": "数据大屏",  # 更新菜单标题
+                        "key": "/dashboard",  # 更新菜单key
+                        "icon": "antd-bar-chart",  # 更新为图表图标
+                        "href": "/dashboard",  # 更新菜单跳转路径
+                    },
+                },
+                {
+                    "component": "Item",
+                    "props": {
                         "title": "主要页面",  # 修改："主要页面1" -> "主要页面"
                         "key": "/macada/page1",
                         "icon": "antd-app-store",
@@ -144,14 +153,18 @@ class RouterConfig:
         "/macada/dashboard": "数据大屏",  # 新增数据大屏路由映射
         # 删除旧的独立页面演示路由
         # "/macada/independent-page/demo": "独立页面演示示例",
+        "/dashboard": "数据大屏入口页",  # 新增数据大屏入口路由
+        "/dashboard/line": "数据大屏-折线图",  # 新增数据大屏内容页路由
+        # 删除旧独立页面路由配置
+        # "/macada/independent-page": "独立页面",
+        # "/macada/independent-page/demo": "独立页面演示示例",
     }
 
     # 独立渲染展示的核心页面
     independent_core_pathnames: List[Union[str, re.Pattern]] = [
-        # 恢复独立页面演示路径
-        "/macada/independent-page/demo",
-        # 删除数据大屏路径
-        # "/macada/dashboard",
+        "/dashboard/line",  # 更新为数据大屏内容页路径
+        # 删除旧独立页面配置
+        # "/macada/independent-page/demo",
     ]
 
     # 删除以下通配页面模式字典
