@@ -9,11 +9,7 @@ from views.status_pages import _404
 from views.core_pages import (
     index,
     page1,
-    sub_menu_page1,
-    sub_menu_page2,
-    sub_menu_page3,
     independent_page,
-    independent_wildcard_page,
     url_params_page,
 )
 

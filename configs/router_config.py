@@ -75,7 +75,7 @@ class RouterConfig:
                     "props": {
                         "title": "独立页面",  # 修改："独立页面渲染入口页" -> "独立页面"
                         "key": "/macada/independent-page",
-                        "icon": "antd-app-store",
+                        "icon": "antd-bar-chart",
                         "href": "/macada/independent-page",
                     },
                 },

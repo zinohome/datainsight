@@ -10,12 +10,11 @@ class LayoutConfig:
     # 核心页面侧边栏像素宽度（折叠状态）  # 新增参数
     core_side_collapsed_width: int = 90  # 默认折叠宽度，可自定义
 
+    # 新增：侧边栏初始折叠状态控制参数
+    core_side_initial_collapsed: bool = False  # False=默认展开，True=默认折叠
+
     # 核心页面呈现类型，可选项有'single'（单页面形式）、'tabs'（多标签页形式）
     core_layout_type: Literal["single", "tabs"] = "single"
 
     # 是否在页首中显示页面搜索框
-    # 侧边栏初始折叠状态控制参数
-    show_core_page_search: bool = True
-
-    # 新增：侧边栏初始折叠状态控制参数
-    core_side_initial_collapsed: bool = False  # False=默认展开，True=默认折叠
+    show_core_page_search: bool = False
