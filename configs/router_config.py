@@ -73,7 +73,7 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
-                        "title": "独立页面",  # 修改："独立页面渲染入口页" -> "独立页面"
+                        "title": "独立页面",  # 保持标题不变
                         "key": "/macada/independent-page",
                         "icon": "antd-bar-chart",
                         "href": "/macada/independent-page",
@@ -125,28 +125,33 @@ class RouterConfig:
     valid_pathnames: dict = {
         "/": "首页",
         index_pathname: "首页",
-        "/macada/page1": "主要页面",  # 修改："主要页面1" -> "主要页面"
+        "/macada/page1": "主要页面",
         # 删除以下子菜单页面路由映射
         # "/macada/sub-menu-page1": "子菜单演示1",
         # "/macada/sub-menu-page2": "子菜单演示2",
         # "/macada/sub-menu-page3": "子菜单演示3",
-        "/macada/independent-page": "独立页面",  # 修改："独立页面渲染入口页" -> "独立页面"
+        "/macada/independent-page": "独立页面",  # 恢复原标题
+        # 删除数据大屏路由映射
+        # "/macada/dashboard": "数据大屏",
+        # 恢复独立页面演示路由
+        "/macada/independent-page/demo": "独立页面演示示例",
         # 删除以下独立通配页面相关配置
         # "/macada/independent-wildcard-page": "独立通配页面渲染入口页",
         "/macada/url-params-page": "url参数提取示例",
         "/404-demo": "404状态页演示",
         "/500-demo": "500状态页演示",
-        # 独立渲染页面
-        "/macada/independent-page/demo": "独立页面演示示例",
-        # 删除以下独立通配渲染页面配置
-        # RouterConfig.wildcard_patterns["独立通配页面演示"]: "独立通配页面演示示例",
+        # 独立渲染页面 - 更新为数据大屏
+        "/macada/dashboard": "数据大屏",  # 新增数据大屏路由映射
+        # 删除旧的独立页面演示路由
+        # "/macada/independent-page/demo": "独立页面演示示例",
     }
 
     # 独立渲染展示的核心页面
     independent_core_pathnames: List[Union[str, re.Pattern]] = [
+        # 恢复独立页面演示路径
         "/macada/independent-page/demo",
-        # 删除以下独立通配页面配置
-        # wildcard_patterns["独立通配页面演示"],
+        # 删除数据大屏路径
+        # "/macada/dashboard",
     ]
 
     # 删除以下通配页面模式字典

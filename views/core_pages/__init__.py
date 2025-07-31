@@ -47,8 +47,12 @@ def render(current_pathname: str = None):
     # 判断是否需要独立渲染
     if current_pathname in RouterConfig.independent_core_pathnames:
         # 返回不同地址规则对应页面内容
+        # 恢复独立页面演示路由判断
         if current_pathname == "/macada/independent-page/demo":
             return independent_page_demo.render()
+        # 删除数据大屏路由判断
+        # elif current_pathname == "/macada/dashboard":
+        #     return dashboard.render()
 
     # 判断是否需要独立通配渲染
     elif any(
