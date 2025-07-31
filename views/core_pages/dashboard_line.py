@@ -11,13 +11,13 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
+import callbacks.core_pages_c.dashboard_c
 
 def render():
     """仪表盘渲染示例"""
 
     return fac.AntdSpace(
         [
-            #fac.AntdBreadcrumb(items=[{"title": "主要页面"}, {"title": "仪表盘"}]),
             html.Div(
                 [
                     # 消息提示输出目标
@@ -209,22 +209,8 @@ def render():
                                 ),
                                 span=12,
                             ),
-                            # 空白卡片示例
-                            fac.AntdCol(
-                                blank_card(
-                                    fac.AntdCenter(
-                                        fac.AntdText(
-                                            [
-                                                fac.AntdText("玩转Dash", italic=True),
-                                                "知识星球出品",
-                                            ]
-                                        )
-                                    )
-                                ),
-                                span=24,
-                            ),
                         ],
-                        gutter=[18, 18],
+                        gutter=[10, 10],
                     ),
                 ],
                 style=style(
