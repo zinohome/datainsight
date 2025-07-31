@@ -20,6 +20,12 @@ def render():
         [
             html.Div(
                 [
+                    # 引入页面专属CSS文件
+                    html.Link(
+                        rel='stylesheet',
+                        type='text/css',
+                        href='/assets/css/dashboard_line.css'  # CSS文件路径
+                    ),
                     # 消息提示输出目标
                     fac.Fragment(id="message-target"),
                     # 数据统一更新轮询
