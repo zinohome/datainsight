@@ -12,12 +12,16 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     simple_chart_card,
 )
 
+
+import callbacks.core_pages_c.dashboard_c  # noqa: F401
+
+
 def render():
     """仪表盘渲染示例"""
 
     return fac.AntdSpace(
         [
-            #fac.AntdBreadcrumb(items=[{"title": "主要页面"}, {"title": "仪表盘"}]),
+            fac.AntdBreadcrumb(items=[{"title": "主要页面"}, {"title": "仪表盘"}]),
             html.Div(
                 [
                     # 消息提示输出目标
@@ -30,6 +34,29 @@ def render():
                     # 仪表盘网格布局
                     fac.AntdRow(
                         [
+                            # 欢迎卡片
+                            fac.AntdCol(
+                                welcome_card(
+                                    title="欢迎访问本应用，用户：张三",
+                                    description=fac.AntdText(
+                                        [
+                                            "您有5个事项待处理，点击",
+                                            html.A("此处", id="demo-link1"),
+                                            "查看。",
+                                        ]
+                                    ),
+                                    avatar=fac.AntdAvatar(
+                                        src="/assets/imgs/demo-avatar.png",
+                                        mode="image",
+                                        size=72,
+                                        style=style(background="#1890ff"),
+                                    ),
+                                    extra=fac.AntdButton(
+                                        "更多信息", id="demo-link2", type="link"
+                                    ),
+                                ),
+                                span=24,
+                            ),
                             # 展示数据更新时间
                             fac.AntdCol(
                                 blank_card(
