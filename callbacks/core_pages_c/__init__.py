@@ -9,7 +9,7 @@ from views.status_pages import _404
 from views.core_pages import (
     index,
     page1,
-    independent_page,
+    dashboard,  # 修正：独立页面文件已重命名为dashboard.py
     url_params_page,
 )
 
@@ -138,20 +138,31 @@ def core_router(
     #     # 更新页面返回内容
     #     page_content = sub_menu_page3.render()
 
-    # 以独立页面做简单示例
-    elif pathname == "/macada/independent-page":
+    # 以独立页面做简单示例 - 删除旧路径处理
+    # elif pathname == "/macada/independent-page":
+    #     # 更新页面返回内容
+    #     page_content = independent_page.render()
+
+    # 新增数据大屏入口页路由处理
+    elif pathname == "/macda/dashboard":  # 修正路径：/dashboard -> /macda/dashboard
         # 更新页面返回内容
-        page_content = independent_page.render()
+        page_content = dashboard.render()  # 使用数据大屏入口页组件
 
     # 以独立通配页面做简单示例
-    elif pathname == "/macada/independent-wildcard-page":
+    #elif pathname == "/macada/independent-wildcard-page":
         # 更新页面返回内容
-        page_content = independent_wildcard_page.render()
+        #page_content = independent_wildcard_page.render()
 
     # 以url参数提取页面做简单示例
     elif pathname == "/macada/url-params-page":
         # 更新页面返回内容
         page_content = url_params_page.render(current_url=current_url)
+
+    # 删除以下独立通配页面路由处理逻辑（已删除对应页面模块）
+    # # 以独立通配页面做简单示例
+    # elif pathname == "/macada/independent-wildcard-page":
+    #     # 更新页面返回内容
+    #     page_content = independent_wildcard_page.render()
 
     # 多标签页形式
     if page_config.get("core_layout_type") == "tabs":

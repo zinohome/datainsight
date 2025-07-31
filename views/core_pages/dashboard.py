@@ -19,7 +19,7 @@ def render():
                     [
                         "点击",
                         html.A(
-                            "此处", href="/dashboard/line", target="_blank"  # 更新链接路径
+                            "此处", href="/macda/dashboard/line", target="_blank"  # 修正路径：/dashboard/line -> /macda/dashboard/line
                         ),
                         "打开数据大屏页面。",  # 更新描述文本
                         html.Br(),

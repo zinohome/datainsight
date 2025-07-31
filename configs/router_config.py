@@ -29,10 +29,10 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
-                        "title": "数据大屏",  # 更新菜单标题
-                        "key": "/dashboard",  # 更新菜单key
-                        "icon": "antd-bar-chart",  # 更新为图表图标
-                        "href": "/dashboard",  # 更新菜单跳转路径
+                        "title": "数据大屏",
+                        "key": "/macda/dashboard",  # 修正路径：/dashboard -> /macda/dashboard
+                        "icon": "antd-bar-chart",
+                        "href": "/macda/dashboard",  # 修正路径：/dashboard -> /macda/dashboard
                     },
                 },
                 {
@@ -153,18 +153,18 @@ class RouterConfig:
         "/macada/dashboard": "数据大屏",  # 新增数据大屏路由映射
         # 删除旧的独立页面演示路由
         # "/macada/independent-page/demo": "独立页面演示示例",
-        "/dashboard": "数据大屏入口页",  # 新增数据大屏入口路由
-        "/dashboard/line": "数据大屏-折线图",  # 新增数据大屏内容页路由
-        # 删除旧独立页面路由配置
-        # "/macada/independent-page": "独立页面",
-        # "/macada/independent-page/demo": "独立页面演示示例",
+        "/macda/dashboard": "数据大屏入口页",  # 修正路径：/dashboard -> /macda/dashboard
+        "/macda/dashboard/line": "数据大屏-折线图",  # 修正路径：/dashboard/line -> /macda/dashboard/line
+        # 删除旧的错误路径配置
+        # "/dashboard": "数据大屏入口页",
+        # "/dashboard/line": "数据大屏-折线图",
+        # 删除旧路径映射
+        # "/macada/independent-page": "独立页面渲染入口页",
     }
 
     # 独立渲染展示的核心页面
     independent_core_pathnames: List[Union[str, re.Pattern]] = [
-        "/dashboard/line",  # 更新为数据大屏内容页路径
-        # 删除旧独立页面配置
-        # "/macada/independent-page/demo",
+        "/macda/dashboard/line",  # 修正路径：/dashboard/line -> /macda/dashboard/line
     ]
 
     # 删除以下通配页面模式字典
