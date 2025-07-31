@@ -14,14 +14,14 @@ def render():
             fac.AntdAlert(
                 type="info",
                 showIcon=True,
-                message="这里是数据大屏入口页",  # 更新标题
+                message="这里是独立页面渲染入口页演示示例",
                 description=fac.AntdText(
                     [
                         "点击",
                         html.A(
-                            "此处", href="/macada/dashboard", target="_blank"  # 更新链接路径
+                            "此处", href="/macada/independent-page/demo", target="_blank"
                         ),
-                        "打开数据大屏页面。",  # 更新描述文本
+                        "打开示例独立显示页面。",
                         html.Br(),
                         "本页面模块路径：",
                         fac.AntdText(
