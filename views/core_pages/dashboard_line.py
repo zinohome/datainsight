@@ -32,7 +32,7 @@ def render():
                         [
                             # 展示数据更新时间
                             fac.AntdCol(
-                                blank_card(
+                                blank_card(  # 移除外层html.Div包裹
                                     fac.AntdText(
                                         [
                                             "数据最近更新时间：",
@@ -44,28 +44,31 @@ def render():
                                                 type="secondary",
                                             ),
                                         ]
+                                        # 移除文本颜色style
                                     )
                                 ),
                                 span=24,
                             ),
                             # 指标卡片示例
                             fac.AntdCol(
-                                index_card(
+                                index_card(  # 移除外层html.Div包裹
                                     index_name="当日销售额",
                                     index_value=[
                                         "¥ ",
                                         html.Span(
                                             102389,
-                                            id="today-sales",
+                                            id="today-sales"
+                                            # 移除指标值颜色style
                                         ),
                                     ],
                                     index_description="这是当日销售额的指标描述示例内容",
-                                    footer_content="昨日销售额 ￥123456",
+                                    footer_content="昨日销售额 ￥123456"
+                                    # 移除卡片style参数
                                 ),
                                 span=6,
                             ),
                             fac.AntdCol(
-                                index_card(
+                                index_card(  # 移除外层html.Div包裹
                                     index_name="当日访问量",
                                     index_value=html.Span(
                                         fuc.FefferyCountUp(end=8846, separator=""),
@@ -170,8 +173,49 @@ def render():
                                     ),
                                     height=450,
                                 ),
-                                span=12,
+                                span=6,
                             ),
+                            # 新增词云图卡片 1
+                            fac.AntdCol(
+                                simple_chart_card(
+                                    title="热门搜索词云",
+                                    description="时间范围：今日",
+                                    chart=fact.AntdWordCloud(
+                                        id="today-hot-search-wordcloud",
+                                        data=[
+                                            {"name": f"关键词{i}", "value": random.randint(10, 100)}
+                                            for i in range(1, 31)
+                                        ],
+                                        wordField="name",
+                                        weightField="value",
+                                        height=400,
+                                        color="#1890ff"
+                                    ),
+                                    height=450,
+                                ),
+                                span=6,
+                            ),
+                            # 新增词云图卡片 2
+                            fac.AntdCol(
+                                simple_chart_card(
+                                    title="用户评论词云",
+                                    description="时间范围：今日",
+                                    chart=fact.AntdWordCloud(
+                                        id="today-user-comment-wordcloud",
+                                        data=[
+                                            {"name": f"评价词{i}", "value": random.randint(10, 100)}
+                                            for i in range(1, 31)
+                                        ],
+                                        wordField="name",
+                                        weightField="value",
+                                        height=400,
+                                        color="#722ed1"
+                                    ),
+                                    height=450,
+                                ),
+                                span=6,
+                            ),
+
                             fac.AntdCol(
                                 simple_chart_card(
                                     title="流量转化情况",
@@ -207,20 +251,23 @@ def render():
                                     ),
                                     height=450,
                                 ),
-                                span=12,
+                                span=6,
                             ),
+
                         ],
                         gutter=[10, 10],
                     ),
                 ],
                 style=style(
                     padding=50,
-                    background="#f5f5f5",
+                    background="#f5f5f5",  # 恢复原始背景色
                     minHeight="100vh",
-                    boxSizing="border-box",
+                    boxSizing="border-box"
+                    # 移除文本颜色style
                 ),
             ),
         ],
         direction="vertical",
         style=style(width="100%"),
     )
+
