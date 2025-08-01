@@ -46,7 +46,7 @@ class LayoutConfig:
     current_theme: str = "dark"  # 默认使用深色主题
 
     # 4. 卡片透明控制变量（通过修改此值切换卡片透明：True 或 False）
-    card_transparent: bool = True  # 默认不透明
+    card_transparent: bool = False  # 默认不透明
 
     # 5. 激活当前主题（修改为类属性，支持直接通过类访问）
     @classproperty
