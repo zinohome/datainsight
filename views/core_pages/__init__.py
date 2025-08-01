@@ -47,7 +47,7 @@ def render(current_pathname: str = None):
     # 判断是否需要独立渲染
     if current_pathname in RouterConfig.independent_core_pathnames:
         # 修正数据大屏内容页路径判断
-        if current_pathname == "/macda/dashboard/line":  # 修正路径：/dashboard/line -> /macda/dashboard/line
+        if current_pathname == "/macda/dashboard/line":
             return dashboard_line.render()
 
     # 判断是否需要独立通配渲染
@@ -64,9 +64,6 @@ def render(current_pathname: str = None):
                     # 更新命中的通配规则
                     match_pattern = pattern
                     break
-        # 返回不同地址通配规则对应页面内容
-        #if match_pattern == RouterConfig.wildcard_patterns["独立通配页面演示"]:
-        #    return independent_wildcard_page_demo.render(pathname=current_pathname)
 
     return html.Div(
         [
@@ -120,6 +117,9 @@ def render(current_pathname: str = None):
                                                     #     style=style(fontSize=12),
                                                     # ),
                                                 ],
+                                                align="baseline",
+                                                size=3,
+                                                id="core-header-title",
                                             ),
                                         ]
                                     ),

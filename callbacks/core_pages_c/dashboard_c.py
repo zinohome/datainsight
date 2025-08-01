@@ -7,21 +7,6 @@ from dash.dependencies import Input, Output, State
 
 from server import app
 
-
-@app.callback([Input("demo-link1", "n_clicks"), Input("demo-link2", "nClicks")])
-def link_click_demo(*args):
-    """链接点击交互演示"""
-
-    set_props(
-        "message-target",
-        {
-            "children": fac.AntdMessage(
-                content="你点击了链接 " + dash.ctx.triggered_id, type="info"
-            )
-        },
-    )
-
-
 @app.callback(
     [
         Output("update-datetime", "children"),

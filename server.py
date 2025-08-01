@@ -10,7 +10,7 @@ app = dash.Dash(
     title=BaseConfig.app_title,
     suppress_callback_exceptions=True,
     compress=True,  # 隐式依赖flask-compress
-    update_title=None,
+    update_title=None
 )
 
 server = app.server
