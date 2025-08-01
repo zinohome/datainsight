@@ -6,3 +6,4 @@ feffery_utils_components>=0.3.2,<0.4.0
 flask-compress
 user_agents
 yarl
+dash-extensions>=2.0.4

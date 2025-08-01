@@ -15,26 +15,21 @@ import callbacks.core_pages_c.dashboard_c
 
 def render():
     """仪表盘渲染示例"""
-    # 定义主题令牌变量 - 修改为深色主题初始值
-    token = {
-        "colorBgContainer": "#141414",  # 容器背景色
-        "colorText": "#fff",             # 文本颜色
-        "colorBgCard": "#2a2a2a",        # 卡片背景色
-        "colorBorder": "#434343"         # 边框颜色
-    }
-
 
     return fac.AntdConfigProvider(
         id="theme-config-provider",
-        primaryColor="#1890ff",
-        componentSize="middle",
-        locale="zh-cn",
-        algorithm="dark",  # 初始算法改为深色模式
-        token=token,  # 使用定义的token变量
+        # 直接设置主题相关属性（替换原config参数）
+        primaryColor="#1890ff",  # 主色调
+        componentSize="middle",  # 组件尺寸
+        locale="zh-cn",  # 语言设置
+        token={  # 主题令牌（初始浅色模式）
+            "colorBgContainer": "#f5f5f5",
+            "colorText": "#000"
+        },
         children=fac.AntdSpace(
             [
-                html.Div(id="main-bg-div",
-                    children=[
+                html.Div(
+                    [
                         # 消息提示输出目标
                         fac.Fragment(id="message-target"),
                         # 数据统一更新轮询
@@ -42,16 +37,15 @@ def render():
                             id="update-data-interval",
                             interval=1000,  # 示例，3秒更新一次
                         ),
-                        # 添加主题模式存储 - 初始设为深色
-                        dcc.Store(id="theme-mode-store", data="dark"),
+                        # 添加主题模式存储
+                        dcc.Store(id="theme-mode-store", data="light"),
                         # 仪表盘网格布局
                         fac.AntdRow(
                             [
                                 # 展示数据更新时间和主题切换按钮
                                 fac.AntdCol(
                                     blank_card(
-                                        rootStyle={"background": token["colorBgCard"]},
-                                        children=fac.AntdSpace(
+                                        fac.AntdSpace(
                                             [
                                                 fac.AntdText(
                                                     [
@@ -65,10 +59,10 @@ def render():
                                                         ),
                                                     ]
                                                 ),
-                                                # 深色模式切换按钮 - 默认设为开启状态
+                                                # 深色模式切换按钮
                                                 fac.AntdSwitch(
                                                     id="theme-switch",
-                                                    checked=True,  # 初始为深色
+                                                    checked=False,
                                                     checkedChildren="深色",
                                                     unCheckedChildren="浅色",
                                                     style={"marginLeft": "auto"}
@@ -82,7 +76,6 @@ def render():
                                 # 指标卡片示例
                                 fac.AntdCol(
                                     index_card(  # 移除外层html.Div包裹
-                                        rootStyle={"background": token["colorBgCard"]},
                                         index_name="当日销售额",
                                         index_value=[
                                             "¥ ",
@@ -93,14 +86,13 @@ def render():
                                             ),
                                         ],
                                         index_description="这是当日销售额的指标描述示例内容",
-                                        footer_content="昨日销售额 ￥123456",
+                                        footer_content="昨日销售额 ￥123456"
                                         # 移除卡片style参数
                                     ),
                                     span=6,
                                 ),
                                 fac.AntdCol(
                                     index_card(  # 移除外层html.Div包裹
-                                        rootStyle={"background": token["colorBgCard"]},
                                         index_name="当日访问量",
                                         index_value=html.Span(
                                             fuc.FefferyCountUp(end=8846, separator=""),
@@ -121,7 +113,6 @@ def render():
                                 ),
                                 fac.AntdCol(
                                     index_card(
-                                        rootStyle={"background": token["colorBgCard"]},
                                         index_name="当日支付笔数",
                                         index_value=html.Span(
                                             4678,
@@ -142,7 +133,7 @@ def render():
                                     span=6,
                                 ),
                                 fac.AntdCol(
-                                    index_card(rootStyle={"background": token["colorBgCard"]},
+                                    index_card(
                                         index_name="当日活动转化率",
                                         index_value=html.Span(
                                             "78%",
@@ -168,7 +159,6 @@ def render():
                                 # 图表卡片示例
                                 fac.AntdCol(
                                     simple_chart_card(
-                                        rootStyle={"background": token["colorBgCard"]},
                                         title="销售额类别占比",
                                         description="时间范围：今日",
                                         chart=fact.AntdPie(
@@ -212,7 +202,6 @@ def render():
                                 # 新增词云图卡片 1
                                 fac.AntdCol(
                                     simple_chart_card(
-                                        rootStyle={"background": token["colorBgCard"]},
                                         title="热门搜索词云",
                                         description="时间范围：今日",
                                         chart=fact.AntdWordCloud(
@@ -233,7 +222,6 @@ def render():
                                 # 新增词云图卡片 2
                                 fac.AntdCol(
                                     simple_chart_card(
-                                        rootStyle={"background": token["colorBgCard"]},
                                         title="用户评论词云",
                                         description="时间范围：今日",
                                         chart=fact.AntdWordCloud(
@@ -254,7 +242,6 @@ def render():
 
                                 fac.AntdCol(
                                     simple_chart_card(
-                                        rootStyle={"background": token["colorBgCard"]},
                                         title="流量转化情况",
                                         description="时间范围：今日",
                                         chart=fact.AntdColumn(
@@ -296,8 +283,7 @@ def render():
                     ],
                     style=style(
                         padding=15,
-                        # 移除固定background="#f5f5f5"，由主题令牌控制
-                        #background="#141414",
+                        background="#f5f5f5",
                         minHeight="100vh",
                         boxSizing="border-box"
                     ),

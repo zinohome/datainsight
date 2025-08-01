@@ -326,7 +326,8 @@ def render(current_pathname: str = None):
                     position="sticky",
                     top=0,
                     zIndex=1000,
-                    background="#fff",
+                    # 移除固定背景色，由主题令牌控制
+                    # background="#fff",
                 ),
             ),
             # 主题区域
