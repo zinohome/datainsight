@@ -1,5 +1,11 @@
 from typing import Literal
 
+# 自定义类属性装饰器（放在LayoutConfig类定义前）
+class classproperty:
+    def __init__(self, func):
+        self.func = func
+    def __get__(self, instance, owner):
+        return self.func(owner)
 
 class LayoutConfig:
     """页面布局相关配置参数"""
@@ -24,6 +30,7 @@ class LayoutConfig:
         "colorBgContainer": "#141414",  # 容器背景色
         "colorText": "#fff",             # 文本颜色
         "colorBgCard": "#2a2a2a",        # 卡片背景色
+        #"colorBgCard": "transparent",        # 卡片背景透明
         "colorBorder": "#434343"         # 边框颜色
     }
 
@@ -38,5 +45,20 @@ class LayoutConfig:
     # 3. 主题切换控制变量（通过修改此值切换主题："dark" 或 "light"）
     current_theme: str = "dark"  # 默认使用深色主题
 
-    # 4. 激活当前主题（根据current_theme自动选择）
-    dashboard_theme: dict = dark_theme if current_theme == "dark" else light_theme
+    # 4. 卡片透明控制变量（通过修改此值切换卡片透明：True 或 False）
+    card_transparent: bool = True  # 默认不透明
+
+    # 5. 激活当前主题（修改为类属性，支持直接通过类访问）
+    @classproperty
+    def dashboard_theme(cls):
+        # 使用类变量current_theme选择基础主题
+        base_theme = cls.dark_theme if cls.current_theme == "dark" else cls.light_theme
+        # 复制基础主题配置
+        theme = base_theme.copy()
+        # 根据类变量card_transparent控制透明度
+        if cls.card_transparent:
+            theme["colorBgCard"] = "transparent"
+        return theme
+
+
+
