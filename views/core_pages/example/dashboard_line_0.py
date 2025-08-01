@@ -11,25 +11,27 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
+# 新增导入LayoutConfig
+from configs.layout_config import LayoutConfig
 import callbacks.core_pages_c.dashboard_c
 
 def render():
     """仪表盘渲染示例"""
+    # 移除本地themetoken定义，使用配置文件中的dashboard_theme
+    themetoken = LayoutConfig.dashboard_theme
+
 
     return fac.AntdConfigProvider(
         id="theme-config-provider",
-        # 直接设置主题相关属性（替换原config参数）
-        primaryColor="#1890ff",  # 主色调
-        componentSize="middle",  # 组件尺寸
-        locale="zh-cn",  # 语言设置
-        token={  # 主题令牌（初始浅色模式）
-            "colorBgContainer": "#f5f5f5",
-            "colorText": "#000"
-        },
+        primaryColor="#1890ff",
+        componentSize="middle",
+        locale="zh-cn",
+        algorithm="dark",  # 保持深色主题算法
+        token=themetoken,  # 使用配置文件中的主题
         children=fac.AntdSpace(
             [
-                html.Div(
-                    [
+                html.Div(id="main-bg-div",
+                    children=[
                         # 消息提示输出目标
                         fac.Fragment(id="message-target"),
                         # 数据统一更新轮询
@@ -37,15 +39,16 @@ def render():
                             id="update-data-interval",
                             interval=1000,  # 示例，3秒更新一次
                         ),
-                        # 添加主题模式存储
-                        dcc.Store(id="theme-mode-store", data="light"),
+                        # 添加主题模式存储 - 初始设为深色
+                        dcc.Store(id="theme-mode-store", data="dark"),
                         # 仪表盘网格布局
                         fac.AntdRow(
                             [
-                                # 展示数据更新时间和主题切换按钮
+                                # 展示数据更新时间
                                 fac.AntdCol(
                                     blank_card(
-                                        fac.AntdSpace(
+                                        rootStyle={"background": themetoken["colorBgCard"]},  # 仍使用themetoken变量（已关联配置）
+                                        children=fac.AntdSpace(
                                             [
                                                 fac.AntdText(
                                                     [
@@ -58,14 +61,6 @@ def render():
                                                             type="secondary",
                                                         ),
                                                     ]
-                                                ),
-                                                # 深色模式切换按钮
-                                                fac.AntdSwitch(
-                                                    id="theme-switch",
-                                                    checked=False,
-                                                    checkedChildren="深色",
-                                                    unCheckedChildren="浅色",
-                                                    style={"marginLeft": "auto"}
                                                 )
                                             ],
                                             style={"width": "100%", "display": "flex", "alignItems": "center"}
@@ -73,9 +68,79 @@ def render():
                                     ),
                                     span=24,
                                 ),
+                                # 展示列车图
+                                fac.AntdCol(
+                                    blank_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        children=fac.AntdSpace(
+                                            [
+                                                # 地铁列车图 - 六节车厢（图片拼接版）
+                                                html.Div(
+                                                    style={
+                                                        "display": "flex",
+                                                        "alignItems": "center",
+                                                        "padding": "5px",
+                                                        "width": "100%"
+                                                    },
+                                                    children=[
+                                                        # 车头（左侧图片）
+                                                        html.Img(
+                                                            src="/assets/imgs/train_headL.png",  # 车头左侧图片
+                                                            style={
+                                                                "flex": "0 0 44px",
+                                                                "height": "74px",
+                                                                "borderRadius": "8px 0 0 8px",
+                                                                "objectFit": "cover"  # 保持图片比例并填充容器
+                                                            }
+                                                        ),
+                                                        # 车厢1-6（每节由左右图片拼接）
+                                                        *[html.Div(
+                                                            style={
+                                                                "flex": "1 1 auto",  # 等比例分配剩余空间
+                                                                "minWidth": "60px",  # 最小宽度限制，防止过度压缩
+                                                                "height": "74px",
+                                                                "display": "flex",  # 启用flex布局拼接左右图片
+                                                                "borderLeft": "0px dashed white"  # 车厢间分隔线
+                                                            },
+                                                            children=[
+                                                                # 车厢左侧图片
+                                                                html.Img(
+                                                                    src="/assets/imgs/train_bodyL.png",
+                                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                                ),
+                                                                # 车厢右侧图片
+                                                                html.Img(
+                                                                    src="/assets/imgs/train_bodyR.png",
+                                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                                )
+                                                            ]
+                                                        ) for i in range(6)],  # 6节车厢
+                                                        # 车尾（右侧图片）
+                                                        html.Img(
+                                                            src="/assets/imgs/train_headR.png",  # 车尾右侧图片
+                                                            style={
+                                                                "flex": "0 0 44px",
+                                                                "height": "74px",
+                                                                "borderRadius": "0 8px 8px 0",
+                                                                "borderLeft": "0px dashed white",  # 与前一节车厢分隔
+                                                                "objectFit": "cover"
+                                                            }
+                                                        )
+                                                    ]
+                                                )
+                                            ],
+                                            style={"width": "100%", "display": "flex", "justifyContent": "center", "alignItems": "center", "padding": "5px"}
+                                        )
+                                    ),
+                                    span=24,
+                                ),
                                 # 指标卡片示例
                                 fac.AntdCol(
                                     index_card(  # 移除外层html.Div包裹
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        indexNameStyle={"color": themetoken["colorText"]},
+                                        footerContentStyle={"color": themetoken["colorText"]},
+                                        extraContentStyle={"color": themetoken["colorText"]},
                                         index_name="当日销售额",
                                         index_value=[
                                             "¥ ",
@@ -86,13 +151,17 @@ def render():
                                             ),
                                         ],
                                         index_description="这是当日销售额的指标描述示例内容",
-                                        footer_content="昨日销售额 ￥123456"
+                                        footer_content="昨日销售额 ￥123456",
                                         # 移除卡片style参数
                                     ),
                                     span=6,
                                 ),
                                 fac.AntdCol(
                                     index_card(  # 移除外层html.Div包裹
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        indexNameStyle={"color": themetoken["colorText"]},
+                                        footerContentStyle={"color": themetoken["colorText"]},
+                                        extraContentStyle={"color": themetoken["colorText"]},
                                         index_name="当日访问量",
                                         index_value=html.Span(
                                             fuc.FefferyCountUp(end=8846, separator=""),
@@ -113,6 +182,10 @@ def render():
                                 ),
                                 fac.AntdCol(
                                     index_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        indexNameStyle={"color": themetoken["colorText"]},
+                                        footerContentStyle={"color": themetoken["colorText"]},
+                                        extraContentStyle={"color": themetoken["colorText"]},
                                         index_name="当日支付笔数",
                                         index_value=html.Span(
                                             4678,
@@ -134,6 +207,10 @@ def render():
                                 ),
                                 fac.AntdCol(
                                     index_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        indexNameStyle={"color": themetoken["colorText"]},
+                                        footerContentStyle={"color": themetoken["colorText"]},
+                                        extraContentStyle={"color": themetoken["colorText"]},
                                         index_name="当日活动转化率",
                                         index_value=html.Span(
                                             "78%",
@@ -159,6 +236,9 @@ def render():
                                 # 图表卡片示例
                                 fac.AntdCol(
                                     simple_chart_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        titleStyle={"color": themetoken["colorText"]},
+                                        descriptionStyle={"color": themetoken["colorText"]},
                                         title="销售额类别占比",
                                         description="时间范围：今日",
                                         chart=fact.AntdPie(
@@ -195,13 +275,16 @@ def render():
                                             innerRadius=0.6,
                                             label={"type": "spider"},
                                         ),
-                                        height=450,
+                                        height=350,
                                     ),
                                     span=6,
                                 ),
                                 # 新增词云图卡片 1
                                 fac.AntdCol(
                                     simple_chart_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        titleStyle={"color": themetoken["colorText"]},
+                                        descriptionStyle={"color": themetoken["colorText"]},
                                         title="热门搜索词云",
                                         description="时间范围：今日",
                                         chart=fact.AntdWordCloud(
@@ -215,13 +298,16 @@ def render():
                                             height=400,
                                             color="#1890ff"
                                         ),
-                                        height=450,
+                                        height=350,
                                     ),
                                     span=6,
                                 ),
                                 # 新增词云图卡片 2
                                 fac.AntdCol(
                                     simple_chart_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        titleStyle={"color": themetoken["colorText"]},
+                                        descriptionStyle={"color": themetoken["colorText"]},
                                         title="用户评论词云",
                                         description="时间范围：今日",
                                         chart=fact.AntdWordCloud(
@@ -235,13 +321,16 @@ def render():
                                             height=400,
                                             color="#722ed1"
                                         ),
-                                        height=450,
+                                        height=350,
                                     ),
                                     span=6,
                                 ),
 
                                 fac.AntdCol(
                                     simple_chart_card(
+                                        rootStyle={"background": themetoken["colorBgCard"]},
+                                        titleStyle={"color": themetoken["colorText"]},
+                                        descriptionStyle={"color": themetoken["colorText"]},
                                         title="流量转化情况",
                                         description="时间范围：今日",
                                         chart=fact.AntdColumn(
@@ -273,7 +362,7 @@ def render():
                                             conversionTag={},
                                             color="#2e8fff",
                                         ),
-                                        height=450,
+                                        height=350,
                                     ),
                                     span=6,
                                 ),
@@ -283,7 +372,10 @@ def render():
                     ],
                     style=style(
                         padding=15,
-                        background="#f5f5f5",
+                        # 移除固定background="#f5f5f5"，由主题令牌控制
+                        #background="#f5f5f5",
+                        background=themetoken["colorBgContainer"],
+                        #background="#141414",
                         minHeight="100vh",
                         boxSizing="border-box"
                     ),
