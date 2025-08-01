@@ -7,30 +7,6 @@ from dash.dependencies import Output, Input, State
 from server import app
 from dash.dependencies import Output, Input, State
 
-@callback(
-    Output("theme-mode-store", "data"),
-    Output("theme-switch", "checked"),
-    Output("theme-config-provider", "algorithm"),
-    Output("theme-config-provider", "token"),
-    Output("main-bg-div", "style"),
-    Input("theme-switch", "checked"),
-    State("theme-mode-store", "data"),
-    prevent_initial_call=False
-)
-def unified_theme_callback(checked, current_mode):
-    mode = "dark" if checked else "light"
-    algorithm = "dark" if mode == "dark" else "default"
-    token = {"colorBgContainer": "#141414", "colorText": "#fff", "colorBgCard": "#2a2a2a", "colorBorder": "#434343"}
-    if mode == "dark":
-        token = {"colorBgContainer": "#141414", "colorText": "#fff", "colorBgCard": "#2a2a2a", "colorBorder": "#434343"}
-        main_style = {"backgroundColor": "#141414", "minHeight": "100vh", "boxSizing": "border-box", "padding": 15}
-    else:
-        token = {"colorBgContainer": "#f5f5f5", "colorText": "#000", "colorBgCard": "#fff", "colorBorder": "#dae0ea"}
-        main_style = {"backgroundColor": "#f5f5f5", "minHeight": "100vh", "boxSizing": "border-box", "padding": 15}
-    return mode, checked, algorithm, token, main_style
-
-
-
 @app.callback(
     [
         Output("update-datetime", "children"),
