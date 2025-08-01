@@ -42,7 +42,12 @@ def render():
                                 children=dashboard_line_charts.render(themetoken),  # 传入主题令牌
                                 style=style(
                                     padding=15,
-                                    background=themetoken["colorBgContainer"],
+                                    # 背景图片配置（替换为你的图片路径）
+                                    backgroundImage="url('/assets/imgs/dashboard-bg.png')",
+                                    backgroundSize="cover",  # 图片覆盖容器
+                                    backgroundRepeat="no-repeat",  # 不重复
+                                    backgroundPosition="center",  # 居中显示
+                                    backgroundColor=themetoken["colorBgContainer"],
                                     minHeight="100vh",
                                     boxSizing="border-box"
                                 ),
