@@ -19,9 +19,9 @@ def render():
         {
             "component": "Item",
             "props": {
-                "title": "Line",
-                "key": "nav-line",
-                "icon": "antd-subway",
+                "title": "线路",
+                "key": "/macda/dashboard/line",
+                "icon": "antd-ordered-list",
                 "href": "/macda/dashboard/line",
                 # 关键优化：统一水平内边距，确保图标居中
                 "style": dash_menuItem_style
@@ -30,9 +30,9 @@ def render():
         {
             "component": "Item",
             "props": {
-                "title": "Train",
-                "key": "nav-train",
-                "icon": "antd-train",
+                "title": "列车",
+                "key": "/macda/dashboard/train",
+                "icon": "antd-alert",
                 "href": "/macda/dashboard/train",
                 "style": dash_menuItem_style
             }
@@ -40,9 +40,9 @@ def render():
         {
             "component": "Item",
             "props": {
-                "title": "Carriage",
-                "key": "nav-carriage",
-                "icon": "antd-app-store",
+                "title": "车厢",
+                "key": "/macda/dashboard/carriage",
+                "icon": "antd-sliders",
                 "href": "/macda/dashboard/carriage",
                 "style": dash_menuItem_style
             }
@@ -50,8 +50,8 @@ def render():
         {
             "component": "Item",
             "props": {
-                "title": "Param",
-                "key": "nav-param",
+                "title": "参数",
+                "key": "/macda/dashboard/param",
                 "icon": "antd-line-chart",
                 "href": "/macda/dashboard/param",
                 "style": dash_menuItem_style
@@ -60,9 +60,9 @@ def render():
         {
             "component": "Item",
             "props": {
-                "title": "Fault",
-                "key": "nav-fault",
-                "icon": "antd-app-store",
+                "title": "故障",
+                "key": "/macda/dashboard/fault",
+                "icon": "antd-disconnect",
                 "href": "/macda/dashboard/fault",
                 "style": dash_menuItem_style
             }
@@ -82,7 +82,7 @@ def render():
                     style=style(
                         border="none",
                         width="100%",
-                        padding="0 2px"
+                        padding="75px 2px 0 2px"
                     ),
                 )
             ],

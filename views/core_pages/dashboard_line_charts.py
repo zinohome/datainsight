@@ -19,7 +19,7 @@ def render(themetoken):
         # 数据统一更新轮询
         dcc.Interval(
             id="update-data-interval",
-            interval=1000,  # 示例，3秒更新一次
+            interval=3000,  # 示例，每1秒更新一次
         ),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
@@ -49,6 +49,7 @@ def render(themetoken):
                         )
                     ),
                     span=24,
+                    style={'display': 'none'}
                 ),
                 # 展示列车图
                 fac.AntdCol(
