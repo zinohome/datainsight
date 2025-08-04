@@ -269,17 +269,32 @@ def render(themetoken):
                         title="故障/预警",
                         chart=fac.AntdTable(
                             columns=[
-                                {'title': f'字段{i}', 'dataIndex': f'字段{i}', 'width': width}
+                                {'title': f'字段{i}',
+                                 'dataIndex': f'字段{i}',
+                                 'width': width,
+                                 'headerCellStyle': {
+                                     'fontWeight': 'bold',  # 表头文字加粗
+                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
+                                 },
+                                 # 单元格样式：隐藏右侧竖线
+                                 'cellStyle': {
+                                     'borderRight': 'none',  # 清除所有默认边框
+                                     'borderBottom': '1px solid #e8e8e8'
+                                 }
+                                 }
                                 for i, width in zip(
                                     range(1, 5), ['25%', '25%', '25%', '25%']
                                 )
                             ],
                             data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
                             size="small",
-                            bordered=True,
+                            bordered=False,
                             maxHeight=150,
                             maxWidth='max-content',
                             pagination=False,
+                            style={
+                                'border': 'none'
+                            },
                         ),
                         height=350,
                     ),
