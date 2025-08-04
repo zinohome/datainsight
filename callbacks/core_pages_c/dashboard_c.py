@@ -10,9 +10,9 @@ from dash.dependencies import Output, Input, State
 @app.callback(
     [
         Output("update-datetime", "children"),
-        Output("today-sales", "children"),
-        Output("today-visits", "children"),
-        Output("today-visits-chart", "data"),
+        #Output("today-sales", "children"),
+        #Output("today-visits", "children"),
+        #Output("today-visits-chart", "data"),
         Output("today-orders", "children"),
         Output("today-orders-chart", "data"),
         Output("today-conversion-rate", "children"),
@@ -22,8 +22,8 @@ from dash.dependencies import Output, Input, State
     ],
     Input("update-data-interval", "n_intervals"),
     [
-        State("today-sales", "children"),
-        State("today-visits", "children"),
+        #State("today-sales", "children"),
+        #State("today-visits", "children"),
         State("today-orders", "children"),
         State("today-conversion-rate-chart", "percent"),
         State("today-sales-class-chart", "data"),
@@ -33,8 +33,8 @@ from dash.dependencies import Output, Input, State
 )
 def update_dashboard_data(
     n_intervals,
-    origin_today_sales,
-    origin_today_visits,
+    #origin_today_sales,
+    #origin_today_visits,
     origin_today_orders,
     origin_today_conversion_rate,
     origin_today_sales_class_chart_data,
@@ -45,20 +45,20 @@ def update_dashboard_data(
     # 模拟最新实时数据的获取
 
     # 当日销售额
-    next_today_sales = origin_today_sales + random.randint(50, 100)
+    #next_today_sales = origin_today_sales + random.randint(50, 100)
 
     # 当日访问量
-    today_visits_chunk = random.randint(20, 50)
+    #today_visits_chunk = random.randint(20, 50)
     # 更新数字递增组件参数
-    origin_today_visits["props"]["start"] = origin_today_visits["props"]["end"]
-    origin_today_visits["props"]["end"] = (
-        origin_today_visits["props"]["end"] + today_visits_chunk
-    )
-    next_today_visits = origin_today_visits
+    #origin_today_visits["props"]["start"] = origin_today_visits["props"]["end"]
+    #origin_today_visits["props"]["end"] = (
+    #     origin_today_visits["props"]["end"] + today_visits_chunk
+    #)
+    #next_today_visits = origin_today_visits
 
     # 当日访问量分时段图表数据
-    today_visits_chart_data_patch = Patch()
-    today_visits_chart_data_patch.append(today_visits_chunk)
+    #today_visits_chart_data_patch = Patch()
+    #today_visits_chart_data_patch.append(today_visits_chunk)
 
     # 当日订单量
     today_orders_chunk = random.randint(50, 100)
@@ -86,9 +86,9 @@ def update_dashboard_data(
 
     return [
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        next_today_sales,
-        next_today_visits,
-        today_visits_chart_data_patch,
+        #next_today_sales,
+        #next_today_visits,
+        #today_visits_chart_data_patch,
         next_today_orders,
         today_orders_chart_data_patch,
         f"{next_today_conversion_rate}%",
