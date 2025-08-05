@@ -10,7 +10,6 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
-
 from components.macdacard import macda_card
 
 

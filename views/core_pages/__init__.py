@@ -6,7 +6,7 @@ from feffery_dash_utils.style_utils import style
 
 from components import core_side_menu
 from configs import BaseConfig, RouterConfig, LayoutConfig
-from views.core_pages import dashboard_line  # 修正：导入新数据大屏页面（原independent_page_demo已重命名）
+from views.core_pages import dashboard_line, dashboard_train  # 修正：导入数据大屏页面
 
 # 令绑定的回调函数子模块生效
 import callbacks.core_pages_c  # noqa: F401
@@ -46,9 +46,11 @@ def render(current_pathname: str = None):
 
     # 判断是否需要独立渲染
     if current_pathname in RouterConfig.independent_core_pathnames:
-        # 修正数据大屏内容页路径判断
+        # 数据大屏内容页路径判断
         if current_pathname == "/macda/dashboard/line":
             return dashboard_line.render()
+        elif current_pathname == "/macda/dashboard/train":
+            return dashboard_train.render()
 
     # 判断是否需要独立通配渲染
     elif any(
