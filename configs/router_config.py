@@ -40,18 +40,18 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
-                        "title": "折线图大屏",
+                        "title": "数据大屏-线路图",
                         "key": "/macda/dashboard/line",
-                        "icon": "antd-line-chart",
+                        "icon": "antd-ordered-list",
                         "href": "/macda/dashboard/line",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
-                        "title": "列车图大屏",
+                        "title": "数据大屏-列车图",
                         "key": "/macda/dashboard/train",
-                        "icon": "antd-train",
+                        "icon": "antd-alert",
                         "href": "/macda/dashboard/train",
                     },
                 },

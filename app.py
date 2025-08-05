@@ -69,8 +69,8 @@ def root_router(pathname, trigger):
     """根节点路由控制"""
 
     # 在动态路由切换时阻止根节点路由更新
-    if trigger != "load":
-        return dash.no_update
+    #if trigger != "load":
+    #    return dash.no_update
 
     # 演示专用页面展示
     if pathname == "/404-demo":
