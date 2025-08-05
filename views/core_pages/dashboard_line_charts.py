@@ -266,7 +266,16 @@ def render(themetoken):
                         rootStyle={"background": themetoken["colorBgCard"]},
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
-                        title="故障/预警",
+                        title="空调故障",
+                        description=html.A(
+                            "一期故障",
+                            href="https://www.baidu.com",
+                            target="_blank",  # 新窗口打开
+                            style={
+                                #"color": themetoken["colorText"],  # 继承原文本颜色
+                                "textDecoration": "none"  # 可选：移除下划线
+                            }
+                        ),
                         chart=fac.AntdTable(
                             columns=[
                                 {'title': f'字段{i}',
@@ -301,55 +310,80 @@ def render(themetoken):
                     span=6,
                 ),
                 fac.AntdCol(
-                    index_card(
+                    macda_card(
                         rootStyle={"background": themetoken["colorBgCard"]},
-                        indexNameStyle={"color": themetoken["colorText"]},
-                        footerContentStyle={"color": themetoken["colorText"]},
-                        extraContentStyle={"color": themetoken["colorText"]},
-                        index_name="当日支付笔数",
-                        index_value=html.Span(
-                            4678,
-                            id="today-orders",
-                        ),
-                        index_description="这是当日支付笔数的指标描述示例内容",
-                        extra_content=fact.AntdTinyColumn(
-                            id="today-orders-chart",
-                            data=[
-                                random.randint(50, 100) for _ in range(10)
+                        titleStyle={"color": themetoken["colorText"]},
+                        descriptionStyle={"color": themetoken["colorText"]},
+                        title="空调预警",
+                        chart=fac.AntdTable(
+                            columns=[
+                                {'title': f'字段{i}',
+                                 'dataIndex': f'字段{i}',
+                                 'width': width,
+                                 'headerCellStyle': {
+                                     'fontWeight': 'bold',  # 表头文字加粗
+                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
+                                 },
+                                 # 单元格样式：隐藏右侧竖线
+                                 'cellStyle': {
+                                     'borderRight': 'none',  # 清除所有默认边框
+                                     'borderBottom': '1px solid #e8e8e8'
+                                 }
+                                 }
+                                for i, width in zip(
+                                    range(1, 5), ['25%', '25%', '25%', '25%']
+                                )
                             ],
-                            height=60,
-                            color="#2389ff",
-                            columnWidthRatio=0.75,
+                            data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
+                            size="small",
+                            bordered=False,
+                            maxHeight=150,
+                            maxWidth='max-content',
+                            pagination=False,
+                            style={
+                                'border': 'none'
+                            },
                         ),
-                        footer_content="昨日支付笔数 5678",
+                        height=350,
                     ),
                     span=6,
                 ),
                 fac.AntdCol(
-                    index_card(
+                    macda_card(
                         rootStyle={"background": themetoken["colorBgCard"]},
-                        indexNameStyle={"color": themetoken["colorText"]},
-                        footerContentStyle={"color": themetoken["colorText"]},
-                        extraContentStyle={"color": themetoken["colorText"]},
-                        index_name="当日活动转化率",
-                        index_value=html.Span(
-                            "78%",
-                            id="today-conversion-rate",
+                        titleStyle={"color": themetoken["colorText"]},
+                        descriptionStyle={"color": themetoken["colorText"]},
+                        title="部件寿命",
+                        chart=fac.AntdTable(
+                            columns=[
+                                {'title': f'字段{i}',
+                                 'dataIndex': f'字段{i}',
+                                 'width': width,
+                                 'headerCellStyle': {
+                                     'fontWeight': 'bold',  # 表头文字加粗
+                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
+                                 },
+                                 # 单元格样式：隐藏右侧竖线
+                                 'cellStyle': {
+                                     'borderRight': 'none',  # 清除所有默认边框
+                                     'borderBottom': '1px solid #e8e8e8'
+                                 }
+                                 }
+                                for i, width in zip(
+                                    range(1, 5), ['25%', '25%', '25%', '25%']
+                                )
+                            ],
+                            data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
+                            size="small",
+                            bordered=False,
+                            maxHeight=150,
+                            maxWidth='max-content',
+                            pagination=False,
+                            style={
+                                'border': 'none'
+                            },
                         ),
-                        index_description="这是运营活动效果的指标描述示例内容",
-                        extra_content=fac.AntdCenter(
-                            fac.AntdProgress(
-                                id="today-conversion-rate-chart",
-                                percent=78,
-                                status="active",
-                                strokeColor={
-                                    "from": "#128ee7",
-                                    "to": "#6cc085",
-                                },
-                            ),
-                            style=style(height="100%"),
-                        ),
-                        footer_content="昨日活动转化率 75%",
+                        height=350,
                     ),
                     span=6,
                 ),

@@ -48,6 +48,7 @@ def macda_card(
                 # 标题区域（与simple_chart_card保持一致）
                 fac.AntdFlex(
                     [
+                        # 左侧：标题+图标（保持不变）
                         fac.AntdSpace(
                             [
                                 # 新增容器：统一控制图标和标题的文本颜色
@@ -57,7 +58,7 @@ def macda_card(
                                             icon="antd-menu",
                                             style={
                                                 "marginRight": 4,
-                                                "color": "inherit",  # 继承容器文本颜色
+                                                "color": "inherit",
                                                 "fontSize": 14,
                                                 "verticalAlign": "baseline"
                                             }
@@ -72,9 +73,15 @@ def macda_card(
                                             },
                                         ),
                                     ],
-                                    # 容器文本颜色 = 标题文本颜色（优先取 titleStyle 中的 color，无则用默认文本色）
                                     style={"color": (titleStyle or {}).get("color", "rgba(0, 0, 0, 0.85)")}
                                 ),
+                            ],
+                            size=4,
+                            align='baseline',
+                        ),
+                        # 右侧：描述文本+额外操作区（新增布局，实现靠右显示）
+                        fac.AntdSpace(
+                            [
                                 (
                                         description
                                         and fac.AntdText(
@@ -84,13 +91,13 @@ def macda_card(
                                     style=descriptionStyle,
                                 )
                                 ),
+                                extra  # 保留原有的额外操作区
                             ],
-                            size=4,
-                            align='baseline',
-                        ),
-                        extra,
+                            size=8,  # 描述与额外操作区的间距
+                            align='center',  # 垂直居中对齐
+                        )
                     ],
-                    justify='space-between',
+                    justify='space-between',  # 强制左右两端对齐
                 ),
                 # 分隔线
                 fac.AntdDivider(
