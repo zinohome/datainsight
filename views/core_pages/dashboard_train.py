@@ -32,7 +32,7 @@ def render():
         token=themetoken,
         children=fac.AntdSpace(
             [
-                html.Div(id="main-bg-div",
+                html.Div(id="train-main-bg-div",
                         children=[
                             # 1. 侧边导航栏（固定定位，脱离文档流）
                             dashboard_side_menu.render(),

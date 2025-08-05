@@ -58,6 +58,24 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
+                        "title": "数据大屏-车厢图",
+                        "key": "/macda/dashboard/carriage",
+                        "icon": "antd-car",
+                        "href": "/macda/dashboard/carriage",
+                    },
+                },
+                {
+                    "component": "Item",
+                    "props": {
+                        "title": "数据大屏-参数图",
+                        "key": "/macda/dashboard/param",
+                        "icon": "antd-sliders",
+                        "href": "/macda/dashboard/param",
+                    },
+                },
+                {
+                    "component": "Item",
+                    "props": {
                         "title": "主要页面",
                         "key": "/macada/page1",
                         "icon": "antd-app-store",
@@ -86,6 +104,8 @@ class RouterConfig:
         "/macda/dashboard": "数据大屏入口页",
         "/macda/dashboard/line": "数据大屏-折线图",
         "/macda/dashboard/train": "数据大屏-列车图",
+        "/macda/dashboard/carriage": "数据大屏-车厢图",
+        "/macda/dashboard/param": "数据大屏-参数图",
         "/macada/page1": "主要页面",
         "/macada/url-params-page": "url参数提取示例",
         "/404-demo": "404状态页演示",
@@ -96,6 +116,8 @@ class RouterConfig:
     independent_core_pathnames: List[Union[str, re.Pattern]] = [
         "/macda/dashboard/line",
         "/macda/dashboard/train",
+        "/macda/dashboard/carriage",
+        "/macda/dashboard/param",
     ]
 
 

@@ -1,4 +1,3 @@
-import random
 from dash import html, dcc
 from datetime import datetime
 import feffery_antd_charts as fact
@@ -15,8 +14,9 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components import dashboard_side_menu
 # 新增导入LayoutConfig
 from configs.layout_config import LayoutConfig
-import callbacks.core_pages_c.dashboard_c
-from views.core_pages import dashboard_line_charts
+import callbacks.core_pages_c.dashboard_param_c
+from views.core_pages import dashboard_param_charts
+
 
 
 def render():
@@ -32,14 +32,14 @@ def render():
         token=themetoken,
         children=fac.AntdSpace(
             [
-                html.Div(id="line-main-bg-div",
+                html.Div(id="param-main-bg-div",
                         children=[
                             # 1. 侧边导航栏（固定定位，脱离文档流）
                             dashboard_side_menu.render(),
                             # 2. 主内容容器（背景色填充整个区域）
                             html.Div(
                                 id="main-bg-div",
-                                children=dashboard_line_charts.render(themetoken),  # 传入主题令牌
+                                children=dashboard_param_charts.render(themetoken),  # 传入主题令牌
                                 style=style(
                                     padding=15,
                                     # 背景图片配置（替换为你的图片路径）

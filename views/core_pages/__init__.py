@@ -6,7 +6,7 @@ from feffery_dash_utils.style_utils import style
 
 from components import core_side_menu
 from configs import BaseConfig, RouterConfig, LayoutConfig
-from views.core_pages import dashboard_line, dashboard_train  # 修正：导入数据大屏页面
+from views.core_pages import dashboard_line, dashboard_train, dashboard_carriage, dashboard_param  # 修正：导入数据大屏页面
 
 # 令绑定的回调函数子模块生效
 import callbacks.core_pages_c  # noqa: F401
@@ -51,6 +51,10 @@ def render(current_pathname: str = None):
             return dashboard_line.render()
         elif current_pathname == "/macda/dashboard/train":
             return dashboard_train.render()
+        elif current_pathname == "/macda/dashboard/carriage":
+            return dashboard_carriage.render()
+        elif current_pathname == "/macda/dashboard/param":
+            return dashboard_param.render()
 
     # 判断是否需要独立通配渲染
     elif any(
