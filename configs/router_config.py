@@ -76,6 +76,15 @@ class RouterConfig:
                 {
                     "component": "Item",
                     "props": {
+                        "title": "数据大屏-故障图",
+                        "key": "/macda/dashboard/fault",
+                        "icon": "antd-exclamation-circle",
+                        "href": "/macda/dashboard/fault",
+                    },
+                },
+                {
+                    "component": "Item",
+                    "props": {
                         "title": "主要页面",
                         "key": "/macada/page1",
                         "icon": "antd-app-store",
@@ -106,6 +115,7 @@ class RouterConfig:
         "/macda/dashboard/train": "数据大屏-列车图",
         "/macda/dashboard/carriage": "数据大屏-车厢图",
         "/macda/dashboard/param": "数据大屏-参数图",
+        "/macda/dashboard/fault": "数据大屏-故障图",
         "/macada/page1": "主要页面",
         "/macada/url-params-page": "url参数提取示例",
         "/404-demo": "404状态页演示",
@@ -118,6 +128,7 @@ class RouterConfig:
         "/macda/dashboard/train",
         "/macda/dashboard/carriage",
         "/macda/dashboard/param",
+        "/macda/dashboard/fault",
     ]
 
 

@@ -74,7 +74,7 @@ def render():
             [
                 # 侧边菜单
                 fac.AntdMenu(
-                    id="core-side-menu",
+                    id="dashboard-side-menu",
                     menuItems=dash_menuItems,
                     mode="inline",
                     defaultOpenKeys=[],
