@@ -9,36 +9,36 @@ from dash.dependencies import Output, Input, State
 
 @app.callback(
     [
-        Output("update-datetime", "children"),
-        Output("today-sales-class-chart", "data"),
-        Output("today-conversion-chart", "data"),
+        Output("train_update-datetime", "children"),
+        Output("train_today-sales-class-chart", "data"),
+        Output("train_today-conversion-chart", "data"),
     ],
-    Input("update-data-interval", "n_intervals"),
+    Input("train_update-data-interval", "n_intervals"),
     [
-        State("today-sales-class-chart", "data"),
-        State("today-conversion-chart", "data"),
+        State("train_today-sales-class-chart", "data"),
+        State("train_today-conversion-chart", "data"),
     ],
     prevent_initial_call=True,
 )
 def update_dashboard_train_data(
     n_intervals,
-    origin_today_sales_class_chart_data,
-    origin_today_conversion_chart_data,
+    origin_train_today_sales_class_chart_data,
+    origin_train_today_conversion_chart_data,
 ):
     """处理仪表盘中各目标的实时数据更新"""
 
     # 模拟最新实时数据的获取
 
     # 销售额类别占比
-    for i in range(len(origin_today_sales_class_chart_data)):
-        origin_today_sales_class_chart_data[i]["value"] += random.randint(5, 20)
+    for i in range(len(origin_train_today_sales_class_chart_data)):
+        origin_train_today_sales_class_chart_data[i]["value"] += random.randint(5, 20)
 
     # 流量转化情况
-    for i in range(len(origin_today_conversion_chart_data)):
-        origin_today_conversion_chart_data[i]["pv"] += random.randint(10, 20)
+    for i in range(len(origin_train_today_conversion_chart_data)):
+        origin_train_today_conversion_chart_data[i]["pv"] += random.randint(10, 20)
 
     return [
         datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        origin_today_sales_class_chart_data,
-        origin_today_conversion_chart_data,
+        origin_train_today_sales_class_chart_data,
+        origin_train_today_conversion_chart_data,
     ]
