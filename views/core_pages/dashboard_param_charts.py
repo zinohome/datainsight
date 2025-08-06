@@ -52,69 +52,58 @@ def render(themetoken):
                     span=24,
                     style={'display': 'none'}
                 ),
-                # 展示参数图
+
+                # 数据筛选
                 fac.AntdCol(
                     blank_card(
-                        rootStyle={"background": themetoken["colorBgCard"]}, 
+                        rootStyle={"background": themetoken["colorBgCard"]},  # 仍使用themetoken变量
                         children=fac.AntdSpace(
                             [
-                                # 参数详细展示
-                                html.Div(
-                                    style={
-                                        "display": "flex",
-                                        "alignItems": "center",
-                                        "padding": "5px",
-                                        "width": "100%"
-                                    },
-                                    children=[
-                                        # 参数左侧图片
-                                        html.Img(
-                                            src="/assets/imgs/train_headL.png",  # 参数左侧图片
-                                            style={
-                                                "flex": "0 0 44px",
-                                                "height": "74px",
-                                                "borderRadius": "8px 0 0 8px",
-                                                "objectFit": "cover"
-                                            }
+                                fac.AntdForm(
+                                    [
+                                        fac.AntdFormItem(
+                                            fac.AntdSelect(
+                                                options=[
+                                                    {'label': f'161{i}车', 'value': f'161{i}'} for i in range(1, 7)
+                                                ],
+                                                style={'width': 100},
+                                            ),
+                                            label='车号'
                                         ),
-                                        # 参数1-6（每节由左右图片拼接）
-                                        *[html.Div(
-                                            style={
-                                                "flex": "1 1 auto",  # 等比例分配剩余空间
-                                                "minWidth": "60px",  # 最小宽度限制，防止过度压缩
-                                                "height": "74px",
-                                                "display": "flex",  # 启用flex布局拼接左右图片
-                                                "borderLeft": "0px dashed white"  # 参数间分隔线
-                                            },
-                                            children=[
-                                                # 参数左侧图片
-                                                html.Img(
-                                                    src="/assets/imgs/train_bodyL.png",
-                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                ),
-                                                # 参数右侧图片
-                                                html.Img(
-                                                    src="/assets/imgs/train_bodyR.png",
-                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                )
-                                            ]
-                                        ) for i in range(6)],  # 6个参数
-                                        # 参数右侧图片
-                                        html.Img(
-                                            src="/assets/imgs/train_headR.png",  # 参数右侧图片
-                                            style={
-                                                "flex": "0 0 44px",
-                                                "height": "74px",
-                                                "borderRadius": "0 8px 8px 0",
-                                                "borderLeft": "0px dashed white",  # 与前一个参数分隔
-                                                "objectFit": "cover"
-                                            }
-                                        )
-                                    ]
-                                )
-                            ],
-                            style={"width": "100%", "display": "flex", "justifyContent": "center",
-                                   "alignItems": "center", "padding": "5px"}
+                                        fac.AntdFormItem(
+                                            fac.AntdSelect(
+                                                options=[
+                                                    {'label': f'{i}车厢', 'value': f'{i}'} for i in range(1, 7)
+                                                ],
+                                                style={'width': 100},
+                                            ),
+                                            label='车厢号'
+                                        ),
+                                        fac.AntdFormItem(
+                                            fac.AntdSelect(
+                                                options=[
+                                                    {'label': '故障', 'value': 'fault'},
+                                                    {'label': '预警', 'value': 'warning'}
+                                                ],
+                                                style={'width': 100},
+                                            ),
+                                            label='组件'
+                                        ),
+                                        fac.AntdFormItem(
+                                            fac.AntdDateRangePicker(
+                                                placeholder=['开始日期时间', '结束日期时间'],
+                                                showTime={'defaultValue': ['08:30:00', '17:30:00']},
+                                                needConfirm=True,
+                                            ),
+                                            label='时间范围'
+                                        ),
+                                        fac.AntdFormItem(fac.AntdButton('查询', type='primary', ghost=True,
+                                                                        icon=fac.AntdIcon(icon='antd-search'))),
+                                    ],
+                                    layout='inline',
+                                    style={'justifyContent': 'center'},
+                                ),
+                            ]
                         )
                     ),
                     span=24,
@@ -141,7 +130,7 @@ def render(themetoken):
                             smooth=True,
                             color=["#1890ff", "#faad14"],
                         ),
-                        height=350,
+                        height=450,
                     ),
                     span=24,
                 ),
