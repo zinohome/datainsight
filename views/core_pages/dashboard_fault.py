@@ -48,7 +48,7 @@ def render():
                                     backgroundPosition="center",  # 居中显示
                                     backgroundColor=themetoken["colorBgContainer"],
                                     minHeight="100vh",
-                                    boxSizing="border-box"
+                                    boxSizing="border-box",
                                 ),
                             ),
                         ],

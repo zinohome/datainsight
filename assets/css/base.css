@@ -40,3 +40,8 @@
 .global-help-text {
     color: #5d7189;
 }
+
+.fault-table .ant-table-cell::before {
+    display: none !important;
+}
+
