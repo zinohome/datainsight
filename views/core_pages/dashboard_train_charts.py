@@ -10,6 +10,8 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
+
+from components.horizontal_timeline import horizontal_timeline
 from components.macdacard import macda_card
 
 
@@ -468,113 +470,39 @@ def render(themetoken):
                         description="时间范围：今日",
                         chart=fac.AntdRow(
                             [
-                                # 圆环1
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        id="train_today-hot-search-wordcloud-chart",
-                                        key="dfdfsfsfds",
-                                        data=[{"value": 75}],
-                                        angleField="value",
-                                        radius=0.3,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线：{75}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex", "justifyContent": "center", "alignItems": "center",
-                                           "padding": "10px"}
-                                ),
-                                # 圆环2
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 60}],
-                                        angleField="value",
-                                        radius=0.3,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线：{60}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex", "justifyContent": "center", "alignItems": "center",
-                                           "padding": "10px"}
-                                ),
-                                # 圆环3
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 85}],
-                                        angleField="value",
-                                        radius=0.3,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线：{85}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex", "justifyContent": "center", "alignItems": "center",
-                                           "padding": "10px"}
-                                ),
-                                # 圆环4
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 90}],
-                                        angleField="value",
-                                        radius=0.3,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线列车\n{90}",
-                                            "autoAdjust": True,
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center",
-                                                "whiteSpace": "pre"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex", "justifyContent": "center", "alignItems": "center",
-                                           "padding": "10px"}
+                                horizontal_timeline(
+                                    items=[
+                                        {
+                                            'label': '2023-01',
+                                            'content': '列车出厂',
+                                            'color': '#52c41a',
+                                            'icon': html.I(className='anticon anticon-check',
+                                                           style={'color': 'white', 'fontSize': 12})
+                                        },
+                                        {
+                                            'label': '2023-03',
+                                            'content': '首次检修',
+                                            'color': '#faad14'
+                                        },
+                                        {
+                                            'label': '2023-06',
+                                            'content': '空调升级',
+                                            'color': '#1890ff'
+                                        },
+                                        {
+                                            'label': '2023-09',
+                                            'content': '故障维修',
+                                            'color': '#ff4d4f'
+                                        },
+                                        {
+                                            'label': '2023-12',
+                                            'content': '年度大修',
+                                            'color': '#722ed1'
+                                        }
+                                    ],
+                                    mode='center',
+                                    item_gap=40,
+                                    line_color='white'
                                 )
                             ],
                             style={"height": "100%"}
