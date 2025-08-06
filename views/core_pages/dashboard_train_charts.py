@@ -79,26 +79,29 @@ def render(themetoken):
                                             }
                                         ),
                                         # 车厢1-6（每节由左右图片拼接）
-                                        *[html.Div(
-                                            style={
-                                                "flex": "1 1 auto",  # 等比例分配剩余空间
-                                                "minWidth": "60px",  # 最小宽度限制，防止过度压缩
-                                                "height": "74px",
-                                                "display": "flex",  # 启用flex布局拼接左右图片
-                                                "borderLeft": "0px dashed white"  # 车厢间分隔线
-                                            },
-                                            children=[
-                                                # 车厢左侧图片
-                                                html.Img(
-                                                    src="/assets/imgs/train_bodyL.png",
-                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                ),
-                                                # 车厢右侧图片
-                                                html.Img(
-                                                    src="/assets/imgs/train_bodyR.png",
-                                                    style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                )
-                                            ]
+                                        *[dcc.Link(  # 添加链接组件
+                                            href=f"/macda/dashboard/carriage?carriage={i + 1}",
+                                            children=html.Div(
+                                                style={
+                                                    "flex": "1 1 auto",  # 等比例分配剩余空间
+                                                    "minWidth": "60px",  # 最小宽度限制，防止过度压缩
+                                                    "height": "74px",
+                                                    "display": "flex",  # 启用flex布局拼接左右图片
+                                                    "borderLeft": "0px dashed white"  # 车厢间分隔线
+                                                },
+                                                children=[
+                                                    # 车厢左侧图片
+                                                    html.Img(
+                                                        src="/assets/imgs/train_bodyL.png",
+                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                    ),
+                                                    # 车厢右侧图片
+                                                    html.Img(
+                                                        src="/assets/imgs/train_bodyR.png",
+                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                    )
+                                                ]
+                                            )
                                         ) for i in range(6)],  # 6节车厢
                                         # 车尾（右侧图片）
                                         html.Img(

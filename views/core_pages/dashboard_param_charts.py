@@ -115,6 +115,12 @@ def render(themetoken):
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
                         title="参数运行数据",
+                        description=html.A(
+                            "一期运行参数",
+                            href="https://www.baidu.com",
+                            target="_blank",
+                            style={"textDecoration": "none"}
+                        ),
                         chart=fact.AntdLine(
                             id="param_operation-data-chart",
                             data=(lambda: [

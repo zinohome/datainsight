@@ -116,7 +116,7 @@ def render(themetoken):
                         descriptionStyle={"color": themetoken["colorText"]},
                         title="空调故障预警",
                         description=html.A(
-                            "一期故障",
+                            "一期故障&预警",
                             href="https://www.baidu.com",
                             target="_blank",
                             style={"textDecoration": "none"}
