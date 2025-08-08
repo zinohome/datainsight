@@ -12,17 +12,40 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components.macdacard import macda_card
 import random
 
+from configs import BaseConfig
 
 
 def render(themetoken):
     """数据大屏-故障图页面主内容渲染"""
+    dtcolumns=['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
+    width = f'calc(100% / {len(dtcolumns)})'
+    tblcolumns = []
+    for col in dtcolumns:
+        tblcolumns.append({
+                            'title': col,
+                            'dataIndex': col,
+                            'width': width,
+                            'headerCellStyle': {
+                                'fontWeight': 'bold',
+                                'border': 'none',
+                                'borderBottom': '1px solid #e8e8e8',
+                                'color': themetoken["colorText"]
+                            },
+                            'cellStyle': {
+                                'borderRight': 'none',
+                                'borderBottom': '1px solid #e8e8e8',
+                                'color': themetoken["colorText"],
+                                'fontSize': '10px'
+                            }
+                        }
+        )
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
         dcc.Interval(
             id="fault_update-data-interval",
-            interval=3000,  # 示例，每3秒更新一次
+            interval=BaseConfig.fault_update_data_interval,  # 示例，每3秒更新一次
         ),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
@@ -68,6 +91,7 @@ def render(themetoken):
                                                     {'label': f'161{i}车', 'value': f'161{i}'} for i in range(1, 7)
                                                 ],
                                                 style={'width': 100},
+                                                id='train_no',
                                             ),
                                             label='车号'
                                         ),
@@ -77,6 +101,7 @@ def render(themetoken):
                                                     {'label': f'{i}车厢', 'value': f'{i}'} for i in range(1, 7)
                                                 ],
                                                 style={'width': 100},
+                                                id='carriage_no'
                                             ),
                                             label='车厢号'
                                         ),
@@ -87,18 +112,20 @@ def render(themetoken):
                                                     {'label': '预警', 'value': 'warning'}
                                                 ],
                                                 style={'width': 100},
+                                                id='fault_type'
                                             ),
                                             label='类型'
                                         ),
                                         fac.AntdFormItem(
                                             fac.AntdDateRangePicker(
-                                                placeholder=['开始日期时间', '结束日期时间'],
+                                                placeholder=['从日期时间', '到日期时间'],
                                                 showTime={'defaultValue': ['08:30:00', '17:30:00']},
                                                 needConfirm=True,
+                                                id='start_time_range'
                                             ),
-                                            label='时间范围'
+                                            label='开始时间'
                                         ),
-                                        fac.AntdFormItem(fac.AntdButton('查询', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'))),
+                                        fac.AntdFormItem(fac.AntdButton('查询', id='query_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'), nClicks=0)),
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
@@ -111,7 +138,9 @@ def render(themetoken):
                 # 空调故障预警
                 fac.AntdCol(
                     macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
+                        rootStyle={
+                            "background": themetoken["colorBgCard"]
+                        },
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
                         title="空调故障预警",
@@ -122,37 +151,17 @@ def render(themetoken):
                             style={"textDecoration": "none"}
                         ),
                         chart=fac.AntdTable(
-                            columns=[
-                                {'title': f'字段{i}',
-                                 'dataIndex': f'字段{i}',
-                                 'width': width,
-                                 'headerCellStyle': {
-                                     'fontWeight': 'bold',
-                                     'border': 'none',
-                                     'border-left': 'none !important',
-                                     'border-right': 'none !important',
-                                     'borderBottom': '1px solid #e8e8e8',
-                                     'color': themetoken["colorText"]
-                                 },
-                                 'cellStyle': {
-                                     'borderRight': 'none',
-                                     'borderBottom': '1px solid #e8e8e8',
-                                     'color': themetoken["colorText"],
-                                     'fontSize': '10px'
-                                 }
-                                 }
-                                for i, width in zip(
-                                    range(1, 9), ['12.5%']*8
-                                )
-                            ],
-                            data=[{f'字段{i}': '示例内容' for i in range(1, 9)}] * 3,
+                            id = 'fault-warning-table',
+                            columns=tblcolumns,
+                            data=[],
                             size="small",
                             bordered=False,
-                            maxHeight=250,
-                            maxWidth='max-content',
+                            maxHeight=450,
+                            maxWidth='100%',
                             pagination=True,
                             className="fault-table",
                             style={
+                                'width': '100%',
                                 'border': 'none',
                                 'border-collapse': 'collapse',
                                 'border-spacing': '0'

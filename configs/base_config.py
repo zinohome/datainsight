@@ -20,3 +20,19 @@ class BaseConfig:
     # 是否基于min_browser_versions开启严格的浏览器类型限制
     # 不在min_browser_versions规则内的浏览器将被直接拦截
     strict_browser_type_check: bool = False
+
+    # 数据库连接配置参数
+    db_dbname = 'postgres'
+    db_user = 'postgres'
+    db_password = 'passw0rd'
+    db_host = '192.168.32.17'
+    db_port = '5432'
+    db_minconn = 2
+    db_maxconn = 5
+
+    # 日志配置参数
+    app_log_filename = 'app.log'
+    app_log_level = 'INFO'
+
+    # 数据刷新时间配置
+    fault_update_data_interval = 10000
