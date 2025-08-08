@@ -4,86 +4,63 @@ from datetime import datetime
 from dash import Input, Output, callback, State
 
 from configs import LayoutConfig
+from orm.db import db
 from utils.db_query import DBQuery
 from utils.log import log as log
+from orm.chart_view_fault_timed import Chart_view_fault_timed
+from peewee import fn
 
 
 # 页面数据更新回调
 @callback(
-    [Output('fault_update-datetime', 'children'),
-     Output('fault-warning-table', 'data'),
-     Output('fault-warning-table', 'loading')],
-    Input('query_button', 'nClicks'),  # 改为按钮点击触发
-    [State('train_no', 'value'),          # 车号
-     State('carriage_no', 'value'),       # 车厢号
-     State('fault_type', 'value'),        # 类型
-     State('start_time_range', 'value')], # 时间范围
-    prevent_initial_call=False,  # 防止初始加载触发
+    [Output('fault-warning-table', 'data'),
+     Output('fault-warning-table', 'pagination')],
+    [Input('query_button', 'nClicks')],
+    [State('train_no', 'value'),
+     State('carriage_no', 'value'),
+     State('fault_type', 'value'),
+     State('start_time_range', 'value'),
+     State('fault-warning-table', 'pagination')],
+    prevent_initial_call=False
 )
-def update_dashboard_data(n_clicks, train_no, carriage_no, fault_type, start_time_range):
-    # 更新故障图页面数据
-    # 更新时间
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    themetoken = LayoutConfig.dashboard_theme
-    fault_data = []
-    loading = True
-    try:
-        # 初始化DBQuery实例
-        db_query = DBQuery()
-        # 执行SQL查询
-        fault_sql = """
-                    SELECT 
-                        dvc_train_no as 车号,
-                        dvc_carriage_no as 车厢号,
-                        param_name as 故障名称,
-                        TO_CHAR(start_time AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD HH24:MI:SS') as 开始时间,
-                        TO_CHAR(end_time AT TIME ZONE 'Asia/Shanghai', 'YYYY-MM-DD HH24:MI:SS') as 结束时间,
-                        status as 状态,
-                        fault_level as 故障等级,
-                        fault_type as 类型,
-                        repair_suggestion as 维修建议
-                    FROM public.chart_view_fault_timed
-                """.strip()
+def fault_warning_table_callback(nClicks, train_no, carriage_no, fault_type, start_time_range, pagination):
+    # 设置默认分页参数
+    pagination = pagination or {'current': 1, 'pageSize': 10}
+    formatted_data = []
+    total = 0
+    # 使用上下文管理器确保连接正确释放
+    with db.connection():
+        query = Chart_view_fault_timed.select()
+        # 应用筛选条件
+        if train_no:
+            query = query.where(Chart_view_fault_timed.dvc_train_no == train_no)
+        if carriage_no:
+            query = query.where(Chart_view_fault_timed.dvc_carriage_no == carriage_no)
+        if fault_type:
+            query = query.where(Chart_view_fault_timed.fault_type == fault_type)
+        if start_time_range and len(start_time_range) == 2:
+            start_time, end_time = start_time_range
+            query = query.where(Chart_view_fault_timed.start_time >= start_time, Chart_view_fault_timed.start_time <= end_time)
+        elif start_time_range:
+            logging.warning(f"Invalid start_time_range format: {start_time_range}")
 
-        # 动态构建筛选条件
-        conditions = []
-        params = {}
-        
-        if train_no:  # 车号筛选
-            conditions.append("dvc_train_no = %(train_no)s")
-            params['train_no'] = train_no
-        if carriage_no:  # 车厢号筛选
-            conditions.append("dvc_carriage_no = %(carriage_no)s")
-            params['carriage_no'] = carriage_no
-        if fault_type:  # 类型筛选
-            conditions.append("fault_type = %(fault_type)s")
-            params['fault_type'] = fault_type
-        if start_time_range:  # 时间范围筛选
-            start, end = start_time_range
-            conditions.append("start_time BETWEEN %(start_time)s AND %(end_time)s")
-            params['start_time'] = start
-            params['end_time'] = end
-        
-        # 添加WHERE子句
-        if conditions:
-            fault_sql += " WHERE " + " AND ".join(conditions)
+        # 计算总记录数
+        total = query.count()
 
-        # 执行带参数的查询
-        log.debug(params)
-        log.debug(conditions)
-        log.debug(fault_sql)
-        result = db_query.execute_query(fault_sql, params)
-        fault_data = result if result else []
-        if result:
-            # 获取所有列名
-            log.debug(result[0].keys())
-            log.debug(fault_data)
-    except Exception as e:
-        # 记录错误日志
-        import logging
-        logging.error(f'获取故障数据失败: {str(e)}')
-    return (
-        current_time,
-        fault_data,
-        False
-    )
+        # 获取当前页数据
+        data = query.offset((pagination['current'] - 1) * pagination['pageSize']).limit(pagination['pageSize']).dicts()
+
+        # 格式化数据
+        formatted_data = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['dvc_carriage_no'],
+            '故障名称': item['param_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] is not None else '',
+            '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] is not None else '',
+            '状态': item['status'],
+            '故障等级': item['fault_level'],
+            '类型': item['fault_type'],
+            '维修建议': item['repair_suggestion']
+        } for item in data]
+
+    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}

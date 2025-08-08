@@ -9,36 +9,18 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
+from peewee import fn
+
 from components.macdacard import macda_card
 import random
+from utils.log import log as log
 
 from configs import BaseConfig
+from orm.chart_view_fault_timed import Chart_view_fault_timed
 
 
 def render(themetoken):
     """数据大屏-故障图页面主内容渲染"""
-    dtcolumns=['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
-    width = f'calc(100% / {len(dtcolumns)})'
-    tblcolumns = []
-    for col in dtcolumns:
-        tblcolumns.append({
-                            'title': col,
-                            'dataIndex': col,
-                            'width': width,
-                            'headerCellStyle': {
-                                'fontWeight': 'bold',
-                                'border': 'none',
-                                'borderBottom': '1px solid #e8e8e8',
-                                'color': themetoken["colorText"]
-                            },
-                            'cellStyle': {
-                                'borderRight': 'none',
-                                'borderBottom': '1px solid #e8e8e8',
-                                'color': themetoken["colorText"],
-                                'fontSize': '10px'
-                            }
-                        }
-        )
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
@@ -52,31 +34,6 @@ def render(themetoken):
         # 仪表盘网格布局
         fac.AntdRow(
             [
-                # 展示数据更新时间
-                fac.AntdCol(
-                    blank_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},  # 仍使用themetoken变量
-                        children=fac.AntdSpace(
-                            [
-                                fac.AntdText(
-                                    [
-                                        "数据最近更新时间：",
-                                        fac.AntdText(
-                                            datetime.now().strftime(
-                                                "%Y-%m-%d %H:%M:%S"
-                                            ),
-                                            id="fault_update-datetime",
-                                            type="secondary",
-                                        ),
-                                    ]
-                                )
-                            ],
-                            style={"width": "100%", "display": "flex", "alignItems": "center"}
-                        )
-                    ),
-                    span=24,
-                    style={'display': 'none'}
-                ),
                 # 数据筛选
                 fac.AntdCol(
                     blank_card(
@@ -139,7 +96,7 @@ def render(themetoken):
                 fac.AntdCol(
                     macda_card(
                         rootStyle={
-                            "background": themetoken["colorBgCard"]
+                            "background": themetoken["colorBgCard"],
                         },
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
@@ -150,24 +107,55 @@ def render(themetoken):
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),
-                        chart=fac.AntdTable(
+                        height=450,
+                        chart=
+                        fac.AntdSpin(
+                        fac.AntdTable(
                             id = 'fault-warning-table',
-                            columns=tblcolumns,
-                            data=[],
+                            columns=[
+                                        {
+                                            'title': column,
+                                            'dataIndex': column,
+                                            'width': 'calc((100% - 100px) / {})'.format(len(Chart_view_fault_timed._meta.fields)),
+                                            'headerCellStyle': {
+                                                'fontWeight': 'bold',
+                                                'border': 'none',
+                                                'borderBottom': '1px solid #e8e8e8',
+                                                'color': themetoken["colorText"]
+                                            },
+                                            'cellStyle': {
+                                                'borderRight': 'none',
+                                                'borderBottom': '1px solid #e8e8e8',
+                                                'color': themetoken["colorText"],
+                                                'fontSize': '10px'
+                                            }
+                                        }
+                                        for column in Chart_view_fault_timed.get_all_verbose_names().values()
+                                    ],
                             size="small",
                             bordered=False,
                             maxHeight=450,
                             maxWidth='100%',
-                            pagination=True,
+                            mode='server-side',
+                            pagination={
+                                'total': (Chart_view_fault_timed.select(fn.count(Chart_view_fault_timed.dvc_train_no)).scalar()),
+                                'current': 1,
+                                'pageSize': 10,
+                                'showSizeChanger': True,
+                                'pageSizeOptions': [10, 20, 50, 100],
+                                'position': 'bottomRight',
+                                'showQuickJumper': True,
+                            },
                             className="fault-table",
                             style={
-                                'width': '100%',
                                 'border': 'none',
                                 'border-collapse': 'collapse',
                                 'border-spacing': '0'
                             },
                         ),
-                        height=450,
+                        text='数据加载中',
+                        size='small',
+                        ),
                     ),
                     span=24,
                 ),

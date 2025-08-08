@@ -27,8 +27,11 @@ class BaseConfig:
     db_password = 'passw0rd'
     db_host = '192.168.32.17'
     db_port = '5432'
-    db_minconn = 2
-    db_maxconn = 5
+    db_minconn = 5
+    db_maxconn = 6
+    db_stale_timeout = 300  # 5分钟连接超时
+    db_timeout = 30  # 获取连接超时时间(秒)
+    db_max_lifetime = 300  # 连接最大生命周期(秒)
 
     # 日志配置参数
     app_log_filename = 'app.log'

@@ -1,23 +1,8 @@
 from peewee import Model, CharField, DateTimeField, IntegerField, TextField
-from playhouse.pool import PooledPostgresqlExtDatabase
 from pytz import timezone
-
-# 导入配置文件中的数据库参数
-from configs.base_config import BaseConfig
-
-# 初始化数据库连接池
-db = PooledPostgresqlExtDatabase(
-    database=BaseConfig.db_dbname,
-    user=BaseConfig.db_user,
-    password=BaseConfig.db_password,
-    host=BaseConfig.db_host,
-    port=int(BaseConfig.db_port),
-    max_connections=BaseConfig.db_maxconn,
-    stale_timeout=300,  # 5分钟连接超时
-)
+from orm.db import db, initialize_db, close_db  # 导入db模块
 
 class Chart_view_fault_timed(Model):
-    # 与SQL查询字段一一对应
     dvc_train_no = CharField(max_length=50, verbose_name='车号')
     dvc_carriage_no = IntegerField(verbose_name='车厢号')
     param_name = CharField(max_length=200, verbose_name='故障名称')
@@ -42,14 +27,8 @@ class Chart_view_fault_timed(Model):
         shanghai_tz = timezone('Asia/Shanghai')
         return self.end_time.astimezone(shanghai_tz).strftime('%Y-%m-%d %H:%M:%S')
     
-    @classmethod
-    def initialize_db(cls):
-        if not db.is_closed():
-            db.close()
-        db.connect()
-    
     class Meta:
-        database = db
+        database = db  # 使用db.py中的数据库连接
         table_name = 'chart_view_fault_timed'
         primary_key = False
         schema = 'public'
@@ -57,6 +36,22 @@ class Chart_view_fault_timed(Model):
             (('dvc_train_no', 'start_time'), False),
             (('status', 'fault_level'), False),
         )
+
+    @classmethod
+    def get_all_verbose_names(cls):
+        """获取所有字段的verbose_name字典"""
+        return {
+            field_name: field.verbose_name 
+            for field_name, field in cls._meta.fields.items()
+            if hasattr(field, 'verbose_name')
+        }
+
+    @classmethod
+    def print_verbose_names(cls):
+        """打印所有字段的verbose_name（带格式化输出）"""
+        print("表字段中文名称列表：")
+        for idx, (field_name, verbose_name) in enumerate(cls.get_all_verbose_names().items(), 1):
+            print(f"  {idx}. {verbose_name} ({field_name})")
 
 if __name__ == '__main__':
     import logging
@@ -66,7 +61,7 @@ if __name__ == '__main__':
 
     try:
         # 初始化数据库连接
-        Chart_view_fault_timed.initialize_db()
+        initialize_db()  # 使用db.py中的初始化函数
         logger.info("数据库连接成功")
 
         # 测试查询（使用server-side cursor模式）
@@ -74,6 +69,8 @@ if __name__ == '__main__':
         query = Chart_view_fault_timed.select().limit(10).order_by(Chart_view_fault_timed.start_time.desc())
 
         # 打印查询结果
+        logger.info(Chart_view_fault_timed.get_all_verbose_names().values())
+        logger.info(Chart_view_fault_timed._meta.fields.keys())
         logger.info(f"共查询到 {query.count()} 条记录")
         for i, fault in enumerate(query, 1):
             logger.info(f"\n记录 {i}:")
@@ -91,6 +88,5 @@ if __name__ == '__main__':
         logger.error(f"测试过程中发生错误: {str(e)}", exc_info=True)
     finally:
         # 确保连接关闭
-        if not db.is_closed():
-            db.close()
-            logger.info("数据库连接已关闭")
+        close_db()  # 使用db.py中的关闭函数
+        logger.info("数据库连接已关闭")

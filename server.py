@@ -6,7 +6,7 @@ from dash_offline_detect_plugin import setup_offline_detect_plugin
 # 应用基础参数
 from configs import BaseConfig
 
-setup_offline_detect_plugin()
+#setup_offline_detect_plugin()
 app = dash.Dash(
     __name__,
     title=BaseConfig.app_title,
