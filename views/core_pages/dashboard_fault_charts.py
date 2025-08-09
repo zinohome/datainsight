@@ -20,6 +20,7 @@ from orm.chart_view_fault_timed import Chart_view_fault_timed
 
 
 def render(themetoken):
+    colnames = ['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
     """数据大屏-故障图页面主内容渲染"""
     return [
         # 消息提示输出目标
@@ -116,21 +117,24 @@ def render(themetoken):
                                         {
                                             'title': column,
                                             'dataIndex': column,
-                                            'width': 'calc((100% - 100px) / {})'.format(len(Chart_view_fault_timed._meta.fields)),
+                                            #'width': 'calc((100% - 100px) / {})'.format(len(colnames)),
+                                            'width': '{:.2f}%'.format(100/9),
                                             'headerCellStyle': {
                                                 'fontWeight': 'bold',
                                                 'border': 'none',
                                                 'borderBottom': '1px solid #e8e8e8',
-                                                'color': themetoken["colorText"]
+                                                'color': themetoken["colorText"],
+                                                'backgroundColor': 'transparent'
                                             },
                                             'cellStyle': {
                                                 'borderRight': 'none',
                                                 'borderBottom': '1px solid #e8e8e8',
                                                 'color': themetoken["colorText"],
-                                                'fontSize': '10px'
+                                                'fontSize': '10px',
+                                                'backgroundColor': 'transparent'
                                             }
                                         }
-                                        for column in Chart_view_fault_timed.get_all_verbose_names().values()
+                                        for column in colnames
                                     ],
                             size="small",
                             bordered=False,
@@ -150,7 +154,8 @@ def render(themetoken):
                             style={
                                 'border': 'none',
                                 'border-collapse': 'collapse',
-                                'border-spacing': '0'
+                                'border-spacing': '0',
+                                'backgroundColor': 'transparent'
                             },
                         ),
                         text='数据加载中',

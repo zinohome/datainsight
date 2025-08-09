@@ -42,6 +42,8 @@ def render():
                                 children=dashboard_param_charts.render(themetoken),  # 传入主题令牌
                                 style=style(
                                     padding=15,
+                                    width="100%",
+                                    overflowX="auto",
                                     # 背景图片配置（替换为你的图片路径）
                                     backgroundImage="url('/assets/imgs/dashboard-bg.png')",
                                     backgroundSize="cover",  # 图片覆盖容器

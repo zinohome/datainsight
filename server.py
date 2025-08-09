@@ -8,6 +8,11 @@ from configs import BaseConfig
 
 setup_offline_detect_plugin()
 
+# 开启peewee日志调试
+import logging
+logging.basicConfig()
+logging.getLogger('peewee').setLevel(logging.DEBUG)
+
 app = dash.Dash(
     __name__,
     title=BaseConfig.app_title,

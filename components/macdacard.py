@@ -114,6 +114,7 @@ def macda_card(
                         height='100%',
                         flex=1,
                         minHeight=0,
+                        minWidth=0,
                         display='flex',  # 启用flex布局
                         flexDirection='column',  # 纵向排列
                         justifyContent='flex-start',  # 强制内容顶部对齐
