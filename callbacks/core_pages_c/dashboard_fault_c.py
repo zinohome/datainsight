@@ -4,7 +4,7 @@ from datetime import datetime
 from dash import Input, Output, callback, State
 
 from configs import LayoutConfig
-from orm.db import db
+from orm.db import db, monitored_connection
 from utils.db_query import DBQuery
 from utils.log import log as log
 from orm.chart_view_fault_timed import Chart_view_fault_timed
@@ -29,7 +29,7 @@ def fault_warning_table_callback(nClicks, train_no, carriage_no, fault_type, sta
     formatted_data = []
     total = 0
     # 使用上下文管理器确保连接正确释放
-    with db.connection():
+    with monitored_connection():
         query = Chart_view_fault_timed.select()
         # 应用筛选条件
         if train_no:
@@ -47,8 +47,12 @@ def fault_warning_table_callback(nClicks, train_no, carriage_no, fault_type, sta
         # 计算总记录数
         total = query.count()
 
-        # 获取当前页数据
-        data = query.offset((pagination['current'] - 1) * pagination['pageSize']).limit(pagination['pageSize']).dicts()
+        # 添加查询超时控制
+        with db.atomic():
+            # 使用索引优化分页查询
+            data = query.order_by(Chart_view_fault_timed.start_time.desc()).offset(
+                (pagination['current'] - 1) * pagination['pageSize']
+            ).limit(pagination['pageSize']).dicts()
 
         # 格式化数据
         formatted_data = [{

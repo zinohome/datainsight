@@ -65,8 +65,8 @@ def render(themetoken):
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
                                                 options=[
-                                                    {'label': '故障', 'value': 'fault'},
-                                                    {'label': '预警', 'value': 'warning'}
+                                                    {'label': '故障', 'value': '故障'},
+                                                    {'label': '预警', 'value': '预警'}
                                                 ],
                                                 style={'width': 100},
                                                 id='fault_type'
