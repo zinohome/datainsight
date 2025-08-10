@@ -282,16 +282,6 @@ def core_router(
         dash.no_update,
     ]
 
-# dashboard-side-menu 回调
-@app.callback(
-    Output("dashboard-side-menu", "currentKey"),  # 控制仪表盘菜单选中项
-    Input("root-url", "pathname"),  # 监听路径变化
-    prevent_initial_call=False  # 初始加载和动态变化均触发
-)
-def sync_dashboard_menu_current_key(pathname):
-    """同步仪表盘侧边菜单选中状态与当前路径"""
-    return pathname  # 路径与菜单项 key 匹配，自动高亮
-
 app.clientside_callback(
     ClientsideFunction(
         namespace="clientside_basic", function_name="handleCoreTabsClose"

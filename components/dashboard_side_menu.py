@@ -22,9 +22,9 @@ def render():
                 "title": "线路",
                 "key": "/macda/dashboard/line",
                 "icon": "antd-ordered-list",
-                "href": "/macda/dashboard/line",
-                # 关键优化：统一水平内边距，确保图标居中
-                "style": dash_menuItem_style
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-line",
+                "href": "/macda/dashboard/line"
             }
         },
         {
@@ -33,8 +33,9 @@ def render():
                 "title": "列车",
                 "key": "/macda/dashboard/train",
                 "icon": "antd-alert",
-                "href": "/macda/dashboard/train",
-                "style": dash_menuItem_style
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-train",
+                "href": "/macda/dashboard/train"
             }
         },
         {
@@ -43,8 +44,9 @@ def render():
                 "title": "车厢",
                 "key": "/macda/dashboard/carriage",
                 "icon": "antd-sliders",
-                "href": "/macda/dashboard/carriage",
-                "style": dash_menuItem_style
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-carriage",
+                "href": "/macda/dashboard/carriage"
             }
         },
         {
@@ -53,8 +55,9 @@ def render():
                 "title": "参数",
                 "key": "/macda/dashboard/param",
                 "icon": "antd-line-chart",
-                "href": "/macda/dashboard/param",
-                "style": dash_menuItem_style
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-param",
+                "href": "/macda/dashboard/param"
             }
         },
         {
@@ -63,8 +66,9 @@ def render():
                 "title": "故障",
                 "key": "/macda/dashboard/fault",
                 "icon": "antd-disconnect",
-                "href": "/macda/dashboard/fault",
-                "style": dash_menuItem_style
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-fault",
+                "href": "/macda/dashboard/fault"
             }
         },
     ]

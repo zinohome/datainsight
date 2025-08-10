@@ -13,6 +13,8 @@ from server import app
 from configs import RouterConfig  # 路由配置参数
 from views.status_pages import _404, _500  # 各状态页面
 from views import core_pages
+from utils.log import log
+from callbacks.core_pages_c.dashboard_menu_c import register_dashboard_menu_callbacks
 
 # 检查Python版本
 check_python_version(min_version="3.8", max_version="3.13")
@@ -72,6 +74,12 @@ def root_router(pathname, trigger):
     #if trigger != "load":
     #    return dash.no_update
 
+    # 在动态路由切换时阻止根节点路由更新
+    if trigger not in ["load", "pushstate"]:
+        # 记录非加载触发的路由事件
+        log.info(f"[root_router] 非允许的触发类型，忽略: trigger={trigger}, pathname={pathname}")
+        return dash.no_update
+
     # 演示专用页面展示
     if pathname == "/404-demo":
         return _404.render()
@@ -97,7 +105,11 @@ def root_router(pathname, trigger):
     return _404.render()
 
 
+# 注册仪表盘菜单回调
+register_dashboard_menu_callbacks(app)
+
 if __name__ == "__main__":
     # 非正式环境下开发调试预览用
     # 生产环境推荐使用gunicorn启动
     app.run(debug=True)
+    #app.run(debug=False)

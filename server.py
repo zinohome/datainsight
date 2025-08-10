@@ -6,7 +6,7 @@ from dash_offline_detect_plugin import setup_offline_detect_plugin
 # 应用基础参数
 from configs import BaseConfig
 
-setup_offline_detect_plugin()
+#setup_offline_detect_plugin()
 
 # 开启peewee日志调试
 import logging

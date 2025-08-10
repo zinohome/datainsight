@@ -23,15 +23,18 @@ def render(themetoken):
     colnames = ['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
     """数据大屏-故障图页面主内容渲染"""
     return [
-        dcc.Location(id='root-url', refresh=False),  # URL监听组件
-        dcc.Store(id='url-params-trigger', data={}),  # URL参数变化触发器
+        dcc.Location(id='root-url', refresh=False),
+        dcc.Store(id='url-params-trigger'),
+        
+        dcc.Store(id='initial-url-params', data={}),
+        dcc.Store(id='query-trigger', data={}),
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
-        # 数据统一更新轮询
-        dcc.Interval(
-            id="fault_update-data-interval",
-            interval=BaseConfig.fault_update_data_interval,  # 示例，每3秒更新一次
-        ),
+        # 数据统一更新轮询 - 注意：如果不需要自动刷新，建议移除这个Interval
+        #dcc.Interval(
+        #    id="fault_update-data-interval",
+        #    interval=BaseConfig.fault_update_data_interval,  # 示例，每3秒更新一次
+        #),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
@@ -81,7 +84,8 @@ def render(themetoken):
                                                 placeholder=['从日期时间', '到日期时间'],
                                                 showTime={'defaultValue': ['08:30:00', '17:30:00']},
                                                 needConfirm=True,
-                                                id='start_time_range'
+                                                id='start_time_range',
+                                                defaultValue=[datetime.now().strftime('%Y-%m-%d 00:00:00'), datetime.now().strftime('%Y-%m-%d 23:59:59')]
                                             ),
                                             label='开始时间'
                                         ),
@@ -143,7 +147,7 @@ def render(themetoken):
                             maxWidth='100%',
                             mode='server-side',
                             pagination={
-                                'total': (Chart_view_fault_timed.select(fn.count(Chart_view_fault_timed.dvc_train_no)).scalar()),
+                                'total': 0,   # 初始化为0，交由callback更新
                                 'current': 1,
                                 'pageSize': 5,
                                 'showSizeChanger': True,
