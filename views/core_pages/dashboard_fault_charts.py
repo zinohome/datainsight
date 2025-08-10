@@ -17,7 +17,6 @@ def render(themetoken, url_params=None):
     return [
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='url-params-store', data={}),
-        html.Div(id='init-trigger'),  # 添加初始化触发器
         fac.Fragment(id="message-target"),
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局

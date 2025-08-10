@@ -179,16 +179,3 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
     } for item in data]
     log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}
-
-@callback(
-    Output('init-trigger', 'children'),
-    Input('url', 'href'),
-    prevent_initial_call=False
-)
-def initialize_app(href):
-    """应用初始化回调，确保URL参数被处理"""
-    log.info(f"[initialize_app] 应用初始化，当前URL: {href}")
-    # 模拟小延迟确保其他组件初始化完成
-    time.sleep(0.1)
-    # 这个回调只是为了确保在页面加载时触发一次
-    return []
