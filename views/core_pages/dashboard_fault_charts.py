@@ -46,7 +46,7 @@ def render(themetoken):
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
                                                 options=[
-                                                    {'label': f'161{i}车', 'value': f'161{i}'} for i in range(1, 7)
+                                                    {'label': f'1210{i}车', 'value': f'1210{i}'} for i in range(1, 10)
                                                 ],
                                                 style={'width': 100},
                                                 id='train_no',
