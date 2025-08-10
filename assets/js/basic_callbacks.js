@@ -128,13 +128,3 @@ window.dash_clientside = Object.assign({}, window.dash_clientside, {
         }
     }
 });
-handleDashboardMenuItemClick = function(itemId, pathname) {
-    console.log('handleDashboardMenuItemClick called with:', itemId, pathname);
-    // 触发 Python 回调
-    const currentNClicks = window.dash_clientside.get_props(itemId).nClicks || 0;
-    console.log('Current nClicks:', currentNClicks);
-    window.dash_clientside.set_props(itemId, {
-        nClicks: currentNClicks + 1
-    });
-    console.log('Updated nClicks to:', currentNClicks + 1);
-};
