@@ -4,38 +4,19 @@ import feffery_antd_charts as fact
 import feffery_antd_components as fac
 import feffery_utils_components as fuc
 from feffery_dash_utils.style_utils import style
-from feffery_dash_utils.template_utils.dashboard_components import (
-    blank_card,
-    index_card,
-    simple_chart_card,
-)
-from peewee import fn
-
+from feffery_dash_utils.template_utils.dashboard_components import blank_card
 from components.macdacard import macda_card
-import random
-from utils.log import log as log
-
-from configs import BaseConfig
-from orm.chart_view_fault_timed import Chart_view_fault_timed
 
 
 def render(themetoken):
-    colnames = ['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
-    """数据大屏-故障图页面主内容渲染"""
+    colnames = [
+        '车号', '车厢号', '故障名称', '开始时间', '结束时间',
+        '状态', '故障等级', '类型', '维修建议'
+    ]
     return [
-        dcc.Location(id='root-url', refresh=False),
-        dcc.Store(id='url-params-trigger'),
-        
-        dcc.Store(id='initial-url-params', data={}),
-        dcc.Store(id='query-trigger', data={}),
-        # 消息提示输出目标
+        dcc.Location(id='url', refresh=False),  # 使用标准的url组件
+        dcc.Store(id='url-params-store', data={}),
         fac.Fragment(id="message-target"),
-        # 数据统一更新轮询 - 注意：如果不需要自动刷新，建议移除这个Interval
-        #dcc.Interval(
-        #    id="fault_update-data-interval",
-        #    interval=BaseConfig.fault_update_data_interval,  # 示例，每3秒更新一次
-        #),
-        # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
         fac.AntdRow(
@@ -84,8 +65,7 @@ def render(themetoken):
                                                 placeholder=['从日期时间', '到日期时间'],
                                                 showTime={'defaultValue': ['08:30:00', '17:30:00']},
                                                 needConfirm=True,
-                                                id='start_time_range',
-                                                defaultValue=[datetime.now().strftime('%Y-%m-%d 00:00:00'), datetime.now().strftime('%Y-%m-%d 23:59:59')]
+                                                id='start_time_range'
                                             ),
                                             label='开始时间'
                                         ),
