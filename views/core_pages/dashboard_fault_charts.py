@@ -16,6 +16,7 @@ def render(themetoken):
     return [
         dcc.Location(id='url', refresh=False),  # 使用标准的url组件
         dcc.Store(id='url-params-store', data={}),
+        html.Div(id='init-trigger'),  # 添加初始化触发器
         fac.Fragment(id="message-target"),
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
@@ -73,6 +74,7 @@ def render(themetoken):
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
+                                    key='filter-form'
                                 ),
                             ]
                         )

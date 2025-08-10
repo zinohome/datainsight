@@ -10,7 +10,7 @@ from urllib.parse import urlparse, parse_qs
 @callback(
     Output('url-params-store', 'data'),
     Input('url', 'search'),
-    prevent_initial_call=False
+    prevent_initial_call=False  # 确保页面加载时也会触发
 )
 def update_url_params(search):
     """解析URL查询参数并存储"""
@@ -23,40 +23,49 @@ def update_url_params(search):
 
     if search:
         try:
-            parsed_url = urlparse(search)
-            params = parse_qs(parsed_url.query)
+            # 确保正确解析URL查询字符串，处理可能的前导'?'
+            params = parse_qs(search.lstrip('?'))
             parsed_train = params.get('train_no', [''])[0]
             parsed_carriage = params.get('carriage_no', [''])[0]
             parsed_fault = params.get('fault_type', [''])[0]
+            parsed_start_time = params.get('start_time', [''])[0]
+            parsed_end_time = params.get('end_time', [''])[0]
         except Exception as e:
             log.error(f"[update_url_params] 解析URL参数错误: {e}")
 
     result = {
         'train_no': parsed_train,
         'carriage_no': parsed_carriage,
-        'fault_type': parsed_fault
+        'fault_type': parsed_fault,
+        'start_time': parsed_start_time,
+        'end_time': parsed_end_time
     }
-    log.info(f"[update_url_params] URL参数解析完成: {result}")
+    log.info(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
 
 @callback(
     [Output('train_no', 'value'),
      Output('carriage_no', 'value'),
-     Output('fault_type', 'value')],
+     Output('fault_type', 'value'),
+     Output('start_time_range', 'value')],
     [Input('url-params-store', 'data')],
-    prevent_initial_call=False
+    prevent_initial_call=False,
+    allow_duplicate=True  # 允许重复更新
 )
 def sync_url_params_to_form(url_params):
-    """将URL参数同步到表单"""
-    if url_params:
-        log.info(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
-        return (
-            url_params.get('train_no', ''),
-            url_params.get('carriage_no', ''),
-            url_params.get('fault_type', '')
-        )
-    return '', '', ''
+    log.info(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
+    if not isinstance(url_params, dict):
+        log.warning(f"[sync_url_params_to_form] 参数不是字典类型: {type(url_params)}")
+        return None, None, None, []
+    train_no = url_params.get('train_no') or None
+    carriage_no = url_params.get('carriage_no') or None
+    fault_type = url_params.get('fault_type') or None
+    start_time = url_params.get('start_time')
+    end_time = url_params.get('end_time')
+    start_time_range = [start_time, end_time] if start_time and end_time else []
+    log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
+    return train_no, carriage_no, fault_type, start_time_range
 
 
 @callback(
@@ -90,7 +99,18 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         query_train_no = url_params.get('train_no', '')
         query_carriage_no = url_params.get('carriage_no', '')
         query_fault_type = url_params.get('fault_type', '')
-        query_start_time_range = start_time_range
+        # 尝试从URL参数构建时间范围
+        start_time = url_params.get('start_time', '')
+        end_time = url_params.get('end_time', '')
+        if start_time and end_time:
+            try:
+                start_time_obj = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+                end_time_obj = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+                query_start_time_range = [start_time_obj, end_time_obj]
+            except Exception as e:
+                log.warning(f"[fault_warning_table_callback] URL时间格式转换错误: {e}")
+        else:
+            query_start_time_range = start_time_range
         # 重置分页到第一页
         pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 5) if pagination else 5}
     elif trigger_id == 'query_button' and nClicks > 0:
@@ -169,3 +189,17 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
 
     log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}
+
+
+@callback(
+    Output('init-trigger', 'children'),
+    Input('url', 'href'),
+    prevent_initial_call=False
+)
+def initialize_app(href):
+    """应用初始化回调，确保URL参数被处理"""
+    log.info(f"[initialize_app] 应用初始化，当前URL: {href}")
+    # 模拟小延迟确保其他组件初始化完成
+    time.sleep(0.1)
+    # 这个回调只是为了确保在页面加载时触发一次
+    return []
