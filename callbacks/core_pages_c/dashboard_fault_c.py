@@ -6,14 +6,12 @@ from utils.log import log
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 from urllib.parse import urlparse, parse_qs
 
-
 @callback(
     Output('url-params-store', 'data'),
     Input('url', 'search'),
-    prevent_initial_call=False  # 确保页面加载时也会触发
+    prevent_initial_call=False
 )
 def update_url_params(search):
-    """解析URL查询参数并存储"""
     log.info(f"[update_url_params] 开始解析URL参数: {search}")
     parsed_train = ''
     parsed_carriage = ''
@@ -23,7 +21,6 @@ def update_url_params(search):
 
     if search:
         try:
-            # 确保正确解析URL查询字符串，处理可能的前导'?'
             params = parse_qs(search.lstrip('?'))
             parsed_train = params.get('train_no', [''])[0]
             parsed_carriage = params.get('carriage_no', [''])[0]
@@ -43,7 +40,6 @@ def update_url_params(search):
     log.info(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
-
 @callback(
     [Output('train_no', 'value'),
      Output('carriage_no', 'value'),
@@ -51,7 +47,7 @@ def update_url_params(search):
      Output('start_time_range', 'value')],
     [Input('url-params-store', 'data')],
     prevent_initial_call=False,
-    allow_duplicate=True  # 允许重复更新
+    allow_duplicate=True
 )
 def sync_url_params_to_form(url_params):
     log.info(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
@@ -63,10 +59,10 @@ def sync_url_params_to_form(url_params):
     fault_type = url_params.get('fault_type') or None
     start_time = url_params.get('start_time')
     end_time = url_params.get('end_time')
+    # AntdDateRangePicker需要字符串list，否则置空
     start_time_range = [start_time, end_time] if start_time and end_time else []
     log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
     return train_no, carriage_no, fault_type, start_time_range
-
 
 @callback(
     [Output('fault-warning-table', 'data'),
@@ -81,14 +77,9 @@ def sync_url_params_to_form(url_params):
     prevent_initial_call=False
 )
 def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
-    """处理表格数据加载和分页"""
     log.info(f"[fault_warning_table_callback] 触发源: {callback_context.triggered_id if callback_context.triggered else '初始加载'}")
-
-    # 确定查询参数
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
-
-    # 初始化查询参数
     query_train_no = ''
     query_carriage_no = ''
     query_fault_type = ''
@@ -186,10 +177,8 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         '类型': item['fault_type'],
         '维修建议': item['repair_suggestion']
     } for item in data]
-
     log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}
-
 
 @callback(
     Output('init-trigger', 'children'),

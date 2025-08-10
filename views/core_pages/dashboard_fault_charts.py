@@ -7,14 +7,15 @@ from feffery_dash_utils.style_utils import style
 from feffery_dash_utils.template_utils.dashboard_components import blank_card
 from components.macdacard import macda_card
 
+# url_params通过dcc.Store输入给layout
 
-def render(themetoken):
+def render(themetoken, url_params=None):
     colnames = [
         '车号', '车厢号', '故障名称', '开始时间', '结束时间',
         '状态', '故障等级', '类型', '维修建议'
     ]
     return [
-        dcc.Location(id='url', refresh=False),  # 使用标准的url组件
+        dcc.Location(id='url', refresh=False),
         dcc.Store(id='url-params-store', data={}),
         html.Div(id='init-trigger'),  # 添加初始化触发器
         fac.Fragment(id="message-target"),
@@ -74,7 +75,7 @@ def render(themetoken):
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
-                                    key='filter-form'
+                                    key=str(url_params) if url_params else 'default-key'  # 强制依赖url_params变化
                                 ),
                             ]
                         )
