@@ -16,17 +16,18 @@ from peewee import fn
 @callback(
     [Output('fault-warning-table', 'data'),
      Output('fault-warning-table', 'pagination')],
-    [Input('query_button', 'nClicks')],
+    [Input('query_button', 'nClicks'),
+     Input('fault-warning-table', 'pagination')],  #添加分页作为输入触发条件
     [State('train_no', 'value'),
      State('carriage_no', 'value'),
      State('fault_type', 'value'),
-     State('start_time_range', 'value'),
-     State('fault-warning-table', 'pagination')],
+     State('start_time_range', 'value')],  #移除分页的State定义
     prevent_initial_call=False
 )
-def fault_warning_table_callback(nClicks, train_no, carriage_no, fault_type, start_time_range, pagination):
+#调整参数顺序，pagination现在是第二个输入参数
+def fault_warning_table_callback(nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
     # 设置默认分页参数
-    pagination = pagination or {'current': 1, 'pageSize': 10}
+    pagination = pagination or {'current': 1, 'pageSize': 5}
     formatted_data = []
     total = 0
     # 使用上下文管理器确保连接正确释放

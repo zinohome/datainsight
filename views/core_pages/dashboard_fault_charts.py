@@ -117,8 +117,7 @@ def render(themetoken):
                                         {
                                             'title': column,
                                             'dataIndex': column,
-                                            #'width': 'calc((100% - 100px) / {})'.format(len(colnames)),
-                                            'width': '{:.2f}%'.format(100/9),
+                                            'width': '{:.2f}%'.format(100/len(colnames)),
                                             'headerCellStyle': {
                                                 'fontWeight': 'bold',
                                                 'border': 'none',
@@ -144,7 +143,7 @@ def render(themetoken):
                             pagination={
                                 'total': (Chart_view_fault_timed.select(fn.count(Chart_view_fault_timed.dvc_train_no)).scalar()),
                                 'current': 1,
-                                'pageSize': 10,
+                                'pageSize': 5,
                                 'showSizeChanger': True,
                                 'pageSizeOptions': [10, 20, 50, 100],
                                 'position': 'bottomRight',
