@@ -1,5 +1,6 @@
 import logging
 import random
+import time  # 添加time模块导入
 from datetime import datetime
 from dash import Input, Output, callback, State
 
@@ -10,29 +11,31 @@ from utils.db_query import DBQuery
 from utils.log import log as log
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 from peewee import fn
+import dash
+from urllib.parse import urlparse, parse_qs
+from utils.log import log as log
 
 
 # 页面数据更新回调
 @callback(
     [Output('fault-warning-table', 'data'),
      Output('fault-warning-table', 'pagination')],
-    [Input('query_button', 'nClicks'),
-     Input('fault-warning-table', 'pagination')],  #添加分页作为输入触发条件
+    [Input('url-param-inited', 'data'),
+    Input('query_button', 'nClicks'),
+     Input('fault-warning-table', 'pagination')],  # 添加URL触发条件
     [State('train_no', 'value'),
      State('carriage_no', 'value'),
      State('fault_type', 'value'),
-     State('start_time_range', 'value')],  #移除分页的State定义
+     State('start_time_range', 'value')],
     prevent_initial_call=False
 )
-#调整参数顺序，pagination现在是第二个输入参数
-def fault_warning_table_callback(nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
-    # 设置默认分页参数
+def fault_warning_table_callback(url_inited, nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
+    # 保留原有逻辑
     pagination = pagination or {'current': 1, 'pageSize': 5}
     formatted_data = []
     total = 0
+    
     # 使用上下文管理器确保连接正确释放
-    #with monitored_connection():
-    #with db.connection():
     query = Chart_view_fault_timed.select()
     # 应用筛选条件
     if train_no:
@@ -71,3 +74,30 @@ def fault_warning_table_callback(nClicks, pagination, train_no, carriage_no, fau
     } for item in data]
 
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}
+
+
+### 2. 添加URL参数解析回调
+from dash import callback, Output, Input, State, no_update
+from urllib.parse import parse_qs
+
+@callback(
+    [Output('train_no', 'value'), Output('carriage_no', 'value'), Output('fault_type', 'value'), Output('url-param-inited', 'data')],
+    Input('root-url', 'search'),
+    [State('url-param-inited', 'data'),
+     State('train_no', 'value'), State('carriage_no', 'value'), State('fault_type', 'value')]
+)
+def sync_url_to_form(search, inited, tno, cno, ftype):
+    if not inited and search:
+        try:
+            params = parse_qs(search.lstrip('?'))
+            parsed_train = params.get('train_no', [''])[0]
+            parsed_carriage = params.get('carriage_no', [''])[0]
+            parsed_fault = params.get('fault_type', [''])[0]
+            changed = (parsed_train != tno or parsed_carriage != cno or parsed_fault != ftype)
+            if changed:
+                return parsed_train, parsed_carriage, parsed_fault, True
+            else:
+                return no_update, no_update, no_update, True
+        except Exception:
+            return no_update, no_update, no_update, True
+    return no_update, no_update, no_update, inited

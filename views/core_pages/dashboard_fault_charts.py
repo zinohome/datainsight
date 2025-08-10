@@ -23,6 +23,8 @@ def render(themetoken):
     colnames = ['车号', '车厢号', '故障名称', '开始时间', '结束时间', '状态', '故障等级', '类型', '维修建议']
     """数据大屏-故障图页面主内容渲染"""
     return [
+        dcc.Location(id='root-url', refresh=False),  # URL监听组件
+        dcc.Store(id='url-params-trigger', data={}),  # URL参数变化触发器
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
