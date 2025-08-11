@@ -7,7 +7,7 @@ from orm.chart_view_fault_timed import Chart_view_fault_timed
 from urllib.parse import urlparse, parse_qs
 
 @callback(
-    Output('url-params-store', 'data'),
+    Output('f_url-params-store', 'data'),
     Input('url', 'search'),
     prevent_initial_call=False
 )
@@ -41,15 +41,15 @@ def update_url_params(search):
     return result
 
 @callback(
-    [Output('fault-warning-table', 'data'),
-     Output('fault-warning-table', 'pagination')],
-    [Input('url-params-store', 'data'),
-     Input('query_button', 'nClicks'),
-     Input('fault-warning-table', 'pagination')],
-    [State('train_no', 'value'),
-     State('carriage_no', 'value'),
-     State('fault_type', 'value'),
-     State('start_time_range', 'value')],
+    [Output('f_fault-warning-table', 'data'),
+     Output('f_fault-warning-table', 'pagination')],
+    [Input('f_url-params-store', 'data'),
+     Input('f_query_button', 'nClicks'),
+     Input('f_fault-warning-table', 'pagination')],
+    [State('f_train_no', 'value'),
+     State('f_carriage_no', 'value'),
+     State('f_fault_type', 'value'),
+     State('f_start_time_range', 'value')],
     prevent_initial_call=False
 )
 def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
@@ -80,7 +80,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
             query_start_time_range = start_time_range
         # 重置分页到第一页
         pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True}
-    elif trigger_id == 'query_button' and nClicks > 0:
+    elif trigger_id == 'f_query_button' and nClicks > 0:
         # 当点击查询按钮时，使用表单参数进行查询
         query_train_no = train_no or ''
         query_carriage_no = carriage_no or ''
@@ -157,12 +157,12 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
 
 @callback(
-    [Output('train_no', 'value'),
-     Output('carriage_no', 'value'),
-     Output('fault_type', 'value'),
-     Output('start_time_range', 'value')],
-    [Input('url-params-store', 'modified_timestamp')],
-    [State('url-params-store', 'data')],
+    [Output('f_train_no', 'value'),
+     Output('f_carriage_no', 'value'),
+     Output('f_fault_type', 'value'),
+     Output('f_start_time_range', 'value')],
+    [Input('f_url-params-store', 'modified_timestamp')],
+    [State('f_url-params-store', 'data')],
     prevent_initial_call=True
 )
 def sync_url_params_to_form(modified_timestamp, url_params):

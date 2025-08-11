@@ -102,10 +102,14 @@ if __name__ == '__main__':
     # 执行查询
     try:
         # 普通查询
-        sql = "SELECT  dvc_train_no as 车号,  dvc_carriage_no as 车厢号,  param_name as 故障名称,  start_time as 开始时间, status as 状态,  end_time as 结束时间,  fault_level as 故障等级,  fault_type as 类型,  repair_suggestion as 维修建议  FROM public.chart_view_fault_timed"
-        params = {'age': 18}
-        results = db_query.execute_query(sql, params)
-        log.debug(f"普通查询结果: {results}")
+        #sql = "SELECT  dvc_train_no as 车号,  dvc_carriage_no as 车厢号,  param_name as 故障名称,  start_time as 开始时间, status as 状态,  end_time as 结束时间,  fault_level as 故障等级,  fault_type as 类型,  repair_suggestion as 维修建议  FROM public.chart_view_fault_timed"
+        sql = "SELECT field_name FROM public.sys_fields where field_category='Param'"
+        #params = {'age': 18}
+        results = db_query.execute_query(sql)
+        log.info(f"普通查询结果: {results}")
+        # 提取field_name值到数组
+        field_names = [item['field_name'] for item in results]
+        log.info(f"field_name数组: {field_names}")
 
         '''
         # 大量数据查询（使用服务器端游标）

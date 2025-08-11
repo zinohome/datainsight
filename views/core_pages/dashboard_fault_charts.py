@@ -16,7 +16,7 @@ def render(themetoken, url_params=None):
     ]
     return [
         dcc.Location(id='url', refresh=False),
-        dcc.Store(id='url-params-store', data={}),
+        dcc.Store(id='f_url-params-store', data={}),
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
         fac.AntdRow(
@@ -35,7 +35,7 @@ def render(themetoken, url_params=None):
                                                     {'label': f'16{i}车', 'value': f'16{i}'} for i in range(33, 45)
                                                 ],
                                                 style={'width': 100},
-                                                id='train_no',
+                                                id='f_train_no',
                                             ),
                                             label='车号'
                                         ),
@@ -45,7 +45,7 @@ def render(themetoken, url_params=None):
                                                     {'label': f'{i}车厢', 'value': f'{i}'} for i in range(1, 7)
                                                 ],
                                                 style={'width': 100},
-                                                id='carriage_no'
+                                                id='f_carriage_no'
                                             ),
                                             label='车厢号'
                                         ),
@@ -56,7 +56,7 @@ def render(themetoken, url_params=None):
                                                     {'label': '预警', 'value': '预警'}
                                                 ],
                                                 style={'width': 100},
-                                                id='fault_type'
+                                                id='f_fault_type'
                                             ),
                                             label='类型'
                                         ),
@@ -64,12 +64,13 @@ def render(themetoken, url_params=None):
                                             fac.AntdDateRangePicker(
                                                 placeholder=['从日期时间', '到日期时间'],
                                                 showTime={'defaultValue': ['08:30:00', '17:30:00']},
+                                                style={'width': 280},
                                                 needConfirm=True,
-                                                id='start_time_range'
+                                                id='f_start_time_range'
                                             ),
                                             label='开始时间'
                                         ),
-                                        fac.AntdFormItem(fac.AntdButton('查询', id='query_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'), nClicks=0)),
+                                        fac.AntdFormItem(fac.AntdButton('查询', id='f_query_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'), nClicks=0)),
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
@@ -99,7 +100,7 @@ def render(themetoken, url_params=None):
                         chart=
                         fac.AntdSpin(
                         fac.AntdTable(
-                            id = 'fault-warning-table',
+                            id = 'f_fault-warning-table',
                             columns=[
                                         {
                                             'title': column,
