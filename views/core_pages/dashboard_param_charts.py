@@ -121,6 +121,7 @@ def render(themetoken):
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),
+                        height="calc(70vh - 20px)",
                         chart=fact.AntdLine(
                             id="param_operation-data-chart",
                             data=(lambda: [
@@ -136,7 +137,6 @@ def render(themetoken):
                             smooth=True,
                             color=["#1890ff", "#faad14"],
                         ),
-                        height=450,
                     ),
                     span=24,
                 ),

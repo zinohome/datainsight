@@ -43,13 +43,15 @@ def render():
                                     padding=15,
                                     width="100%",
                                     overflowX="auto",
+                                    marginLeft='50px',
                                     # 背景图片配置（替换为你的图片路径）
                                     backgroundImage="url('/assets/imgs/dashboard-bg.png')",
                                     backgroundSize="cover",  # 图片覆盖容器
                                     backgroundRepeat="no-repeat",  # 不重复
                                     backgroundPosition="center",  # 居中显示
                                     backgroundColor=themetoken["colorBgContainer"],
-                                    minHeight="100vh",
+                                    height="calc(100vh - 30px)",  # 减去内边距高度
+                                    minHeight="calc(80vh - 30px)",
                                     boxSizing="border-box",
                                 ),
                             ),

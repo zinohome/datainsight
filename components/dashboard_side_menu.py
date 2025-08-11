@@ -104,6 +104,9 @@ def render():
         style=style(
             width="48px",
             zIndex=1000,
+            position="absolute",  # 将固定定位改为绝对定位
+            left=0,
+            top=0,
             #background=themetoken["colorBgCard"],  # 新增：确保背景色填充完整
         ),
     )

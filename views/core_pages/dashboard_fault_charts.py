@@ -95,7 +95,7 @@ def render(themetoken, url_params=None):
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),
-                        height='70vh',
+                        height="calc(70vh - 20px)",
                         chart=
                         fac.AntdSpin(
                         fac.AntdTable(
@@ -124,7 +124,7 @@ def render(themetoken, url_params=None):
                                     ],
                             size="small",
                             bordered=False,
-                            maxHeight='70vh',
+                            maxHeight="calc(70vh - 20px)",
                             maxWidth='100%',
                             mode='server-side',
                             pagination={
