@@ -17,7 +17,6 @@ def render(themetoken, url_params=None):
     return [
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='url-params-store', data={}),
-        fac.Fragment(id="message-target"),
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
         fac.AntdRow(
@@ -33,7 +32,7 @@ def render(themetoken, url_params=None):
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
                                                 options=[
-                                                    {'label': f'1210{i}车', 'value': f'1210{i}'} for i in range(1, 10)
+                                                    {'label': f'16{i}车', 'value': f'16{i}'} for i in range(33, 45)
                                                 ],
                                                 style={'width': 100},
                                                 id='train_no',
@@ -96,7 +95,7 @@ def render(themetoken, url_params=None):
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),
-                        height=450,
+                        height='70vh',
                         chart=
                         fac.AntdSpin(
                         fac.AntdTable(
@@ -125,17 +124,16 @@ def render(themetoken, url_params=None):
                                     ],
                             size="small",
                             bordered=False,
-                            maxHeight=450,
+                            maxHeight='70vh',
                             maxWidth='100%',
                             mode='server-side',
                             pagination={
-                                'total': 0,   # 初始化为0，交由callback更新
-                                'current': 1,
-                                'pageSize': 5,
+                                'pageSize': 10,
                                 'showSizeChanger': True,
                                 'pageSizeOptions': [10, 20, 50, 100],
                                 'position': 'bottomRight',
                                 'showQuickJumper': True,
+                                'hideOnSinglePage': True
                             },
                             className="fault-table",
                             style={

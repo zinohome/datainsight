@@ -20,7 +20,7 @@ LOG_DIR = os.path.join(BASE_DIR, 'logs')
 LOG_PATH = os.path.join(LOG_DIR, BaseConfig.app_log_filename)
 
 # 清除Loguru默认处理器（关键修复）
-
+log.remove()
 log.add(LOG_PATH,
         format="{time:YYYY-MM-DD at HH:mm:ss} | {level} | {message}",
         rotation="100 MB",

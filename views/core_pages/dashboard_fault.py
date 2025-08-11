@@ -61,7 +61,8 @@ def render():
                              background=themetoken["colorBgContainer"],
                              # background="#141414",
                              minHeight="100vh",
-                             boxSizing="border-box"
+                             boxSizing="border-box",
+                             overflowY="hidden"
                          ),
                          ),
             ],

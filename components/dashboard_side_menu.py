@@ -93,7 +93,7 @@ def render():
             scrollbar="hidden",
             style=style(
                 height="100vh",
-                overflowY="auto",
+                overflowY="hidden",
                 borderRight="1px solid "+themetoken["colorBorder"],
                 padding="0 0px",
             ),

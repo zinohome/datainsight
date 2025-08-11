@@ -41,30 +41,6 @@ def update_url_params(search):
     return result
 
 @callback(
-    [Output('train_no', 'value'),
-     Output('carriage_no', 'value'),
-     Output('fault_type', 'value'),
-     Output('start_time_range', 'value')],
-    [Input('url-params-store', 'data')],
-    prevent_initial_call=False,
-    allow_duplicate=True
-)
-def sync_url_params_to_form(url_params):
-    log.info(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
-    if not isinstance(url_params, dict):
-        log.warning(f"[sync_url_params_to_form] 参数不是字典类型: {type(url_params)}")
-        return None, None, None, []
-    train_no = url_params.get('train_no') or None
-    carriage_no = url_params.get('carriage_no') or None
-    fault_type = url_params.get('fault_type') or None
-    start_time = url_params.get('start_time')
-    end_time = url_params.get('end_time')
-    # AntdDateRangePicker需要字符串list，否则置空
-    start_time_range = [start_time, end_time] if start_time and end_time else []
-    log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
-    return train_no, carriage_no, fault_type, start_time_range
-
-@callback(
     [Output('fault-warning-table', 'data'),
      Output('fault-warning-table', 'pagination')],
     [Input('url-params-store', 'data'),
@@ -103,7 +79,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         else:
             query_start_time_range = start_time_range
         # 重置分页到第一页
-        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 5) if pagination else 5}
+        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
     elif trigger_id == 'query_button' and nClicks > 0:
         # 当点击查询按钮时，使用表单参数进行查询
         query_train_no = train_no or ''
@@ -111,7 +87,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         query_fault_type = fault_type or ''
         query_start_time_range = start_time_range
         # 重置分页到第一页
-        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 5) if pagination else 5}
+        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
     else:
         # 对于分页触发或初始加载，使用上次的查询参数
         if hasattr(fault_warning_table_callback, 'last_params'):
@@ -154,7 +130,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         log.warning(f"[fault_warning_table_callback] 无效的时间范围: {query_start_time_range}")
 
     # 分页处理
-    pagination = pagination or {'current': 1, 'pageSize': 5}
+    pagination = pagination or {'current': 1, 'pageSize': 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
 
     # 计算总记录数
     total = query.count()
@@ -178,4 +154,30 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         '维修建议': item['repair_suggestion']
     } for item in data]
     log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
-    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize']}
+    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper'],'hideOnSinglePage': pagination['hideOnSinglePage']}
+
+@callback(
+    [Output('train_no', 'value'),
+     Output('carriage_no', 'value'),
+     Output('fault_type', 'value'),
+     Output('start_time_range', 'value')],
+    [Input('url-params-store', 'modified_timestamp')],
+    [State('url-params-store', 'data')],
+    prevent_initial_call=True
+)
+def sync_url_params_to_form(modified_timestamp, url_params):
+    time.sleep(0.5)  # 关键延迟：等待前端元素加载
+    
+    log.info(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
+    if not isinstance(url_params, dict):
+        log.warning(f"[sync_url_params_to_form] 参数不是字典类型: {type(url_params)}")
+        return None, None, None, []
+    train_no = url_params.get('train_no') or None
+    carriage_no = url_params.get('carriage_no') or None
+    fault_type = url_params.get('fault_type')
+    start_time = url_params.get('start_time')
+    end_time = url_params.get('end_time')
+    # AntdDateRangePicker需要字符串list，否则置空
+    start_time_range = [start_time, end_time] if start_time and end_time else []
+    log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
+    return train_no, carriage_no, fault_type, start_time_range
