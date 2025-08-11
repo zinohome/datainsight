@@ -79,7 +79,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         else:
             query_start_time_range = start_time_range
         # 重置分页到第一页
-        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
+        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True}
     elif trigger_id == 'query_button' and nClicks > 0:
         # 当点击查询按钮时，使用表单参数进行查询
         query_train_no = train_no or ''
@@ -87,7 +87,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         query_fault_type = fault_type or ''
         query_start_time_range = start_time_range
         # 重置分页到第一页
-        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
+        pagination = {'current': 1, 'pageSize': pagination.get('pageSize', 10) if pagination else 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True}
     else:
         # 对于分页触发或初始加载，使用上次的查询参数
         if hasattr(fault_warning_table_callback, 'last_params'):
@@ -130,7 +130,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         log.warning(f"[fault_warning_table_callback] 无效的时间范围: {query_start_time_range}")
 
     # 分页处理
-    pagination = pagination or {'current': 1, 'pageSize': 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True,'hideOnSinglePage': True}
+    pagination = pagination or {'current': 1, 'pageSize': 10,'showSizeChanger': True,'pageSizeOptions': [10, 20, 50, 100],'showQuickJumper': True}
 
     # 计算总记录数
     total = query.count()
@@ -154,7 +154,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         '维修建议': item['repair_suggestion']
     } for item in data]
     log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
-    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper'],'hideOnSinglePage': pagination['hideOnSinglePage']}
+    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
 
 @callback(
     [Output('train_no', 'value'),

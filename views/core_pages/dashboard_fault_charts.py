@@ -133,7 +133,6 @@ def render(themetoken, url_params=None):
                                 'pageSizeOptions': [10, 20, 50, 100],
                                 'position': 'bottomRight',
                                 'showQuickJumper': True,
-                                'hideOnSinglePage': True
                             },
                             className="fault-table",
                             style={

@@ -9,7 +9,7 @@ from feffery_dash_utils.version_utils import (
     check_dependencies_version,
 )
 
-from server import app
+from server import app, server
 from configs import RouterConfig  # 路由配置参数
 from views.status_pages import _404, _500  # 各状态页面
 from views import core_pages
@@ -28,7 +28,8 @@ check_dependencies_version(
     ]
 )
 
-app.layout = lambda: fuc.FefferyTopProgress(
+#app.layout = lambda: fuc.FefferyTopProgress(
+app.layout = fuc.FefferyTopProgress(
     [
         # 全局消息提示
         fac.Fragment(id="global-message"),
@@ -110,6 +111,6 @@ register_dashboard_menu_callbacks(app)
 
 if __name__ == "__main__":
     # 非正式环境下开发调试预览用
-    # 生产环境推荐使用gunicorn启动
     app.run(debug=True, host='0.0.0.0', port=8050)
-    #app.run(debug=False)
+    # 生产环境推荐使用gunicorn启动
+    #gunicorn -w 4 -b 0.0.0.0:8050 app:server

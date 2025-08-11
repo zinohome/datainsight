@@ -23,7 +23,6 @@ app = dash.Dash(
 
 server = app.server
 
-
 @app.server.before_request
 def check_browser():
     """检查浏览器版本是否符合最低要求"""
