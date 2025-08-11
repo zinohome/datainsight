@@ -48,7 +48,10 @@ class LayoutConfig:
     # 4. 卡片透明控制变量（通过修改此值切换卡片透明：True 或 False）
     card_transparent: bool = True  # 默认不透明
 
-    # 5. 激活当前主题（修改为类属性，支持直接通过类访问）
+    # 5. 容器透明控制变量（通过修改此值切换容器透明：True 或 False）
+    container_transparent: bool = True  # 默认不透明
+
+    # 6. 激活当前主题（修改为类属性，支持直接通过类访问）
     @classproperty
     def dashboard_theme(cls):
         # 使用类变量current_theme选择基础主题
@@ -58,7 +61,7 @@ class LayoutConfig:
         # 根据类变量card_transparent控制透明度
         if cls.card_transparent:
             theme["colorBgCard"] = "transparent"
+        # 根据类变量container_transparent控制容器透明度
+        if cls.container_transparent:
+            theme["colorBgContainer"] = "transparent"
         return theme
-
-
-

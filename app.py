@@ -111,5 +111,5 @@ register_dashboard_menu_callbacks(app)
 if __name__ == "__main__":
     # 非正式环境下开发调试预览用
     # 生产环境推荐使用gunicorn启动
-    app.run(debug=True,dev_tools_ui=True)
+    app.run(debug=True, host='0.0.0.0', port=8050)
     #app.run(debug=False)

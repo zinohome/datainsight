@@ -86,7 +86,8 @@ def render():
                     style=style(
                         border="none",
                         width="100%",
-                        padding="75px 2px 0 2px"
+                        padding="75px 2px 0 2px",
+                        background="transparent",
                     ),
                 )
             ],
@@ -96,6 +97,7 @@ def render():
                 overflowY="hidden",
                 borderRight="1px solid "+themetoken["colorBorder"],
                 padding="0 0px",
+                background="transparent",
             ),
         ),
         id="dashboard-side-menu-affix",
@@ -107,6 +109,7 @@ def render():
             position="absolute",  # 将固定定位改为绝对定位
             left=0,
             top=0,
+            background="transparent",
             #background=themetoken["colorBgCard"],  # 新增：确保背景色填充完整
         ),
     )

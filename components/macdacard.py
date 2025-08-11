@@ -4,6 +4,8 @@ import feffery_antd_components as fac
 from feffery_dash_utils.style_utils import style
 from dash.development.base_component import Component
 
+from configs import LayoutConfig
+
 _Component = Union[Component, str, int, float, list]
 
 
@@ -132,7 +134,8 @@ def macda_card(
             **dict(
                 height=height,
                 padding=20,
-                background='#fff',
+                # 动态获取背景色配置
+                background=LayoutConfig.dashboard_theme['colorBgCard'],
                 borderRadius=8,
                 boxSizing='border-box',
                 boxShadow='0 1px 2px 0 rgba(0, 0, 0, 0.03),0 1px 6px -1px rgba(0, 0, 0, 0.02),0 2px 4px 0 rgba(0, 0, 0, 0.02)',
