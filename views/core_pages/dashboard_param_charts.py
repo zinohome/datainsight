@@ -12,6 +12,9 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components.macdacard import macda_card
 import random
 
+from configs import BaseConfig
+
+
 def render(themetoken):
     components_name = ['新风温度-系统', '回风温度-系统', '目标温度', '载客量', '车厢温度-1', '车厢湿度-1', '车厢温度-2',
                      '车厢湿度-2', '空气质量-温度-U1', '空气质量-湿度-U1', '空气质量-CO2-U1', '空气质量-TVOC-U1',
@@ -109,7 +112,7 @@ def render(themetoken):
                         title="参数运行数据",
                         description=html.A(
                             "一期运行参数",
-                            href="https://www.baidu.com",
+                            href=BaseConfig.external_param_url,
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),

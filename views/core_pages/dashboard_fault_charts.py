@@ -6,6 +6,8 @@ import feffery_utils_components as fuc
 from feffery_dash_utils.style_utils import style
 from feffery_dash_utils.template_utils.dashboard_components import blank_card
 from components.macdacard import macda_card
+from configs import BaseConfig
+
 
 # url_params通过dcc.Store输入给layout
 
@@ -92,7 +94,7 @@ def render(themetoken, url_params=None):
                         title="空调故障预警",
                         description=html.A(
                             "一期故障&预警",
-                            href="https://www.baidu.com",
+                            href=BaseConfig.external_fault_url,
                             target="_blank",
                             style={"textDecoration": "none"}
                         ),

@@ -39,3 +39,7 @@ class BaseConfig:
 
     # 数据刷新时间配置
     fault_update_data_interval = 10000
+
+    # 外部连接配置
+    external_param_url = 'https://www.baidu.com'
+    external_fault_url = 'https://www.baidu.com'
