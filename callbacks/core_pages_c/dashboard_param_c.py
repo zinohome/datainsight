@@ -101,6 +101,10 @@ def update_dashboard_data(url_params, nClicks, train_no, carriage_no, component,
     )
 
     # 构建查询
+    # 验证train_no和carriage_no必须存在
+    if not (query_train_no and query_carriage_no):
+        log.warning("[update_dashboard_data] train_no和carriage_no为必填参数")
+        return []
     query = Chart_view_param.select()
     if query_train_no:
         query = query.where(Chart_view_param.dvc_train_no == query_train_no)
