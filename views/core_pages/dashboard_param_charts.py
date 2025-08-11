@@ -119,11 +119,21 @@ def render(themetoken):
                         height="calc(70vh - 20px)",
                         chart=fact.AntdLine(
                             id="param_operation-data-chart",
+                            animation={
+                                'appear': {'animation': 'fade-in', 'duration': 1000, 'delay': 0},
+                                'enter': {'animation': 'path-in', 'duration': 800, 'delay': 100},
+                                'update': {'animation': 'position-update', 'duration': 600, 'delay': 50},
+                                'leave': {'animation': 'fade-out', 'duration': 400, 'delay': 0}
+                            },
                             data=[],  # 初始为空，由回调填充
                             xField="time_minute",
                             yField="avg_value",
                             seriesField="param_name",
                             smooth=True,
+                            theme={
+                                "withTheme":"dark",
+                                "background":"transparent",
+                            },
                             slider={},
                             isStack=True,
                             color=["#1890ff", "#faad14", "#52c41a",
