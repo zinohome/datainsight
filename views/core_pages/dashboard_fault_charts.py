@@ -148,7 +148,6 @@ def render(themetoken, url_params=None):
                             },
                         ),
                         text='数据加载中',
-                        size='small',
                         ),
                     ),
                     span=24,

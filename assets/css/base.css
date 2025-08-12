@@ -45,3 +45,30 @@
     display: none !important;
 }
 
+.fault-table td {
+    font-size: 12px !important;
+}
+
+/* 细滚动条样式 */
+.fault-table .ant-table-body::-webkit-scrollbar {
+    width: 2px !important;
+    height: 2px !important;
+}
+.fault-table .ant-table-body::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.fault-table .ant-table-body::-webkit-scrollbar-thumb {
+    background-color: rgba(144, 147, 153, 0.2) !important;
+    border-radius: 1px !important;
+    border: none !important;
+}
+/* Firefox compatibility */
+.fault-table .ant-table-body {
+    scrollbar-width: thin !important;
+    scrollbar-color: rgba(144, 147, 153, 0.2) transparent !important;
+}
+
+.fault-table {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(191, 191, 191, 0.3) transparent;
+}

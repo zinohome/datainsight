@@ -1,98 +1,80 @@
-import dash
-import random
-from datetime import datetime
-import feffery_antd_components as fac
-from dash import set_props, Patch, callback
-from dash.dependencies import Output, Input, State
-from server import app
-from dash.dependencies import Output, Input, State
+import logging
 
-@app.callback(
-    [
-        Output("update-datetime", "children"),
-        #Output("today-sales", "children"),
-        #Output("today-visits", "children"),
-        #Output("today-visits-chart", "data"),
-        #Output("today-orders", "children"),
-        #Output("today-orders-chart", "data"),
-        #Output("today-conversion-rate", "children"),
-        #Output("today-conversion-rate-chart", "percent"),
-        Output("today-sales-class-chart", "data"),
-        Output("today-conversion-chart", "data"),
-    ],
-    Input("update-data-interval", "n_intervals"),
-    [
-        #State("today-sales", "children"),
-        #State("today-visits", "children"),
-        #State("today-orders", "children"),
-        #State("today-conversion-rate-chart", "percent"),
-        State("today-sales-class-chart", "data"),
-        State("today-conversion-chart", "data"),
-    ],
-    prevent_initial_call=True,
+from dash import callback, Output, Input, State
+from orm.db import db
+from orm.chart_view_fault_timed import Chart_view_fault_timed
+import pandas as pd
+from collections import Counter
+
+
+# 从数据库获取所有故障数据的函数
+
+def get_all_fault_data():
+    # 构建查询，获取所有故障类型的数据
+    query = Chart_view_fault_timed.select()
+    # 按开始时间降序排序
+    query = query.order_by(Chart_view_fault_timed.start_time.desc())
+
+    # 执行查询并获取数据
+    with db.atomic():
+        data = query.dicts()
+
+    return data
+
+
+# 合并更新故障和预警表格数据及词云的回调函数
+@callback(
+    [Output('l_w_warning-table', 'data'),
+     Output('l_f_fault-table', 'data'),
+     Output('l_f_fault-wordcloud', 'data')],
+    Input('l-update-data-interval', 'n_intervals')
 )
-def update_dashboard_data(
-    n_intervals,
-    #origin_today_sales,
-    #origin_today_visits,
-    #origin_today_orders,
-    #origin_today_conversion_rate,
-    origin_today_sales_class_chart_data,
-    origin_today_conversion_chart_data,
-):
-    """处理仪表盘中各目标的实时数据更新"""
+def update_both_tables(n_intervals):
+    """
+    更新故障和预警表格数据，只执行一次SQL查询
+    :param n_intervals: 定时器触发次数
+    :return: 预警数据列表和故障数据列表
+    """
+    all_data = get_all_fault_data()
 
-    # 模拟最新实时数据的获取
+    # 拆分数据为预警和故障
+    warning_data = [item for item in all_data if item['fault_type'] == '预警']
+    fault_data = [item for item in all_data if item['fault_type'] == '故障']
 
-    # 当日销售额
-    #next_today_sales = origin_today_sales + random.randint(50, 100)
+    # 格式化预警数据
+    formatted_warning = [{
+        '车号': item['dvc_train_no'],
+        '车厢号': item['dvc_carriage_no'],
+        '预警部件': item['param_name'],
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+    } for item in warning_data]
 
-    # 当日访问量
-    #today_visits_chunk = random.randint(20, 50)
-    # 更新数字递增组件参数
-    #origin_today_visits["props"]["start"] = origin_today_visits["props"]["end"]
-    #origin_today_visits["props"]["end"] = (
-    #     origin_today_visits["props"]["end"] + today_visits_chunk
-    #)
-    #next_today_visits = origin_today_visits
+    # 格式化故障数据
+    formatted_fault = [{
+        '车号': item['dvc_train_no'],
+        '车厢号': item['dvc_carriage_no'],
+        '故障部件': item['param_name'],
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+    } for item in fault_data]
 
-    # 当日访问量分时段图表数据
-    #today_visits_chart_data_patch = Patch()
-    #today_visits_chart_data_patch.append(today_visits_chunk)
+    # 统计故障部件词频用于词云
+    if fault_data:
+        # 提取所有故障部件名称
+        param_names = [item['param_name'] for item in fault_data]
+        # 计算词频
+        param_counter = Counter(param_names)
+        # 格式化词云数据
+        fault_wordcloud_data = [{
+            'word': name,
+            'value': count
+        } for name, count in param_counter.items()]
+    else:
+        fault_wordcloud_data = []
 
-    # 当日订单量
-    #today_orders_chunk = random.randint(50, 100)
-    #next_today_orders = origin_today_orders + today_orders_chunk
-
-    # 当日订单量分时段图表数据
-    #today_orders_chart_data_patch = Patch()
-    #today_orders_chart_data_patch.append(today_orders_chunk)
-
-    # 当日活动转化率
-    #next_today_conversion_rate = round(
-    #    origin_today_conversion_rate + random.uniform(-1, 1), 1
-    #)
-    # 修正模拟数据
-    #if next_today_conversion_rate > 100:
-    #    next_today_conversion_rate = 100
-
-    # 销售额类别占比
-    for i in range(len(origin_today_sales_class_chart_data)):
-        origin_today_sales_class_chart_data[i]["value"] += random.randint(5, 20)
-
-    # 流量转化情况
-    for i in range(len(origin_today_conversion_chart_data)):
-        origin_today_conversion_chart_data[i]["pv"] += random.randint(10, 20)
-
-    return [
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        #next_today_sales,
-        #next_today_visits,
-        #today_visits_chart_data_patch,
-        #next_today_orders,
-        #today_orders_chart_data_patch,
-        #f"{next_today_conversion_rate}%",
-        #next_today_conversion_rate,
-        origin_today_sales_class_chart_data,
-        origin_today_conversion_chart_data,
-    ]
+    # 转换为DataFrame并返回字典列表
+    logging.info(f"fault_wordcloud_data: {fault_wordcloud_data}")
+    return (
+        pd.DataFrame(formatted_warning).to_dict('records'),
+        pd.DataFrame(formatted_fault).to_dict('records'),
+        fault_wordcloud_data
+    )
