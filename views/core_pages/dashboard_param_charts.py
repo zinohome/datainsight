@@ -37,6 +37,7 @@ def render(themetoken):
         # URL参数处理
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='p_url-params-store', data={}),
+        dcc.Download(id='p_download-excel'),
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
 
@@ -94,6 +95,7 @@ def render(themetoken):
                                         ),
                                         fac.AntdFormItem(fac.AntdButton('查询', type='primary', ghost=True,
                                                                         icon=fac.AntdIcon(icon='antd-search'), id='p_query_button', nClicks=0)),
+                                        fac.AntdFormItem(fac.AntdButton('导出', id='p_export_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-download'), nClicks=0)),
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
