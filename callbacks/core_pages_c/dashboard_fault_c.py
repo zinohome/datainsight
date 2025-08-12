@@ -1,10 +1,12 @@
 import time
 from datetime import datetime
-from dash import Input, Output, callback, State, no_update, callback_context
+from dash import Input, Output, callback, State, no_update, callback_context, dcc
 from orm.db import db
 from utils.log import log
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 from urllib.parse import urlparse, parse_qs
+import pandas as pd
+from io import BytesIO
 
 @callback(
     Output('f_url-params-store', 'data'),
@@ -181,3 +183,66 @@ def sync_url_params_to_form(modified_timestamp, url_params):
     start_time_range = [start_time, end_time] if start_time and end_time else []
     log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
     return train_no, carriage_no, fault_type, start_time_range
+
+@callback(
+    Output('f_download-excel', 'data'),
+    Input('f_export_button', 'nClicks'),
+    [State('f_train_no', 'value'),
+     State('f_carriage_no', 'value'),
+     State('f_fault_type', 'value'),
+     State('f_start_time_range', 'value')],
+    prevent_initial_call=True
+)
+def export_fault_data_to_excel(nClicks, train_no, carriage_no, fault_type, start_time_range):
+    # 构建查询
+    query = Chart_view_fault_timed.select()
+    if train_no:
+        query = query.where(Chart_view_fault_timed.dvc_train_no == train_no)
+    if carriage_no:
+        query = query.where(Chart_view_fault_timed.dvc_carriage_no == carriage_no)
+    if fault_type:
+        query = query.where(Chart_view_fault_timed.fault_type == fault_type)
+
+    # 处理时间范围
+    if start_time_range and isinstance(start_time_range, list) and len(start_time_range) == 2:
+        start_time, end_time = start_time_range
+        try:
+            if not isinstance(start_time, datetime):
+                start_time = datetime.strptime(start_time, '%Y-%m-%d %H:%M:%S')
+            if not isinstance(end_time, datetime):
+                end_time = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            query = query.where(Chart_view_fault_timed.start_time >= start_time, Chart_view_fault_timed.start_time <= end_time)
+        except Exception as e:
+            log.error(f"[export_fault_data_to_excel] 时间格式转换错误: {e}")
+            return no_update
+
+    # 获取所有数据
+    with db.atomic():
+        data = query.order_by(Chart_view_fault_timed.start_time.desc()).dicts()
+
+    # 格式化数据
+    formatted_data = [{
+        '车号': item['dvc_train_no'],
+        '车厢号': item['dvc_carriage_no'],
+        '故障名称': item['param_name'],
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] else '',
+        '状态': item['status'],
+        '故障等级': item['fault_level'],
+        '类型': item['fault_type'],
+        '维修建议': item['repair_suggestion']
+    } for item in data]
+
+    # 创建Excel文件
+    df = pd.DataFrame(formatted_data)
+    output = BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='故障数据')
+    output.seek(0)
+
+    # 生成文件名
+    current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+    filename = f'故障数据导出_{current_time}.xlsx'
+
+    log.info(f"[export_fault_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
+    return dcc.send_bytes(output.getvalue(), filename=filename)

@@ -20,6 +20,7 @@ def render(themetoken, url_params=None):
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='f_url-params-store', data={}),
         dcc.Store(id="theme-mode-store", data="dark"),
+        dcc.Download(id='f_download-excel'),
         # 仪表盘网格布局
         fac.AntdRow(
             [
@@ -73,6 +74,7 @@ def render(themetoken, url_params=None):
                                             label='开始时间'
                                         ),
                                         fac.AntdFormItem(fac.AntdButton('查询', id='f_query_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'), nClicks=0)),
+                                        fac.AntdFormItem(fac.AntdButton('导出', id='f_export_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-download'), nClicks=0)),
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},
