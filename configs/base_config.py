@@ -38,7 +38,12 @@ class BaseConfig:
     app_log_level = 'INFO'
 
     # 数据刷新时间配置
+    line_update_data_interval = 10000
     fault_update_data_interval = 10000
+
+    # 部件耗用率选择
+    #health_bar_data_rnd = ['1633', '1634', '1635', '1636', '1637', '1638', '1639', '1640', '1641', '1642', '1643', '1644', '12101']
+    health_bar_data_rnd = ['12101']
 
     # 外部连接配置
     external_param_url = 'https://www.baidu.com'

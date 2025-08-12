@@ -1,3 +1,5 @@
+import random
+
 import psycopg2
 from psycopg2 import pool
 from psycopg2.extras import RealDictCursor
@@ -111,6 +113,16 @@ if __name__ == '__main__':
         field_names = [item['field_name'] for item in results]
         log.info(f"field_name数组: {field_names}")
 
+        data = [
+            {
+                'carriage': f'12101-{i}',
+                'ratio': random.randint(0, 100),
+                'param': f'item{j}',
+            }
+            for i in range(1, 7)
+            for j in range(1, 4)
+        ],
+        log.info(f"数据: {data}")
         '''
         # 大量数据查询（使用服务器端游标）
         large_sql = "SELECT * FROM large_table"

@@ -1,11 +1,14 @@
 import random
 
 from dash import callback, Output, Input, State
+
+from configs import BaseConfig
 from orm.db import db
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 import pandas as pd
 from collections import Counter
 from utils.log import log as log
+from orm.chart_health_equipment import ChartHealthEquipment
 
 # 从数据库获取所有故障数据的函数
 
@@ -26,7 +29,10 @@ def get_all_fault_data():
     [Output('l_w_warning-table', 'data'),
      Output('l_f_fault-table', 'data'),
      Output('l_f_fault-wordcloud', 'data'),
-     Output('l_w_warning-wordcloud', 'data')],
+     Output('l_w_warning-wordcloud', 'data'),
+     Output('l_h_health_table', 'data'),
+     Output('l_h_health_bar', 'data')
+     ],
     Input('l-update-data-interval', 'n_intervals')
 )
 def update_both_tables(n_intervals):
@@ -85,12 +91,51 @@ def update_both_tables(n_intervals):
     else:
         warning_wordcloud_data = []
     
+    # 查询健康数据
+    health_query = ChartHealthEquipment.select().order_by(
+        ChartHealthEquipment.车号,
+        ChartHealthEquipment.车厢号,
+        ChartHealthEquipment.耗用率.desc()
+    )
+    
+    formatted_health = [{
+        '车号': item.车号,
+        '车厢号': item.车厢号,
+        '部件': item.部件,
+        '耗用率': item.耗用率,
+        '额定寿命': item.额定寿命,
+        '已耗': item.已耗
+    } for item in health_query]
+
+    # 构建l_h_health_bar数据
+    bar_data = []
+    
+    # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
+    if not hasattr(update_both_tables, 'select_index'):
+        update_both_tables.select_index = 0
+    health_bar_data = BaseConfig.health_bar_data_rnd
+    select_train = health_bar_data[update_both_tables.select_index % len(health_bar_data)] if health_bar_data else None
+    update_both_tables.select_index += 1
+
+    # 筛选出select_train的车厢数据
+    for item in formatted_health:
+        if item['车号'] == select_train:
+            bar_data.append({
+                'carriage': f"{item['车号']}-{item['车厢号']}",
+                'ratio': round(item['耗用率'] * 100, 2),
+                'param': item['部件'].replace('-', '')
+            })
+    
+
     # 转换为DataFrame并返回字典列表
     log.info(f"fault_wordcloud_data: {fault_wordcloud_data}")
-    log.info(f"fault_wordcloud_data: {fault_wordcloud_data}")
+    log.info(f"warning_wordcloud_data: {warning_wordcloud_data}")
+    log.info(f"bar_data: {bar_data}")
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),
         fault_wordcloud_data,
-        warning_wordcloud_data
+        warning_wordcloud_data,
+        pd.DataFrame(formatted_health).to_dict('records'),
+        bar_data
     )

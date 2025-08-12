@@ -11,6 +11,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     simple_chart_card,
 )
 from components.macdacard import macda_card
+from configs import BaseConfig
 from .train_chart import create_train_chart
 
 
@@ -18,13 +19,14 @@ def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
     l_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
     l_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
+    l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
         dcc.Interval(
             id="l-update-data-interval",
-            interval=10000,  # 示例，每10秒更新一次
+            interval=BaseConfig.line_update_data_interval,  # 示例，每10秒更新一次
         ),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
@@ -208,12 +210,50 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="寿命预测",
-                                    chart=fac.AntdRow(
-                                        [''],
-                                        style={"height": "100px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
+                                    chart=fac.AntdSpin(
+                                        fac.AntdTable(
+                                            id='l_h_health_table',
+                                            columns=[
+                                                {
+                                                    'title': column,
+                                                    'dataIndex': column,
+                                                    'width': '{:.2f}%'.format(100 / len(l_h_health_table_colnames)),
+                                                    'headerCellStyle': {
+                                                        'fontWeight': 'bold',
+                                                        'border': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    'cellStyle': {
+                                                        'borderRight': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    **({'renderOptions': {
+                                                        'renderType': 'mini-progress',
+                                                        'progressOneHundredPercentColor': '#f08c00',
+                                                    }} if column == '耗用率' else {})
+                                                }
+                                                for column in l_h_health_table_colnames
+                                            ],
+                                            size='small',
+                                            pagination=False,
+                                            bordered=False,
+                                            maxHeight=250,
+                                            mode='server-side',
+                                            className="fault-table",
+                                            style={
+                                                'height': '100%',
+                                                'width': '100%',
+                                                'border': 'none',
+                                                'border-collapse': 'collapse',
+                                                'border-spacing': '0',
+                                                'backgroundColor': 'transparent'
+                                            },
+                                        ),
+                                        text='数据加载中',
                                     ),
                                     height=350,
                                 ),
@@ -237,7 +277,7 @@ def render(themetoken):
                                                 wordStyle={'fontSize': [12, 36]},
                                             ),
                                         ],
-                                        style={"height": "100px",
+                                        style={"height": "300px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0}
@@ -264,7 +304,7 @@ def render(themetoken):
                                                 wordStyle={'fontSize': [12, 36]},
                                             ),
                                         ],
-                                        style={"height": "100px",
+                                        style={"height": "300px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0}
@@ -279,10 +319,37 @@ def render(themetoken):
                                     rootStyle={"background": themetoken["colorBgCard"]},
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
-                                    title="部件寿命",
+                                    title="部件耗用率%",
                                     chart=fac.AntdRow(
-                                        [''],
-                                        style={"height": "100px",
+                                [
+                                            fact.AntdBar(
+                                                id='l_h_health_bar',
+                                                data=[
+                                                    {
+                                                        'carriage': f'12101-{i}',
+                                                        'ratio': random.randint(0, 10),
+                                                        'param': f'item{j}',
+                                                    }
+                                                    for i in range(1, 7)
+                                                    for j in range(1, 15)
+                                                ],
+                                                xField='ratio',
+                                                yField='carriage',
+                                                seriesField='param',
+                                                isStack=True,
+                                                isPercent=False,
+                                                label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
+                                                style={
+                                                    'height': '100%',
+                                                    'width': '100%',
+                                                    'border': 'none',
+                                                    'border-collapse': 'collapse',
+                                                    'border-spacing': '0',
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                            )
+                                        ],
+                                        style={"height": "300px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0}
