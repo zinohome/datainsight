@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from dash import Input, Output, callback, State, callback_context
 from orm.chart_view_param import Chart_view_param
 from orm.db import db
@@ -38,6 +38,11 @@ def update_url_params(search):
         'start_time': parsed_start_time,
         'end_time': parsed_end_time
     }
+
+    # 检查并设置默认时间
+    if result['start_time'] == '' or result['end_time'] == '':
+        result['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        result['start_time'] = (datetime.now() - timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
     log.info(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
