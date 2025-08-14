@@ -14,7 +14,7 @@ from io import BytesIO
     prevent_initial_call=False
 )
 def update_url_params(search):
-    log.info(f"[update_url_params] 开始解析URL参数: {search}")
+    log.debug(f"[update_url_params] 开始解析URL参数: {search}")
     parsed_train = ''
     parsed_carriage = ''
     parsed_fault = ''
@@ -39,7 +39,7 @@ def update_url_params(search):
         'start_time': parsed_start_time,
         'end_time': parsed_end_time
     }
-    log.info(f"[update_url_params] URL参数解析完成，存储结果: {result}")
+    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
 @callback(
@@ -55,7 +55,7 @@ def update_url_params(search):
     prevent_initial_call=False
 )
 def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carriage_no, fault_type, start_time_range):
-    log.info(f"[fault_warning_table_callback] 触发源: {callback_context.triggered_id if callback_context.triggered else '初始加载'}")
+    log.debug(f"[fault_warning_table_callback] 触发源: {callback_context.triggered_id if callback_context.triggered else '初始加载'}")
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
     query_train_no = ''
@@ -155,7 +155,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
         '类型': item['fault_type'],
         '维修建议': item['repair_suggestion']
     } for item in data]
-    log.info(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
+    log.debug(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
     return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
 
 @callback(
@@ -170,7 +170,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
 def sync_url_params_to_form(modified_timestamp, url_params):
     time.sleep(0.5)  # 关键延迟：等待前端元素加载
     
-    log.info(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
+    log.debug(f"[sync_url_params_to_form] 函数被触发，收到参数: {url_params}")
     if not isinstance(url_params, dict):
         log.warning(f"[sync_url_params_to_form] 参数不是字典类型: {type(url_params)}")
         return None, None, None, []
@@ -181,7 +181,7 @@ def sync_url_params_to_form(modified_timestamp, url_params):
     end_time = url_params.get('end_time')
     # AntdDateRangePicker需要字符串list，否则置空
     start_time_range = [start_time, end_time] if start_time and end_time else []
-    log.info(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
+    log.debug(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 类型={fault_type}, 时间范围={start_time_range}")
     return train_no, carriage_no, fault_type, start_time_range
 
 @callback(
@@ -244,5 +244,5 @@ def export_fault_data_to_excel(nClicks, train_no, carriage_no, fault_type, start
     current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
     filename = f'故障数据导出_{current_time}.xlsx'
 
-    log.info(f"[export_fault_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
+    log.debug(f"[export_fault_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
     return dcc.send_bytes(output.getvalue(), filename=filename)

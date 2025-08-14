@@ -128,9 +128,9 @@ def update_both_tables(n_intervals):
     
 
     # 转换为DataFrame并返回字典列表
-    log.info(f"fault_wordcloud_data: {fault_wordcloud_data}")
-    log.info(f"warning_wordcloud_data: {warning_wordcloud_data}")
-    log.info(f"bar_data: {bar_data}")
+    log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
+    log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
+    log.debug(f"bar_data: {bar_data}")
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),

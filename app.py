@@ -78,7 +78,7 @@ def root_router(pathname, trigger):
     # 在动态路由切换时阻止根节点路由更新
     if trigger not in ["load", "pushstate"]:
         # 记录非加载触发的路由事件
-        log.info(f"[root_router] 非允许的触发类型，忽略: trigger={trigger}, pathname={pathname}")
+        log.debug(f"[root_router] 非允许的触发类型，忽略: trigger={trigger}, pathname={pathname}")
         return dash.no_update
 
     # 演示专用页面展示

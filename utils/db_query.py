@@ -108,10 +108,10 @@ if __name__ == '__main__':
         sql = "SELECT field_name FROM public.sys_fields where field_category='Param'"
         #params = {'age': 18}
         results = db_query.execute_query(sql)
-        log.info(f"普通查询结果: {results}")
+        log.debug(f"普通查询结果: {results}")
         # 提取field_name值到数组
         field_names = [item['field_name'] for item in results]
-        log.info(f"field_name数组: {field_names}")
+        log.debug(f"field_name数组: {field_names}")
 
         data = [
             {
@@ -122,7 +122,7 @@ if __name__ == '__main__':
             for i in range(1, 7)
             for j in range(1, 4)
         ],
-        log.info(f"数据: {data}")
+        log.debug(f"数据: {data}")
         '''
         # 大量数据查询（使用服务器端游标）
         large_sql = "SELECT * FROM large_table"

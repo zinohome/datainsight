@@ -15,7 +15,7 @@ from dash import dcc
     prevent_initial_call=False
 )
 def update_url_params(search):
-    log.info(f"[update_url_params] 开始解析URL参数: {search}")
+    log.debug(f"[update_url_params] 开始解析URL参数: {search}")
     parsed_train = ''
     parsed_carriage = ''
     parsed_component = ''
@@ -46,7 +46,7 @@ def update_url_params(search):
     if result['start_time'] == '' or result['end_time'] == '':
         result['end_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         result['start_time'] = (datetime.now() - timedelta(hours=8)).strftime('%Y-%m-%d %H:%M:%S')
-    log.info(f"[update_url_params] URL参数解析完成，存储结果: {result}")
+    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
 # 数据查询回调
@@ -61,7 +61,7 @@ def update_url_params(search):
     prevent_initial_call=False
 )
 def update_dashboard_data(url_params, nClicks, train_no, carriage_no, component, start_time_range):
-    log.info(f"[update_dashboard_data] 触发源: {callback_context.triggered_id if callback_context.triggered else '初始加载'}")
+    log.debug(f"[update_dashboard_data] 触发源: {callback_context.triggered_id if callback_context.triggered else '初始加载'}")
     ctx = callback_context
     trigger_id = ctx.triggered[0]["prop_id"].split(".")[0] if ctx.triggered else None
 
@@ -135,7 +135,7 @@ def update_dashboard_data(url_params, nClicks, train_no, carriage_no, component,
             'param_name': item['param_name']
         } for item in data]
 
-        log.info(f"[update_dashboard_data] 查询完成，返回 {len(formatted_data)} 条记录")
+        log.debug(f"[update_dashboard_data] 查询完成，返回 {len(formatted_data)} 条记录")
         return formatted_data
     except Exception as e:
         log.error(f"[update_dashboard_data] 查询错误: {e}")
@@ -153,7 +153,7 @@ def update_dashboard_data(url_params, nClicks, train_no, carriage_no, component,
 )
 def sync_url_params_to_form(modified_timestamp, url_params):
     time.sleep(0.5)  # 等待前端元素加载
-    log.info(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
+    log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
     if not isinstance(url_params, dict):
         return None, None, None, []
 
@@ -224,7 +224,7 @@ def export_param_data_to_excel(nClicks):
         current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f'参数数据导出_{current_time}.xlsx'
         
-        log.info(f"[export_param_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
+        log.debug(f"[export_param_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
         return dcc.send_bytes(output.getvalue(), filename=filename)
     except Exception as e:
         log.error(f"[export_param_data_to_excel] 导出错误: {e}")

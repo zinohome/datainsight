@@ -2,16 +2,18 @@ import dash
 from flask import request
 from user_agents import parse
 from dash_offline_detect_plugin import setup_offline_detect_plugin
+import logging
 
 # 应用基础参数
 from configs import BaseConfig
 
-#setup_offline_detect_plugin()
+if BaseConfig.setup_offline_detect:
+    setup_offline_detect_plugin()
 
 # 开启peewee日志调试
-import logging
-logging.basicConfig()
-logging.getLogger('peewee').setLevel(logging.DEBUG)
+if BaseConfig.app_peewee_debug_log:
+    logging.basicConfig()
+    logging.getLogger('peewee').setLevel(logging.DEBUG)
 
 app = dash.Dash(
     __name__,
