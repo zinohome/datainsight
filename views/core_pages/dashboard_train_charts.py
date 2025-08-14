@@ -62,6 +62,7 @@ def render(themetoken):
                         )
                     ),
                     span=24,
+                    style=style(border="none"),
                 ),
                 # 展示列车图
                 fac.AntdCol(
