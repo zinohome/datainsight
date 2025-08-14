@@ -139,9 +139,9 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
 
     # 执行查询并获取数据
     with db.atomic():
-        data = query.order_by(Chart_view_fault_timed.start_time.desc()).offset(
+        data = list(query.order_by(Chart_view_fault_timed.start_time.desc()).offset(
             (pagination['current'] - 1) * pagination['pageSize']
-        ).limit(pagination['pageSize']).dicts()
+        ).limit(pagination['pageSize']).dicts())
 
     # 格式化数据
     formatted_data = [{
@@ -218,7 +218,7 @@ def export_fault_data_to_excel(nClicks, train_no, carriage_no, fault_type, start
 
     # 获取所有数据
     with db.atomic():
-        data = query.order_by(Chart_view_fault_timed.start_time.desc()).dicts()
+        data = list(query.order_by(Chart_view_fault_timed.start_time.desc()).dicts())
 
     # 格式化数据
     formatted_data = [{

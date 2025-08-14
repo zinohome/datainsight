@@ -126,7 +126,7 @@ def update_dashboard_data(url_params, nClicks, train_no, carriage_no, component,
     # 执行查询
     try:
         with db.atomic():
-            data = query.order_by(Chart_view_param.time_minute).dicts()
+            data = list(query.order_by(Chart_view_param.time_minute).dicts())
 
         # 格式化数据为折线图所需格式
         formatted_data = [{
@@ -198,7 +198,7 @@ def export_param_data_to_excel(nClicks):
     # 执行查询
     try:
         with db.atomic():
-            data = query.order_by(Chart_view_param.time_minute).dicts()
+            data = list(query.order_by(Chart_view_param.time_minute).dicts())
         
         # 格式化数据
         formatted_data = [{

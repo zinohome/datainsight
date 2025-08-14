@@ -21,7 +21,8 @@ def get_all_fault_data():
 
     # 执行查询并获取数据
     with db.atomic():
-        data = query.dicts()
+        #data = query.dicts()
+        data = list(query.dicts())
 
     return data
 
@@ -94,20 +95,21 @@ def update_both_tables(n_intervals):
         warning_wordcloud_data = []
 
     # 查询健康数据
-    health_query = ChartHealthEquipment.select().order_by(
-        ChartHealthEquipment.车号,
-        ChartHealthEquipment.车厢号,
-        ChartHealthEquipment.耗用率.desc()
-    )
-
-    formatted_health = [{
-        '车号': item.车号,
-        '车厢号': item.车厢号,
-        '部件': item.部件,
-        '耗用率': item.耗用率,
-        '额定寿命': item.额定寿命,
-        '已耗': item.已耗
-    } for item in health_query]
+    with db.atomic():  # 添加上下文管理器
+        health_query = ChartHealthEquipment.select().order_by(
+            ChartHealthEquipment.车号,
+            ChartHealthEquipment.车厢号,
+            ChartHealthEquipment.耗用率.desc()
+        )
+        # 立即加载所有数据
+        formatted_health = [{
+            '车号': item.车号,
+            '车厢号': item.车厢号,
+            '部件': item.部件,
+            '耗用率': item.耗用率,
+            '额定寿命': item.额定寿命,
+            '已耗': item.已耗
+        } for item in health_query]
 
     # 构建c_h_health_bar数据
     bar_data = []
