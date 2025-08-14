@@ -15,7 +15,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components import dashboard_side_menu
 # 新增导入LayoutConfig
 from configs.layout_config import LayoutConfig
-import callbacks.core_pages_c.dashboard_c
+import callbacks.core_pages_c.dashboard_line_c
 from views.core_pages import dashboard_line_charts
 
 

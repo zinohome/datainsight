@@ -104,10 +104,12 @@ def horizontal_timeline(
     container_style = {
         'display': 'flex',
         'alignItems': 'center',
-        'width': '100%',
-        'minWidth': 'fit-content',  # 新增：确保容器宽度足够容纳所有内容
-        'padding': '20px 0',
-        'overflowX': 'auto'  # 支持横向滚动
+        'maxWidth': '100%',  # 修改：使用maxWidth而非width，限制最大宽度为父容器宽度
+        'minWidth': 'fit-content',
+        'padding': '20px',  # 修改：增加内边距防止内容贴边
+        'overflowX': 'auto',  # 确保横向溢出时显示滚动条
+        'overflowY': 'hidden',  # 隐藏垂直溢出
+        'boxSizing': 'border-box'  # 新增：确保padding计入宽度计算
     }
 
     return html.Div(
