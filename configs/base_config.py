@@ -46,5 +46,17 @@ class BaseConfig:
     health_bar_data_rnd = ['12101']
 
     # 外部连接配置
+    # 外部链接打开方式 ['_blank', '_self', '_parent', '_top']
+    external_link_target = '_blank'
+    # 首页-“一期空调状态跳转地址”
+    external_main_status_url = 'https://www.baidu.com'
+    # 首页-“一期故障跳转地址”
+    external_main_fault_url = 'https://www.baidu.com'
+    # 首页-“一期预警跳转地址”
+    external_main_predict_url = 'https://www.baidu.com'
+    # 首页-“一期寿命跳转地址”
+    external_main_health_url = 'https://www.baidu.com'
+    # 设备参数页面-“一期运行参数跳转地址”
     external_param_url = 'https://www.baidu.com'
+    # 设备参数页面-“一期故障&预警跳转地址”
     external_fault_url = 'https://www.baidu.com'
