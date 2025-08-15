@@ -18,6 +18,8 @@ from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
 from dash import dcc
+from views.core_pages.train_chart_link import create_train_chart_link
+from configs.layout_config import LayoutConfig
 
 
 # 解析URL参数回调
@@ -272,3 +274,22 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
         pd.DataFrame(formatted_health).to_dict('records'),
         bar_data
     )
+
+
+# 更新列车图链接回调
+@callback(
+    Output('train-chart-link-container', 'children'),
+    [Input('t_train_no', 'value')],
+    [State('theme-mode-store', 'data')]
+)
+def update_train_chart_link(train_no, theme_mode):
+    """
+    根据车号更新列车图链接
+    :param train_no: 车号
+    :param theme_mode: 主题模式
+    :return: 更新后的列车图链接组件
+    """
+    log.debug(f"[update_train_chart_link] 更新列车图链接，train_no: {train_no}")
+    themetoken = LayoutConfig.dashboard_theme
+    # 创建新的列车图链接
+    return create_train_chart_link(themetoken, 'carriage', train_no)

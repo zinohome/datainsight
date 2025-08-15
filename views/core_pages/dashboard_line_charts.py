@@ -17,6 +17,7 @@ from .train_chart import create_train_chart
 
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
+    l_c_opstatus_table_colnames=['车号', '运行状态', '立即维修', '加强跟踪', '计划维修']
     l_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
     l_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
     l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
@@ -66,7 +67,57 @@ def render(themetoken):
                             }
                         ),
                         chart=fac.AntdRow(
-                            [''],
+                            [
+                            # 空调状态表
+                            fac.AntdCol(
+                                blank_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    children=
+                                    fac.AntdSpin(
+                                        fac.AntdTable(
+                                            id='l_c_opstatus-table',
+                                            columns=[
+                                                {
+                                                    'title': column,
+                                                    'dataIndex': column,
+                                                    'width': '{:.2f}%'.format(100 / len(l_c_opstatus_table_colnames)),
+                                                    'headerCellStyle': {
+                                                        'fontWeight': 'bold',
+                                                        'border': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    'cellStyle': {
+                                                        'borderRight': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    }
+                                                }
+                                                for column in l_c_opstatus_table_colnames
+                                            ],
+                                            size='small',
+                                            pagination=False,
+                                            bordered = False,
+                                            maxHeight=280,
+                                            mode = 'server-side',
+                                            className = "fault-table",
+                                            style = {
+                                                'height': '100%',
+                                                'width': '100%',
+                                                'border': 'none',
+                                                'border-collapse': 'collapse',
+                                                'border-spacing': '0',
+                                                'backgroundColor': 'transparent'
+                                            },
+                                        ),
+                                    text='数据加载中',
+                                    ),
+                                ),
+                                span=24,
+                            ),
+                            ],
                             style={"height": "100px",
                                    "alignItems": "flex-start",
                                     "margin": 0,
@@ -270,12 +321,9 @@ def render(themetoken):
                             ),
                             # 典型故障图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型故障",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                         [
                                             fact.AntdWordCloud(
                                                 id="l_f_fault-wordcloud",
@@ -291,18 +339,14 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),
                             # 典型预警图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型预警",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                         [
                                             fact.AntdWordCloud(
                                                 id="l_w_warning-wordcloud",
@@ -318,18 +362,14 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),
                             # 部件寿命图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="部件耗用率%",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                 [
                                             fact.AntdBar(
                                                 id='l_h_health_bar',
@@ -363,7 +403,6 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),

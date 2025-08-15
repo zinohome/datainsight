@@ -270,12 +270,9 @@ def render(themetoken):
                             ),
                             # 典型故障图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型故障",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                         [
                                             fact.AntdWordCloud(
                                                 id="l_f_fault-wordcloud",
@@ -291,18 +288,14 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),
                             # 典型预警图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型预警",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                         [
                                             fact.AntdWordCloud(
                                                 id="l_w_warning-wordcloud",
@@ -318,18 +311,14 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),
                             # 部件寿命图表
                             fac.AntdCol(
-                                macda_card(
+                                blank_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="部件耗用率%",
-                                    chart=fac.AntdRow(
+                                    children=fac.AntdRow(
                                 [
                                             fact.AntdBar(
                                                 id='l_h_health_bar',
@@ -363,7 +352,6 @@ def render(themetoken):
                                                "margin": 0,
                                                "padding": 0}
                                     ),
-                                    height=350,
                                 ),
                                 span=8,
                             ),
