@@ -343,6 +343,7 @@ def update_both_tables(n_intervals):
             train_maintenance_num += 1
         
         # 添加10个相同的字典数据
+        '''
         test_formatted_opstatus=[]
         for _ in range(10):
             test_formatted_opstatus.append({
@@ -353,6 +354,7 @@ def update_both_tables(n_intervals):
                 '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
             })
         formatted_opstatus.extend(test_formatted_opstatus)
+        '''
         formatted_opstatus.append({
             '车号': {'status': badge_status, 'text': item['dvc_train_no']},
             '立即维修': item['立即维修'],

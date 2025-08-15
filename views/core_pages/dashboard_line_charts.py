@@ -331,6 +331,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_warning_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#f97316',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
@@ -340,6 +345,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_alarm_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
@@ -349,6 +359,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_total_exception_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
@@ -358,6 +373,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_healthy_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#22c55e',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
@@ -367,6 +387,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_subhealthy_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#f97316',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
@@ -376,6 +401,11 @@ def render(themetoken):
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_faulty_count',
                                                             end=10, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
                                                     ),
                                                     span=8,
                                                 ),
