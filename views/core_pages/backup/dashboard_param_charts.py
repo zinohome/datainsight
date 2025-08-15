@@ -115,7 +115,7 @@ def render(themetoken):
                         description=html.A(
                             "一期运行参数",
                             href=BaseConfig.external_param_url,
-                            target="_blank",
+                            target=BaseConfig.external_link_target,
                             style={"textDecoration": "none"}
                         ),
                         height="calc(70vh - 20px)",

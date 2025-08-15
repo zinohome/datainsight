@@ -1,9 +1,16 @@
+# 添加 _sentinel 类定义
+class _sentinel:
+    def __lt__(self, other):
+        return True
+
+import heapq
 import random
+import time
 
 from dash import callback, Output, Input, State
 
 from configs import BaseConfig
-from orm.db import db
+from orm.db import db, log_pool_status
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 import pandas as pd
 from collections import Counter
@@ -19,10 +26,23 @@ def get_all_fault_data():
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
     
     # 执行查询并获取数据
-    with db.atomic():
-        data = query.dicts()
-    
-    return data
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
 
 # 合并更新故障和预警表格数据及词云的回调函数
 @callback(
@@ -41,6 +61,14 @@ def update_both_tables(n_intervals):
     :param n_intervals: 定时器触发次数
     :return: 预警数据列表和故障数据列表
     """
+    # 连接池状态监控
+    status = log_pool_status()  # 记录连接池状态日志
+
+    # 连接池耗尽预警
+    if status['utilization'] >= 80:  # 使用率超过80%时触发延迟
+        log.warning(f"连接池使用率过高 ({status['utilization']}%)，延迟查询...")
+        time.sleep(3)  # 延迟1秒
+
     all_data = get_all_fault_data()
     
     # 拆分数据为预警和故障
@@ -90,24 +118,25 @@ def update_both_tables(n_intervals):
         } for name, count in warning_counter.items()]
     else:
         warning_wordcloud_data = []
-    
-    # 查询健康数据
-    health_query = ChartHealthEquipment.select().order_by(
-        ChartHealthEquipment.车号,
-        ChartHealthEquipment.车厢号,
-        ChartHealthEquipment.耗用率.desc()
-    )
-    
-    formatted_health = [{
-        '车号': item.车号,
-        '车厢号': item.车厢号,
-        '部件': item.部件,
-        '耗用率': item.耗用率,
-        '额定寿命': item.额定寿命,
-        '已耗': item.已耗
-    } for item in health_query]
 
-    # 构建l_h_health_bar数据
+    # 查询健康数据
+    with db.atomic():  # 添加上下文管理器
+        health_query = ChartHealthEquipment.select().order_by(
+            ChartHealthEquipment.车号,
+            ChartHealthEquipment.车厢号,
+            ChartHealthEquipment.耗用率.desc()
+        )
+        # 立即加载所有数据
+        formatted_health = [{
+            '车号': item.车号,
+            '车厢号': item.车厢号,
+            '部件': item.部件,
+            '耗用率': item.耗用率,
+            '额定寿命': item.额定寿命,
+            '已耗': item.已耗
+        } for item in health_query]
+
+        # 构建l_h_health_bar数据
     bar_data = []
     
     # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train

@@ -1,3 +1,10 @@
+# 添加 _sentinel 类定义
+class _sentinel:
+    def __lt__(self, other):
+        return True
+
+import heapq
+import random
 import time
 from datetime import datetime
 from dash import Input, Output, callback, State, no_update, callback_context, dcc
@@ -138,25 +145,42 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
     total = query.count()
 
     # 执行查询并获取数据
-    with db.atomic():
-        data = query.order_by(Chart_view_fault_timed.start_time.desc()).offset(
-            (pagination['current'] - 1) * pagination['pageSize']
-        ).limit(pagination['pageSize']).dicts()
+    try:
+        with db.atomic():
+            data = list(query.order_by(Chart_view_fault_timed.start_time.desc()).offset(
+                (pagination['current'] - 1) * pagination['pageSize']
+            ).limit(pagination['pageSize']).dicts())
 
-    # 格式化数据
-    formatted_data = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '故障名称': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] is not None else '',
-        '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] is not None else '',
-        '状态': item['status'],
-        '故障等级': item['fault_level'],
-        '类型': item['fault_type'],
-        '维修建议': item['repair_suggestion']
-    } for item in data]
-    log.debug(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
-    return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
+        # 格式化数据
+        formatted_data = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['dvc_carriage_no'],
+            '故障名称': item['param_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] is not None else '',
+            '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] is not None else '',
+            '状态': item['status'],
+            '故障等级': item['fault_level'],
+            '类型': item['fault_type'],
+            '维修建议': item['repair_suggestion']
+        } for item in data]
+        log.debug(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
+        return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
+    except Exception as e:
+        log.error(f"[update_dashboard_data] 查询错误: {e}")
+        return []
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
 
 @callback(
     [Output('f_train_no', 'value'),
@@ -217,32 +241,49 @@ def export_fault_data_to_excel(nClicks, train_no, carriage_no, fault_type, start
             return no_update
 
     # 获取所有数据
-    with db.atomic():
-        data = query.order_by(Chart_view_fault_timed.start_time.desc()).dicts()
+    try:
+        with db.atomic():
+            data = list(query.order_by(Chart_view_fault_timed.start_time.desc()).dicts())
 
-    # 格式化数据
-    formatted_data = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '故障名称': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] else '',
-        '状态': item['status'],
-        '故障等级': item['fault_level'],
-        '类型': item['fault_type'],
-        '维修建议': item['repair_suggestion']
-    } for item in data]
+        # 格式化数据
+        formatted_data = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['dvc_carriage_no'],
+            '故障名称': item['param_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+            '结束时间': item['end_time'].strftime('%Y-%m-%d %H:%M:%S') if item['end_time'] else '',
+            '状态': item['status'],
+            '故障等级': item['fault_level'],
+            '类型': item['fault_type'],
+            '维修建议': item['repair_suggestion']
+        } for item in data]
 
-    # 创建Excel文件
-    df = pd.DataFrame(formatted_data)
-    output = BytesIO()
-    with pd.ExcelWriter(output, engine='openpyxl') as writer:
-        df.to_excel(writer, index=False, sheet_name='故障数据')
-    output.seek(0)
+        # 创建Excel文件
+        df = pd.DataFrame(formatted_data)
+        output = BytesIO()
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='故障数据')
+        output.seek(0)
 
-    # 生成文件名
-    current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f'故障数据导出_{current_time}.xlsx'
+        # 生成文件名
+        current_time = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'故障数据导出_{current_time}.xlsx'
 
-    log.debug(f"[export_fault_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
-    return dcc.send_bytes(output.getvalue(), filename=filename)
+        log.info(f"[export_fault_data_to_excel] 导出 {len(formatted_data)} 条数据到Excel文件: {filename}")
+        return dcc.send_bytes(output.getvalue(), filename=filename)
+    except Exception as e:
+        log.error(f"[export_param_data_to_excel] 导出错误: {e}")
+        return None
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")

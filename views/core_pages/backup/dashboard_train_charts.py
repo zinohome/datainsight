@@ -10,114 +10,68 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     index_card,
     simple_chart_card,
 )
-
-from components.horizontal_timeline import horizontal_timeline
 from components.macdacard import macda_card
+from configs import BaseConfig
+from .train_chart_link import create_train_chart_link
 
 
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
+    t_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
+    t_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
+    t_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
         dcc.Interval(
-            id="train_update-data-interval",
-            interval=3000,  # 示例，每1秒更新一次
+            id="l-update-data-interval",
+            interval=BaseConfig.line_update_data_interval,  # 示例，每10秒更新一次
         ),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
         fac.AntdRow(
             [
-                # 展示数据更新时间
+                # 数据筛选
                 fac.AntdCol(
                     blank_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},  # 仍使用themetoken变量（已关联配置）
+                        rootStyle={"background": themetoken["colorBgCard"]},  # 仍使用themetoken变量
                         children=fac.AntdSpace(
                             [
-                                fac.AntdText(
+                                fac.AntdForm(
                                     [
-                                        "数据最近更新时间：",
-                                        fac.AntdText(
-                                            datetime.now().strftime(
-                                                "%Y-%m-%d %H:%M:%S"
+                                        fac.AntdFormItem(
+                                            fac.AntdSelect(
+                                                options=[
+                                                    {'label': f'16{i}车', 'value': f'16{i}'} for i in range(33, 45)
+                                                ],
+                                                style={'width': 100},
+                                                id='t_train_no'
                                             ),
-                                            id="train_update-datetime",
-                                            type="secondary",
+                                            label='车号'
                                         ),
-                                    ]
-                                )
-                            ],
-                            style={"width": "100%", "display": "flex", "alignItems": "center"}
+                                        fac.AntdFormItem(fac.AntdButton('查询', type='primary', ghost=True,
+                                                                        icon=fac.AntdIcon(icon='antd-search'),
+                                                                        id='p_query_button', nClicks=0)),
+                                    ],
+                                    layout='inline',
+                                    style={'justifyContent': 'center'},
+                                ),
+                            ]
                         )
                     ),
                     span=24,
-                    style={'display': 'none'}
+                    style=style(border="none"),
                 ),
                 # 展示列车图
                 fac.AntdCol(
                     blank_card(
-                        rootStyle={"background": themetoken["colorBgCard"]}, 
+                        rootStyle={"background": themetoken["colorBgCard"]},
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                html.Div(
-                                    style={
-                                        "display": "flex",
-                                        "alignItems": "center",
-                                        "padding": "5px",
-                                        "width": "100%"
-                                    },
-                                    children=[
-                                        # 车头（左侧图片）
-                                        html.Img(
-                                            src="/assets/imgs/train_headL.png",  # 车头左侧图片
-                                            style={
-                                                "flex": "0 0 44px",
-                                                "height": "74px",
-                                                "borderRadius": "8px 0 0 8px",
-                                                "objectFit": "cover"  # 保持图片比例并填充容器
-                                            }
-                                        ),
-                                        # 车厢1-6（每节由左右图片拼接）
-                                        *[dcc.Link(  # 添加链接组件
-                                            href=f"/macda/dashboard/carriage?carriage={i + 1}",
-                                            children=html.Div(
-                                                style={
-                                                    "flex": "1 1 auto",  # 等比例分配剩余空间
-                                                    "minWidth": "60px",  # 最小宽度限制，防止过度压缩
-                                                    "height": "74px",
-                                                    "display": "flex",  # 启用flex布局拼接左右图片
-                                                    "borderLeft": "0px dashed white"  # 车厢间分隔线
-                                                },
-                                                children=[
-                                                    # 车厢左侧图片
-                                                    html.Img(
-                                                        src="/assets/imgs/train_bodyL.png",
-                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                    ),
-                                                    # 车厢右侧图片
-                                                    html.Img(
-                                                        src="/assets/imgs/train_bodyR.png",
-                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
-                                                    )
-                                                ]
-                                            )
-                                        ) for i in range(6)],  # 6节车厢
-                                        # 车尾（右侧图片）
-                                        html.Img(
-                                            src="/assets/imgs/train_headR.png",  # 车尾右侧图片
-                                            style={
-                                                "flex": "0 0 44px",
-                                                "height": "74px",
-                                                "borderRadius": "0 8px 8px 0",
-                                                "borderLeft": "0px dashed white",  # 与前一节车厢分隔
-                                                "objectFit": "cover"
-                                            }
-                                        )
-                                    ]
-                                )
+                                create_train_chart_link(themetoken)
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}
@@ -126,136 +80,15 @@ def render(themetoken):
                     span=24,
                 ),
 
-                # 列车在线情况
+                # 当前空调状态区域 - 左侧单列，视觉上跨两行
                 fac.AntdCol(
                     macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]}, 
+                        rootStyle={"background": themetoken["colorBgCard"]},
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
-                        title="列车在线情况",
+                        title="当前空调状态",
                         chart=fac.AntdRow(
-                            [
-                                # 圆环1
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        id="train_today-hot-search-wordcloud-chart",
-                                        key="dfdfsfsfds",
-                                        data=[{"value": 75}],
-                                        angleField="value",
-                                        radius=0.75,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线\n{75}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex",
-                                           "justifyContent": "center",
-                                           "alignItems": "flex-start",
-                                           "padding": "10px 10px 0",
-                                           "height": "100%"}
-                                ),
-                                # 圆环2
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 60}],
-                                        angleField="value",
-                                        radius=0.75,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线\n{60}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex",
-                                           "justifyContent": "center",
-                                           "alignItems": "flex-start",
-                                           "padding": "10px 10px 0",
-                                           "height": "100%"}
-                                ),
-                                # 圆环3
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 85}],
-                                        angleField="value",
-                                        radius=0.75,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线\n{85}",
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex",
-                                           "justifyContent": "center",
-                                           "alignItems": "flex-start",
-                                           "padding": "10px 10px 0",
-                                           "height": "100%"}
-                                ),
-                                # 圆环4
-                                fac.AntdCol(
-                                    fact.AntdPie(
-                                        data=[{"value": 90}],
-                                        angleField="value",
-                                        radius=0.75,  # 外半径设为0.3
-                                        innerRadius=0.75,
-                                        color="#52c41a",
-                                        tooltip=False,
-                                        statistic=False,
-                                        label=False,
-                                        annotations=[{
-                                            "type": "text",
-                                            "position": ["50%", "50%"],
-                                            "content": f"在线\n{90}",
-                                            "autoAdjust": True,
-                                            "style": {
-                                                "fill": "white",
-                                                "fontSize": 12,
-                                                "textAlign": "center",
-                                                "whiteSpace": "pre"
-                                            }
-                                        }]
-                                    ),
-                                    span=6,
-                                    style={"display": "flex",
-                                           "justifyContent": "center",
-                                           "alignItems": "flex-start",
-                                           "padding": "10px 10px 0",
-                                           "height": "100%"}
-                                )
-                            ],
+                            [''],
                             style={"height": "100px",
                                    "alignItems": "flex-start",
                                     "margin": 0,
@@ -265,292 +98,274 @@ def render(themetoken):
                     ),
                     span=6,
                 ),
+                # 右侧图表容器 - 宽度18列，包含6个图表，分两行三列排列
                 fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="空调故障",
-                        description=html.A(
-                            "一期故障",
-                            href="https://www.baidu.com",
-                            target="_blank",  # 新窗口打开
-                            style={
-                                #"color": themetoken["colorText"],  # 继承原文本颜色
-                                "textDecoration": "none"  # 可选：移除下划线
-                            }
-                        ),
-                        chart=fac.AntdTable(
-                            columns=[
-                                {'title': f'字段{i}',
-                                 'dataIndex': f'字段{i}',
-                                 'width': width,
-                                 'headerCellStyle': {
-                                     'fontWeight': 'bold',  # 表头文字加粗
-                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
-                                 },
-                                 # 单元格样式：隐藏右侧竖线
-                                 'cellStyle': {
-                                     'borderRight': 'none',  # 清除所有默认边框
-                                     'borderBottom': '1px solid #e8e8e8'
-                                 }
-                                 }
-                                for i, width in zip(
-                                    range(1, 5), ['25%', '25%', '25%', '25%']
-                                )
-                            ],
-                            data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
-                            size="small",
-                            bordered=False,
-                            maxHeight=150,
-                            maxWidth='max-content',
-                            pagination=False,
-                            style={
-                                'border': 'none'
-                            },
-                        ),
-                        height=350,
+                    fac.AntdRow(
+                        [
+                            # 故障告警图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="故障告警",
+                                    chart=
+                                    fac.AntdSpin(
+                                        fac.AntdTable(
+                                            id='t_f_fault-table',
+                                            columns=[
+                                                {
+                                                    'title': column,
+                                                    'dataIndex': column,
+                                                    'width': '{:.2f}%'.format(100 / len(t_f_fault_table_colnames)),
+                                                    'headerCellStyle': {
+                                                        'fontWeight': 'bold',
+                                                        'border': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    'cellStyle': {
+                                                        'borderRight': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    }
+                                                }
+                                                for column in t_f_fault_table_colnames
+                                            ],
+                                            size='small',
+                                            pagination=False,
+                                            bordered = False,
+                                            maxHeight=280,
+                                            mode = 'server-side',
+                                            className = "fault-table",
+                                            style = {
+                                                'height': '100%',
+                                                'width': '100%',
+                                                'border': 'none',
+                                                'border-collapse': 'collapse',
+                                                'border-spacing': '0',
+                                                'backgroundColor': 'transparent'
+                                            },
+                                        ),
+                                    text='数据加载中',
+                                    ),
+                                height=350,
+                                ),
+                                span=8,
+                            ),
+                            # 状态预警图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="状态预警",
+                                    chart=fac.AntdSpin(
+                                        fac.AntdTable(
+                                            id='t_w_warning-table',
+                                            columns=[
+                                                {
+                                                    'title': column,
+                                                    'dataIndex': column,
+                                                    'width': '{:.2f}%'.format(100 / len(t_w_warning_table_colnames)),
+                                                    'headerCellStyle': {
+                                                        'fontWeight': 'bold',
+                                                        'border': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    'cellStyle': {
+                                                        'borderRight': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    }
+                                                }
+                                                for column in t_w_warning_table_colnames
+                                            ],
+                                            size='small',
+                                            pagination=False,
+                                            bordered = False,
+                                            maxHeight=280,
+                                            mode = 'server-side',
+                                            className = "fault-table",
+                                            style = {
+                                                'height': '100%',
+                                                'width': '100%',
+                                                'border': 'none',
+                                                'border-collapse': 'collapse',
+                                                'border-spacing': '0',
+                                                'backgroundColor': 'transparent'
+                                            },
+                                        ),
+                                    text='数据加载中',
+                                    ),
+                                    height=350,
+                                ),
+                                span=8,
+                            ),
+                            # 寿命预测图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="寿命预测",
+                                    chart=fac.AntdSpin(
+                                        fac.AntdTable(
+                                            id='t_h_health_table',
+                                            columns=[
+                                                {
+                                                    'title': column,
+                                                    'dataIndex': column,
+                                                    'width': '{:.2f}%'.format(100 / len(t_h_health_table_colnames)),
+                                                    'headerCellStyle': {
+                                                        'fontWeight': 'bold',
+                                                        'border': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    'cellStyle': {
+                                                        'borderRight': 'none',
+                                                        'borderBottom': '1px solid #e8e8e8',
+                                                        'color': themetoken["colorText"],
+                                                        'backgroundColor': 'transparent'
+                                                    },
+                                                    **({'renderOptions': {
+                                                        'renderType': 'mini-progress',
+                                                        'progressOneHundredPercentColor': '#f08c00',
+                                                    }} if column == '耗用率' else {})
+                                                }
+                                                for column in t_h_health_table_colnames
+                                            ],
+                                            size='small',
+                                            pagination=False,
+                                            bordered=False,
+                                            maxHeight=250,
+                                            mode='server-side',
+                                            className="fault-table",
+                                            style={
+                                                'height': '100%',
+                                                'width': '100%',
+                                                'border': 'none',
+                                                'border-collapse': 'collapse',
+                                                'border-spacing': '0',
+                                                'backgroundColor': 'transparent'
+                                            },
+                                        ),
+                                        text='数据加载中',
+                                    ),
+                                    height=350,
+                                ),
+                                span=8,
+                            ),
+                            # 典型故障图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="典型故障",
+                                    chart=fac.AntdRow(
+                                        [
+                                            fact.AntdWordCloud(
+                                                id="t_f_fault-wordcloud",
+                                                wordField="word",
+                                                weightField="value",
+                                                height=300,
+                                                colorField='word',
+                                                wordStyle={'fontSize': [12, 36]},
+                                            ),
+                                        ],
+                                        style={"height": "300px",
+                                               "alignItems": "flex-start",
+                                               "margin": 0,
+                                               "padding": 0}
+                                    ),
+                                    height=350,
+                                ),
+                                span=8,
+                            ),
+                            # 典型预警图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="典型预警",
+                                    chart=fac.AntdRow(
+                                        [
+                                            fact.AntdWordCloud(
+                                                id="t_w_warning-wordcloud",
+                                                wordField="word",
+                                                weightField="value",
+                                                height=300,
+                                                colorField='word',
+                                                wordStyle={'fontSize': [12, 36]},
+                                            ),
+                                        ],
+                                        style={"height": "300px",
+                                               "alignItems": "flex-start",
+                                               "margin": 0,
+                                               "padding": 0}
+                                    ),
+                                    height=350,
+                                ),
+                                span=8,
+                            ),
+                            # 部件寿命图表
+                            fac.AntdCol(
+                                macda_card(
+                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    titleStyle={"color": themetoken["colorText"]},
+                                    descriptionStyle={"color": themetoken["colorText"]},
+                                    title="部件耗用率%",
+                                    chart=fac.AntdRow(
+                                [
+                                            fact.AntdBar(
+                                                id='t_h_health_bar',
+                                                data=[
+                                                    {
+                                                        'carriage': f'12101-{i}',
+                                                        'ratio': random.randint(0, 10),
+                                                        'param': f'item{j}',
+                                                    }
+                                                    for i in range(1, 7)
+                                                    for j in range(1, 15)
+                                                ],
+                                                xField='ratio',
+                                                yField='carriage',
+                                                seriesField='param',
+                                                isStack=True,
+                                                isPercent=False,
+                                                label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
+                                                style={
+                                                    'height': '100%',
+                                                    'width': '100%',
+                                                    'border': 'none',
+                                                    'border-collapse': 'collapse',
+                                                    'border-spacing': '0',
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                            )
+                                        ],
+                                        style={"height": "300px",
+                                               "alignItems": "flex-start",
+                                               "margin": 0,
+                                               "padding": 0}
+                                    ),
+                                    height=350,
+                                ),
+                                span=8,
+                            ),
+                        ],
+                        gutter=[10, 10],
                     ),
-                    span=6,
-                ),
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="空调预警",
-                        chart=fac.AntdTable(
-                            columns=[
-                                {'title': f'字段{i}',
-                                 'dataIndex': f'字段{i}',
-                                 'width': width,
-                                 'headerCellStyle': {
-                                     'fontWeight': 'bold',  # 表头文字加粗
-                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
-                                 },
-                                 # 单元格样式：隐藏右侧竖线
-                                 'cellStyle': {
-                                     'borderRight': 'none',  # 清除所有默认边框
-                                     'borderBottom': '1px solid #e8e8e8'
-                                 }
-                                 }
-                                for i, width in zip(
-                                    range(1, 5), ['25%', '25%', '25%', '25%']
-                                )
-                            ],
-                            data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
-                            size="small",
-                            bordered=False,
-                            maxHeight=150,
-                            maxWidth='max-content',
-                            pagination=False,
-                            style={
-                                'border': 'none'
-                            },
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="部件寿命222",
-                        chart=fac.AntdTable(
-                            columns=[
-                                {'title': f'字段{i}',
-                                 'dataIndex': f'字段{i}',
-                                 'width': width,
-                                 'headerCellStyle': {
-                                     'fontWeight': 'bold',  # 表头文字加粗
-                                     'borderRight': 'none'  # 隐藏表头单元格右侧竖线
-                                 },
-                                 # 单元格样式：隐藏右侧竖线
-                                 'cellStyle': {
-                                     'borderRight': 'none',  # 清除所有默认边框
-                                     'borderBottom': '1px solid #e8e8e8'
-                                 }
-                                 }
-                                for i, width in zip(
-                                    range(1, 5), ['25%', '25%', '25%', '25%']
-                                )
-                            ],
-                            data=[{f'字段{i}': '示例内容' for i in range(1, 5)}] * 3,
-                            size="small",
-                            bordered=False,
-                            maxHeight=150,
-                            maxWidth='max-content',
-                            pagination=False,
-                            style={
-                                'border': 'none'
-                            },
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-                # 图表卡片示例
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="销售额类别占比",
-                        description="时间范围：今日",
-                        chart=fact.AntdPie(
-                            id="train_today-sales-class-chart",
-                            data=[
-                                {
-                                    "type": "家用电器",
-                                    "value": 4544,
-                                },
-                                {
-                                    "type": "食用酒水",
-                                    "value": 3321,
-                                },
-                                {
-                                    "type": "个护健康",
-                                    "value": 3113,
-                                },
-                                {
-                                    "type": "服饰箱包",
-                                    "value": 2341,
-                                },
-                                {
-                                    "type": "母婴产品",
-                                    "value": 1231,
-                                },
-                                {
-                                    "type": "其他",
-                                    "value": 1231,
-                                },
-                            ],
-                            colorField="type",
-                            angleField="value",
-                            radius=0.8,
-                            innerRadius=0.6,
-                            label={"type": "spider"},
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-                # 新增词云图卡片 1
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="热门搜索词云",
-                        description="时间范围：今日",
-                        chart=fact.AntdWordCloud(
-                            id="train_today-hot-search-wordcloud",
-                            data=[
-                                {"name": f"关键词{i}", "value": random.randint(10, 100)}
-                                for i in range(1, 31)
-                            ],
-                            wordField="name",
-                            weightField="value",
-                            height=400,
-                            color="#1890ff"
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-                # 环形图卡片
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="用户评论词云",
-                        description="时间范围：今日",
-                        chart=fac.AntdRow(
-                            [
-                                horizontal_timeline(
-                                    items=[
-                                        {
-                                            'label': '2023-01',
-                                            'content': '列车出厂',
-                                            'color': '#52c41a',
-                                            'icon': html.I(className='anticon anticon-check',
-                                                           style={'color': 'white', 'fontSize': 12})
-                                        },
-                                        {
-                                            'label': '2023-03',
-                                            'content': '首次检修',
-                                            'color': '#faad14'
-                                        },
-                                        {
-                                            'label': '2023-06',
-                                            'content': '空调升级',
-                                            'color': '#1890ff'
-                                        },
-                                        {
-                                            'label': '2023-09',
-                                            'content': '故障维修',
-                                            'color': '#ff4d4f'
-                                        },
-                                        {
-                                            'label': '2023-12',
-                                            'content': '年度大修',
-                                            'color': '#722ed1'
-                                        }
-                                    ],
-                                    mode='center',
-                                    item_gap=40,
-                                    line_color='white'
-                                )
-                            ],
-                            style={"height": "100%"}
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="流量转化情况",
-                        description="时间范围：今日",
-                        chart=fact.AntdColumn(
-                            id="train_today-conversion-chart",
-                            data=[
-                                {
-                                    "action": "浏览网站",
-                                    "pv": 50000,
-                                },
-                                {
-                                    "action": "放入购物车",
-                                    "pv": 35000,
-                                },
-                                {
-                                    "action": "生成订单",
-                                    "pv": 25000,
-                                },
-                                {
-                                    "action": "支付订单",
-                                    "pv": 15000,
-                                },
-                                {
-                                    "action": "完成交易",
-                                    "pv": 8500,
-                                },
-                            ],
-                            xField="action",
-                            yField="pv",
-                            conversionTag={},
-                            color="#2e8fff",
-                        ),
-                        height=350,
-                    ),
-                    span=6,
+                    span=18,
                 ),
             ],
             gutter=[10, 10],

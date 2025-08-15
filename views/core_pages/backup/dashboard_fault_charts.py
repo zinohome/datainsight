@@ -97,7 +97,7 @@ def render(themetoken, url_params=None):
                         description=html.A(
                             "一期故障&预警",
                             href=BaseConfig.external_fault_url,
-                            target="_blank",
+                            target=BaseConfig.external_link_target,
                             style={"textDecoration": "none"}
                         ),
                         height="calc(70vh - 20px)",

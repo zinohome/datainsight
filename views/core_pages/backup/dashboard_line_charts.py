@@ -58,8 +58,8 @@ def render(themetoken):
                         title="当前空调状态",
                         description=html.A(
                             "一期空调状态",
-                            href="https://www.baidu.com",
-                            target="_blank",  # 新窗口打开
+                            href=BaseConfig.external_main_status_url,
+                            target=BaseConfig.external_link_target,
                             style={
                                 #"color": themetoken["colorText"],  # 继承原文本颜色
                                 "textDecoration": "none"  # 可选：移除下划线
@@ -89,8 +89,8 @@ def render(themetoken):
                                     title="故障告警",
                                     description=html.A(
                                         "一期故障",
-                                        href="https://www.baidu.com",
-                                        target="_blank",  # 新窗口打开
+                                        href=BaseConfig.external_main_fault_url,
+                                        target=BaseConfig.external_link_target,
                                         style={
                                             #"color": themetoken["colorText"],  # 继承原文本颜色
                                             "textDecoration": "none"  # 可选：移除下划线
@@ -151,8 +151,8 @@ def render(themetoken):
                                     title="状态预警",
                                     description=html.A(
                                         "一期预警",
-                                        href="https://www.baidu.com",
-                                        target="_blank",  # 新窗口打开
+                                        href=BaseConfig.external_main_predict_url,
+                                        target=BaseConfig.external_link_target,
                                         style={
                                             #"color": themetoken["colorText"],  # 继承原文本颜色
                                             "textDecoration": "none"  # 可选：移除下划线
@@ -210,6 +210,15 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="寿命预测",
+                                    description=html.A(
+                                        "一期寿命",
+                                        href=BaseConfig.external_main_health_url,
+                                        target=BaseConfig.external_link_target,
+                                        style={
+                                            #"color": themetoken["colorText"],  # 继承原文本颜色
+                                            "textDecoration": "none"  # 可选：移除下划线
+                                        }
+                                    ),
                                     chart=fac.AntdSpin(
                                         fac.AntdTable(
                                             id='l_h_health_table',
