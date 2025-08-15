@@ -325,7 +325,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='预警数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_warning_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -333,7 +334,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='告警数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_alarm_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -341,7 +343,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='总异常数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_total_exception_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -349,7 +352,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='健康期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_healthy_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -357,7 +361,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='亚健康期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_subhealthy_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -365,7 +370,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='故障期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_faulty_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
