@@ -80,8 +80,9 @@ def render(themetoken):
                                                         id="l_c_opstatus_normal-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#22c55e",
                                                         tooltip=False,
                                                         statistic=False,
@@ -110,8 +111,9 @@ def render(themetoken):
                                                         id="l_c_opstatus_l1main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#eab308",
                                                         tooltip=False,
                                                         statistic=False,
@@ -140,8 +142,9 @@ def render(themetoken):
                                                         id="l_c_opstatus_l2main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#f97316",
                                                         tooltip=False,
                                                         statistic=False,
@@ -170,8 +173,9 @@ def render(themetoken):
                                                         id="l_c_opstatus_l1main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#ef4444",
                                                         tooltip=False,
                                                         statistic=False,
