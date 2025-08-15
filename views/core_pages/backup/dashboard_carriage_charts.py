@@ -12,7 +12,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 )
 from components.macdacard import macda_card
 from configs import BaseConfig
-from .train_chart_link import create_train_chart_link
+from views.core_pages.train_chart_link import create_train_chart_link
 
 
 def render(themetoken):
@@ -76,7 +76,7 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                create_train_chart_link(themetoken)
+                                create_train_chart_link(themetoken,'param')
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}

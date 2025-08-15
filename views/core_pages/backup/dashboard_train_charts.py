@@ -13,6 +13,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components.macdacard import macda_card
 from configs import BaseConfig
 from .train_chart_link import create_train_chart_link
+from utils.log import log as log
 
 
 def render(themetoken):
@@ -21,6 +22,9 @@ def render(themetoken):
     t_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
     t_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
     return [
+        # URL参数处理
+        dcc.Location(id='url', refresh=False),
+        dcc.Store(id='t_url-params-store', data={}),
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
@@ -69,7 +73,7 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                create_train_chart_link(themetoken)
+                                html.Div(id='train-chart-link-container', children=create_train_chart_link(themetoken, None))
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}

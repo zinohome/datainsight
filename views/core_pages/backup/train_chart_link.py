@@ -1,8 +1,9 @@
 from dash import html, dcc
 import feffery_antd_components as fac
+from utils.log import log as log
 
 
-def create_train_chart_link(themetoken):
+def create_train_chart_link(themetoken, page_name, train_no=None):
     """
     创建地铁列车图组件
 
@@ -32,7 +33,7 @@ def create_train_chart_link(themetoken):
             ),
             # 车厢1-6（每节由左右图片拼接）
             *[dcc.Link(  # 添加链接组件
-                href=f"/macda/dashboard/carriage?carriage={i + 1}",
+                href=f"/macda/dashboard/{page_name}?train_no={train_no}&carriage={i + 1}" if train_no else f"/macda/dashboard/{page_name}?carriage={i + 1}",
                 children=html.Div(
                 style={
                     "flex": "1 1 auto",  # 等比例分配剩余空间
