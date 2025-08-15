@@ -74,14 +74,15 @@ def render(themetoken):
                                             "background": themetoken["colorBgCard"]},
                                         children=fac.AntdRow(
                                             [
-                                                # 圆环1
+                                                # 圆环图1-正常运营
                                                 fac.AntdCol(
                                                     fact.AntdPie(
                                                         id="l_c_opstatus_normal-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#22c55e",
                                                         tooltip=False,
                                                         statistic=False,
@@ -104,14 +105,15 @@ def render(themetoken):
                                                            "padding": "5px 10px 0",
                                                            "height": "100%"}
                                                 ),
-                                                # 圆环2
+                                                # 圆环图2-加强跟踪
                                                 fac.AntdCol(
                                                     fact.AntdPie(
                                                         id="l_c_opstatus_l1main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#eab308",
                                                         tooltip=False,
                                                         statistic=False,
@@ -134,14 +136,15 @@ def render(themetoken):
                                                            "padding": "5px 10px 0",
                                                            "height": "100%"}
                                                 ),
-                                                # 圆环3
+                                                # 圆环图3-计划维修
                                                 fac.AntdCol(
                                                     fact.AntdPie(
                                                         id="l_c_opstatus_l2main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#f97316",
                                                         tooltip=False,
                                                         statistic=False,
@@ -164,14 +167,15 @@ def render(themetoken):
                                                            "padding": "5px 10px 0",
                                                            "height": "100%"}
                                                 ),
-                                                # 圆环4
+                                                # 圆环图4-立即维修
                                                 fac.AntdCol(
                                                     fact.AntdPie(
                                                         id="l_c_opstatus_l1main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
-                                                        radius=0.9,  # 外半径设为0.8
+                                                        radius=0.9,  # 外半径设为0.9
                                                         innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
                                                         color="#ef4444",
                                                         tooltip=False,
                                                         statistic=False,
@@ -325,7 +329,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='预警数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_warning_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -333,7 +338,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='告警数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_alarm_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -341,7 +347,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='总异常数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_total_exception_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -349,7 +356,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='健康期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_healthy_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -357,7 +365,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='亚健康期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_subhealthy_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -365,7 +374,8 @@ def render(themetoken):
                                                     fac.AntdStatistic(
                                                         title='故障期空调数量',
                                                         value=fuc.FefferyCountUp(
-                                                            end=112893, duration=3),
+                                                            id='l_c_faulty_count',
+                                                            end=10, duration=3),
                                                     ),
                                                     span=8,
                                                 ),
@@ -578,7 +588,7 @@ def render(themetoken):
                                         ),
                                         text='数据加载中',
                                     ),
-                                    height=350,
+                                    height=400,
                                 ),
                                 span=8,
                             ),
@@ -592,12 +602,12 @@ def render(themetoken):
                                                 id="l_f_fault-wordcloud",
                                                 wordField="word",
                                                 weightField="value",
-                                                height=200,
+                                                height=220,
                                                 colorField='word',
                                                 wordStyle={'fontSize': [12, 36]},
                                             ),
                                         ],
-                                        style={"height": "250px",
+                                        style={"height": "220px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0}
@@ -615,12 +625,12 @@ def render(themetoken):
                                                 id="l_w_warning-wordcloud",
                                                 wordField="word",
                                                 weightField="value",
-                                                height=200,
+                                                height=220,
                                                 colorField='word',
                                                 wordStyle={'fontSize': [12, 36]},
                                             ),
                                         ],
-                                        style={"height": "200px",
+                                        style={"height": "220px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0}

@@ -20,6 +20,8 @@ from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
 from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
+from orm.chart_line_fault_type import ChartLineFaultType
+from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 
 # 从数据库获取所有故障数据的函数
 
@@ -55,6 +57,60 @@ def get_opstatus_data():
     query = ChartViewTrainOpstatus.select()
     # 按车号排序
     query = query.order_by(ChartViewTrainOpstatus.dvc_train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取故障类型数据的方法
+def get_fault_type_data():
+    # 查询故障类型数据
+    query = ChartLineFaultType.select()
+    # 按故障类型和车号排序
+    query = query.order_by(ChartLineFaultType.故障类型, ChartLineFaultType.dvc_train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取健康状态统计数据的方法
+def get_health_status_count_data():
+    # 查询健康状态统计数据
+    query = ChartLineHealthStatusCount.select()
+    # 按车号和健康状态排序
+    query = query.order_by(ChartLineHealthStatusCount.dvc_train_no, ChartLineHealthStatusCount.device_health_status)
     
     # 执行查询并获取数据
     try:
@@ -142,7 +198,13 @@ def get_health_data():
      Output('l_c_opstatus-table', 'data'),
      Output('l_c_opstatus_online-badge', 'count'),
      Output('l_c_opstatus_maintenance-badge', 'count'),
-     Output('l_c_opstatus_offline-badge', 'count')
+     Output('l_c_opstatus_offline-badge', 'count'),
+     Output('l_c_warning_count', 'end'),
+     Output('l_c_alarm_count', 'end'),
+     Output('l_c_total_exception_count', 'end'),
+     Output('l_c_healthy_count', 'end'),
+     Output('l_c_subhealthy_count', 'end'),
+     Output('l_c_faulty_count', 'end')
      ],
     Input('l-update-data-interval', 'n_intervals')
 )
@@ -215,6 +277,30 @@ def update_both_tables(n_intervals):
     
     # 调用get_opstatus_data方法获取空调状态数据
     opstatus_data = get_opstatus_data()
+
+    # 调用get_fault_type_data方法获取故障类型数据
+    fault_type_data = get_fault_type_data()
+
+    # 调用get_health_status_count_data方法获取健康状态统计数据
+    health_status_count_data = get_health_status_count_data()
+
+    # 计算预警数量
+    warning_count = sum(item['故障数量'] for item in fault_type_data if item['故障类型'] == '预警')
+
+    # 计算告警数量
+    alarm_count = sum(item['故障数量'] for item in fault_type_data if item['故障类型'] == '故障')
+
+    # 计算总异常数量
+    total_exception_count = sum(item['故障数量'] for item in fault_type_data)
+
+    # 计算健康期空调数量
+    healthy_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '健康')
+
+    # 计算亚健康期空调数量
+    subhealthy_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '亚健康')
+
+    # 计算故障期空调数量
+    faulty_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '非健康')
     
     # 格式化空调状态数据
     formatted_opstatus = []
@@ -292,5 +378,11 @@ def update_both_tables(n_intervals):
         pd.DataFrame(formatted_opstatus).to_dict('records'),
         train_online_num,
         train_maintenance_num,
-        train_offline_num
+        train_offline_num,
+        warning_count,
+        alarm_count,
+        total_exception_count,
+        healthy_count,
+        subhealthy_count,
+        faulty_count
     )
