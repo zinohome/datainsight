@@ -266,7 +266,7 @@ def update_both_tables(n_intervals):
                 '计划维修': item['计划维修'],
                 '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
             })
-        
+        formatted_opstatus.extend(test_formatted_opstatus)
         formatted_opstatus.append({
             '车号': {'status': badge_status, 'text': item['dvc_train_no']},
             '立即维修': item['立即维修'],

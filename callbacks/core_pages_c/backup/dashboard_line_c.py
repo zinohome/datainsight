@@ -7,6 +7,9 @@ import heapq
 import random
 import time
 
+from datetime import datetime, timedelta
+import pytz
+
 from dash import callback, Output, Input, State
 
 from configs import BaseConfig
@@ -16,6 +19,7 @@ import pandas as pd
 from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
+from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
 
 # 从数据库获取所有故障数据的函数
 
@@ -24,6 +28,33 @@ def get_all_fault_data():
     query = Chart_view_fault_timed.select()
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取空调状态数据的方法
+def get_opstatus_data():
+    # 查询空调状态数据
+    query = ChartViewTrainOpstatus.select()
+    # 按车号排序
+    query = query.order_by(ChartViewTrainOpstatus.dvc_train_no)
     
     # 执行查询并获取数据
     try:
@@ -107,7 +138,11 @@ def get_health_data():
      Output('l_f_fault-wordcloud', 'data'),
      Output('l_w_warning-wordcloud', 'data'),
      Output('l_h_health_table', 'data'),
-     Output('l_h_health_bar', 'data')
+     Output('l_h_health_bar', 'data'),
+     Output('l_c_opstatus-table', 'data'),
+     Output('l_c_opstatus_online-badge', 'count'),
+     Output('l_c_opstatus_maintenance-badge', 'count'),
+     Output('l_c_opstatus_offline-badge', 'count')
      ],
     Input('l-update-data-interval', 'n_intervals')
 )
@@ -178,15 +213,84 @@ def update_both_tables(n_intervals):
     # 调用get_health_data方法获取健康数据
     formatted_health, bar_data = get_health_data()
     
+    # 调用get_opstatus_data方法获取空调状态数据
+    opstatus_data = get_opstatus_data()
+    
+    # 格式化空调状态数据
+    formatted_opstatus = []
+    
+    # 初始化状态计数器
+    train_online_num = 0
+    train_maintenance_num = 0
+    train_offline_num = 0
+    # 获取带时区的当前时间（使用上海时区）
+    tz = pytz.timezone('Asia/Shanghai')
+    current_time = datetime.now(tz)
+    five_minutes_ago = current_time - timedelta(minutes=5)
+
+    for item in opstatus_data:
+        latest_time = item['latest_time']
+        # 确保latest_time是datetime类型并添加时区信息
+        if isinstance(latest_time, str):
+            latest_time = datetime.strptime(latest_time, '%Y-%m-%d %H:%M:%S')
+        # 仅当latest_time没有时区信息时才添加
+        if latest_time.tzinfo is None:
+            latest_time = tz.localize(latest_time)
+        
+        if latest_time < five_minutes_ago:
+            status = '离线'
+        else:
+            if item['latest_op_condition'] == 1:
+                status = '库内'
+            else:
+                status = '在线'
+        
+        # 根据状态设置对应的status值并更新计数器
+        if status == '离线':
+            badge_status = 'default'
+            train_offline_num += 1
+        elif status == '在线':
+            badge_status = 'success'
+            train_online_num += 1
+        elif status == '库内':
+            badge_status = 'processing'
+            train_maintenance_num += 1
+        
+        # 添加10个相同的字典数据
+        test_formatted_opstatus=[]
+        for _ in range(10):
+            test_formatted_opstatus.append({
+                '车号': {'status': badge_status, 'text': item['dvc_train_no']},
+                '立即维修': item['立即维修'],
+                '加强跟踪': item['加强跟踪'],
+                '计划维修': item['计划维修'],
+                '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+            })
+        formatted_opstatus.extend(test_formatted_opstatus)
+        formatted_opstatus.append({
+            '车号': {'status': badge_status, 'text': item['dvc_train_no']},
+            '立即维修': item['立即维修'],
+            '加强跟踪': item['加强跟踪'],
+            '计划维修': item['计划维修'],
+            '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+        })
+    
+    
+    
     # 转换为DataFrame并返回字典列表
     log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
     log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
     log.debug(f"bar_data: {bar_data}")
+    log.debug(f"opstatus_data: {opstatus_data}")
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),
         fault_wordcloud_data,
         warning_wordcloud_data,
         pd.DataFrame(formatted_health).to_dict('records'),
-        bar_data
+        bar_data,
+        pd.DataFrame(formatted_opstatus).to_dict('records'),
+        train_online_num,
+        train_maintenance_num,
+        train_offline_num
     )

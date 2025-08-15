@@ -222,7 +222,7 @@ def render(themetoken):
                                                                 count=0,
                                                                 showZero=True
                                                             ),
-                                                            fac.AntdText('在线'),
+                                                            fac.AntdText('在线', style={'fontSize': '12px'}),
                                                             fac.AntdBadge(
                                                                 id='l_c_opstatus_maintenance-badge',
                                                                 color='blue',
@@ -230,7 +230,7 @@ def render(themetoken):
                                                                 count=0,
                                                                 showZero=True
                                                             ),
-                                                            fac.AntdText('库内'),
+                                                            fac.AntdText('库内', style={'fontSize': '12px'}),
                                                             fac.AntdBadge(
                                                                 id='l_c_opstatus_offline-badge',
                                                                 color='gray',
@@ -238,7 +238,7 @@ def render(themetoken):
                                                                 count=0,
                                                                 showZero=True
                                                             ),
-                                                            fac.AntdText('离线'),
+                                                            fac.AntdText('离线', style={'fontSize': '12px'}),
                                                         ],
                                                         size=20,
                                                     ),
@@ -314,58 +314,53 @@ def render(themetoken):
                                     fac.AntdRow(
                                         [
                                             fac.AntdCol(
-                                                [
-                                                    fac.AntdDivider('今日预警/报警空调数量', innerTextOrientation='left'), 
-                                                    fac.AntdSpace(
-                                                        [
-                                                            fac.AntdCard(
-                                                                '预警数量',
-                                                                title='2',
-                                                                styles={'header': {'background': '#f97316'}},
-                                                            ),
-                                                            fac.AntdCard(
-                                                                '告警数量',
-                                                                title='5',
-                                                                styles={'header': {'background': '#ef4444'}},
-                                                            ),
-                                                        ],
-                                                        direction='horizontal',
-                                                        style={'width': '100%'},
-                                                    )
-                                                ],
-                                                span=24
+                                                fac.AntdDivider('今日预警/报警空调数量', innerTextOrientation='left'),
+                                                span=24,
                                             ),
                                             fac.AntdCol(
-                                                [
-                                                    fac.AntdSpace(
-                                                        [
-                                                            fac.AntdCard(
-                                                                '健康期空调数量',
-                                                                title='2',
-                                                                styles={'header': {'background': '#22c55e'}},
-                                                            ),
-                                                            fac.AntdCard(
-                                                                '亚健康期空调数量',
-                                                                title='5',
-                                                                styles={'header': {'background': '#f97316'}},
-                                                            ),
-                                                            fac.AntdCard(
-                                                                '故障期空调数量',
-                                                                title='5',
-                                                                styles={'header': {'background': '#ef4444'}},
-                                                            ),
-                                                        ],
-                                                        direction='horizontal',
-                                                        style={'width': '100%'},
-                                                    )
-                                                ],
-                                                span=24
-                                            )
+                                                fac.AntdStatistic(
+                                                    title='预警数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
+                                            fac.AntdCol(
+                                                fac.AntdStatistic(
+                                                    title='告警数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
+                                            fac.AntdCol(
+                                                fac.AntdStatistic(
+                                                    title='总异常数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
+                                            fac.AntdCol(
+                                                fac.AntdStatistic(
+                                                    title='健康期空调数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
+                                            fac.AntdCol(
+                                                fac.AntdStatistic(
+                                                    title='亚健康期空调数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
+                                            fac.AntdCol(
+                                                fac.AntdStatistic(
+                                                    title='故障期空调数量',
+                                                    value=fuc.FefferyCountUp(end=112893, duration=3),
+                                                ),
+                                                span=8,
+                                            ),
                                         ],
-                                        style={"height": "200px",
-                                            "alignItems": "flex-start",
-                                                "margin": 0,
-                                                "padding": 0}
+                                        gutter=[10, 10],
                                     ),
                                 ),
                                 span=24,
