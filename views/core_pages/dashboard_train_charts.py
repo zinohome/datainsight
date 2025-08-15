@@ -43,9 +43,7 @@ def render(themetoken):
                                     [
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
-                                                options=[
-                                                    {'label': f'16{i}车', 'value': f'16{i}'} for i in range(33, 45)
-                                                ],
+                                                options=BaseConfig.train_select_options,
                                                 style={'width': 100},
                                                 id='t_train_no'
                                             ),
@@ -53,7 +51,7 @@ def render(themetoken):
                                         ),
                                         fac.AntdFormItem(fac.AntdButton('查询', type='primary', ghost=True,
                                                                         icon=fac.AntdIcon(icon='antd-search'),
-                                                                        id='p_query_button', nClicks=0)),
+                                                                        id='t_query_button', nClicks=0)),
                                     ],
                                     layout='inline',
                                     style={'justifyContent': 'center'},

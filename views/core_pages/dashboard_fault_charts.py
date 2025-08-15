@@ -34,9 +34,7 @@ def render(themetoken, url_params=None):
                                     [
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
-                                                options=[
-                                                    {'label': f'16{i}车', 'value': f'16{i}'} for i in range(33, 45)
-                                                ],
+                                                options=BaseConfig.train_select_options,
                                                 style={'width': 100},
                                                 id='f_train_no',
                                             ),
@@ -44,9 +42,7 @@ def render(themetoken, url_params=None):
                                         ),
                                         fac.AntdFormItem(
                                             fac.AntdSelect(
-                                                options=[
-                                                    {'label': f'{i}车厢', 'value': f'{i}'} for i in range(1, 7)
-                                                ],
+                                                options=BaseConfig.carriage_select_options,
                                                 style={'width': 100},
                                                 id='f_carriage_no'
                                             ),
