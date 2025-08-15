@@ -7,9 +7,9 @@ class _sentinel:
 import heapq
 import random
 import time
+from datetime import datetime, timedelta
 
-from dash import callback, Output, Input, State
-
+from dash import callback, Output, Input, State, callback_context
 from configs import BaseConfig
 from orm.db import db, log_pool_status
 from orm.chart_view_fault_timed import Chart_view_fault_timed
@@ -17,15 +17,125 @@ import pandas as pd
 from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
+from dash import dcc
+
+
+# 解析URL参数回调
+@callback(
+    Output('t_url-params-store', 'data'),
+    Input('url', 'search'),
+    prevent_initial_call=False
+)
+def update_url_params(search):
+    log.debug(f"[update_url_params] 开始解析URL参数: {search}")
+    parsed_train = ''
+
+    if search:
+        try:
+            from urllib.parse import urlparse, parse_qs
+            params = parse_qs(search.lstrip('?'))
+            parsed_train = params.get('train_no', [''])[0]
+        except Exception as e:
+            log.error(f"[update_url_params] 解析URL参数错误: {e}")
+
+    result = {
+        'train_no': parsed_train
+    }
+
+    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
+    return result
+
+# 同步URL参数到表单回调
+@callback(
+    Output('t_train_no', 'value'),
+    [Input('t_url-params-store', 'modified_timestamp')],
+    [State('t_url-params-store', 'data')],
+    prevent_initial_call=True
+)
+def sync_url_params_to_form(modified_timestamp, url_params):
+    time.sleep(0.5)  # 等待前端元素加载
+    log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
+    if not isinstance(url_params, dict):
+        return None
+
+    train_no = url_params.get('train_no') or None
+    return train_no
 
 
 # 从数据库获取所有故障数据的函数
 
-def get_all_fault_data():
+def get_health_data(train_no=None):
+    # 查询健康数据
+    try:
+        with db.atomic():  # 添加上下文管理器
+            health_query = ChartHealthEquipment.select().order_by(
+                ChartHealthEquipment.车号,
+                ChartHealthEquipment.车厢号,
+                ChartHealthEquipment.耗用率.desc()
+            )
+
+            # 如果提供了train_no，添加筛选条件
+            if train_no:
+                health_query = health_query.where(ChartHealthEquipment.车号 == train_no)
+
+            # 立即加载所有数据
+            formatted_health = [{
+                '车号': item.车号,
+                '车厢号': item.车厢号,
+                '部件': item.部件,
+                '耗用率': item.耗用率,
+                '额定寿命': item.额定寿命,
+                '已耗': item.已耗
+            } for item in health_query]
+
+        # 构建t_h_health_bar数据
+        bar_data = []
+
+        # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
+        if not hasattr(get_health_data, 'select_index'):
+            get_health_data.select_index = 0
+        health_bar_data = BaseConfig.health_bar_data_rnd
+        select_train = health_bar_data[get_health_data.select_index % len(health_bar_data)] if health_bar_data else None
+        get_health_data.select_index += 1
+
+        # 如果提供了train_no，使用它作为select_train
+        if train_no:
+            select_train = train_no
+
+        # 筛选出select_train的车厢数据
+        for item in formatted_health:
+            if item['车号'] == select_train:
+                bar_data.append({
+                    'carriage': f"{item['车号']}-{item['车厢号']}",
+                    'ratio': round(item['耗用率'] * 100, 2),
+                    'param': item['部件'].replace('-', '')
+                })
+
+        return formatted_health, bar_data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+def get_all_fault_data(train_no=None):
     # 构建查询，获取所有故障类型的数据
     query = Chart_view_fault_timed.select()
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(Chart_view_fault_timed.dvc_train_no == train_no)
 
     # 执行查询并获取数据
     try:
@@ -56,12 +166,18 @@ def get_all_fault_data():
      Output('t_h_health_table', 'data'),
      Output('t_h_health_bar', 'data')
      ],
-    Input('l-update-data-interval', 'n_intervals')
+    [Input('l-update-data-interval', 'n_intervals'),
+     Input('t_url-params-store', 'data'),
+     Input('t_query_button', 'nClicks')],
+    [State('t_train_no', 'value')]
 )
-def update_both_tables(n_intervals):
+def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     """
     更新故障和预警表格数据，只执行一次SQL查询
     :param n_intervals: 定时器触发次数
+    :param url_params: URL参数存储
+    :param n_clicks: 查询按钮点击次数
+    :param train_no: 表单中的车号值
     :return: 预警数据列表和故障数据列表
     """
     # 连接池状态监控
@@ -72,7 +188,25 @@ def update_both_tables(n_intervals):
         log.warning(f"连接池使用率过高 ({status['utilization']}%)，延迟查询...")
         time.sleep(3)  # 延迟1秒
 
-    all_data = get_all_fault_data()
+    # 确定要使用的train_no值（优先使用表单中的值，其次是URL参数中的值）
+    selected_train_no = train_no
+    if not selected_train_no and isinstance(url_params, dict):
+        selected_train_no = url_params.get('train_no')
+    log.debug(f"[update_both_tables] 使用的train_no: {selected_train_no}")
+
+    # 如果没有train_no，则返回空数据
+    if not selected_train_no:
+        log.debug("[update_both_tables] 未提供train_no，返回空数据")
+        return (
+            [],  # 预警表格数据
+            [],  # 故障表格数据
+            [],  # 故障词云数据
+            [],  # 预警词云数据
+            [],  # 健康表格数据
+            []   # 健康柱状图数据
+        )
+
+    all_data = get_all_fault_data(selected_train_no)
 
     # 拆分数据为预警和故障
     warning_data = [item for item in all_data if item['fault_type'] == '预警']
@@ -122,41 +256,9 @@ def update_both_tables(n_intervals):
     else:
         warning_wordcloud_data = []
 
-    # 查询健康数据
-    with db.atomic():  # 添加上下文管理器
-        health_query = ChartHealthEquipment.select().order_by(
-            ChartHealthEquipment.车号,
-            ChartHealthEquipment.车厢号,
-            ChartHealthEquipment.耗用率.desc()
-        )
-        # 立即加载所有数据
-        formatted_health = [{
-            '车号': item.车号,
-            '车厢号': item.车厢号,
-            '部件': item.部件,
-            '耗用率': item.耗用率,
-            '额定寿命': item.额定寿命,
-            '已耗': item.已耗
-        } for item in health_query]
+    # 调用独立的健康数据查询函数
+    formatted_health, bar_data = get_health_data(selected_train_no)
 
-    # 构建t_h_health_bar数据
-    bar_data = []
-
-    # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
-    if not hasattr(update_both_tables, 'select_index'):
-        update_both_tables.select_index = 0
-    health_bar_data = BaseConfig.health_bar_data_rnd
-    select_train = health_bar_data[update_both_tables.select_index % len(health_bar_data)] if health_bar_data else None
-    update_both_tables.select_index += 1
-
-    # 筛选出select_train的车厢数据
-    for item in formatted_health:
-        if item['车号'] == select_train:
-            bar_data.append({
-                'carriage': f"{item['车号']}-{item['车厢号']}",
-                'ratio': round(item['耗用率'] * 100, 2),
-                'param': item['部件'].replace('-', '')
-            })
 
     # 转换为DataFrame并返回字典列表
     log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")

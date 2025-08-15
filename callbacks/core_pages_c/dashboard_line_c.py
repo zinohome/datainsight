@@ -44,6 +44,62 @@ def get_all_fault_data():
         except Exception as e:
             log.warning(f"显式释放连接失败: {str(e)}")
 
+
+# 获取健康数据的方法
+def get_health_data():
+    # 查询健康数据
+    try:
+        with db.atomic():  # 添加上下文管理器
+            health_query = ChartHealthEquipment.select().order_by(
+                ChartHealthEquipment.车号,
+                ChartHealthEquipment.车厢号,
+                ChartHealthEquipment.耗用率.desc()
+            )
+            # 立即加载所有数据
+            formatted_health = [{
+                '车号': item.车号,
+                '车厢号': item.车厢号,
+                '部件': item.部件,
+                '耗用率': item.耗用率,
+                '额定寿命': item.额定寿命,
+                '已耗': item.已耗
+            } for item in health_query]
+
+        # 构建l_h_health_bar数据
+        bar_data = []
+        
+        # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
+        if not hasattr(get_health_data, 'select_index'):
+            get_health_data.select_index = 0
+        health_bar_data = BaseConfig.health_bar_data_rnd
+        select_train = health_bar_data[get_health_data.select_index % len(health_bar_data)] if health_bar_data else None
+        get_health_data.select_index += 1
+
+        # 筛选出select_train的车厢数据
+        for item in formatted_health:
+            if item['车号'] == select_train:
+                bar_data.append({
+                    'carriage': f"{item['车号']}-{item['车厢号']}",
+                    'ratio': round(item['耗用率'] * 100, 2),
+                    'param': item['部件'].replace('-', '')
+                })
+        
+        return formatted_health, bar_data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
 # 合并更新故障和预警表格数据及词云的回调函数
 @callback(
     [Output('l_w_warning-table', 'data'),
@@ -119,43 +175,9 @@ def update_both_tables(n_intervals):
     else:
         warning_wordcloud_data = []
 
-    # 查询健康数据
-    with db.atomic():  # 添加上下文管理器
-        health_query = ChartHealthEquipment.select().order_by(
-            ChartHealthEquipment.车号,
-            ChartHealthEquipment.车厢号,
-            ChartHealthEquipment.耗用率.desc()
-        )
-        # 立即加载所有数据
-        formatted_health = [{
-            '车号': item.车号,
-            '车厢号': item.车厢号,
-            '部件': item.部件,
-            '耗用率': item.耗用率,
-            '额定寿命': item.额定寿命,
-            '已耗': item.已耗
-        } for item in health_query]
-
-        # 构建l_h_health_bar数据
-    bar_data = []
+    # 调用get_health_data方法获取健康数据
+    formatted_health, bar_data = get_health_data()
     
-    # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
-    if not hasattr(update_both_tables, 'select_index'):
-        update_both_tables.select_index = 0
-    health_bar_data = BaseConfig.health_bar_data_rnd
-    select_train = health_bar_data[update_both_tables.select_index % len(health_bar_data)] if health_bar_data else None
-    update_both_tables.select_index += 1
-
-    # 筛选出select_train的车厢数据
-    for item in formatted_health:
-        if item['车号'] == select_train:
-            bar_data.append({
-                'carriage': f"{item['车号']}-{item['车厢号']}",
-                'ratio': round(item['耗用率'] * 100, 2),
-                'param': item['部件'].replace('-', '')
-            })
-    
-
     # 转换为DataFrame并返回字典列表
     log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
     log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
