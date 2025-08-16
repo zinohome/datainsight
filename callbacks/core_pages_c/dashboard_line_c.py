@@ -204,7 +204,11 @@ def get_health_data():
      Output('l_c_total_exception_count', 'end'),
      Output('l_c_healthy_count', 'end'),
      Output('l_c_subhealthy_count', 'end'),
-     Output('l_c_faulty_count', 'end')
+     Output('l_c_faulty_count', 'end'),
+     Output('l_c_opstatus_normal-pie', 'annotations'),
+     Output('l_c_opstatus_l1main-pie', 'annotations'),
+     Output('l_c_opstatus_l2main-pie', 'annotations'),
+     Output('l_c_opstatus_l3main-pie', 'annotations')
      ],
     Input('l-update-data-interval', 'n_intervals')
 )
@@ -309,6 +313,12 @@ def update_both_tables(n_intervals):
     train_online_num = 0
     train_maintenance_num = 0
     train_offline_num = 0
+    
+    # 初始化圆环图计数器
+    normal_count = 0
+    l1main_count = 0
+    l2main_count = 0
+    l3main_count = 0
     # 获取带时区的当前时间（使用上海时区）
     tz = pytz.timezone('Asia/Shanghai')
     current_time = datetime.now(tz)
@@ -355,6 +365,12 @@ def update_both_tables(n_intervals):
             })
         formatted_opstatus.extend(test_formatted_opstatus)
         '''
+        # 更新圆环图计数器
+        normal_count += item['正常运营']
+        l3main_count += item['立即维修']
+        l1main_count += item['加强跟踪']
+        l2main_count += item['计划维修']
+
         formatted_opstatus.append({
             '车号': {'status': badge_status, 'text': item['dvc_train_no']},
             '立即维修': item['立即维修'],
@@ -370,6 +386,53 @@ def update_both_tables(n_intervals):
     log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
     log.debug(f"bar_data: {bar_data}")
     log.debug(f"opstatus_data: {opstatus_data}")
+    # 构建圆环图annotations数据
+    normal_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"正常运营\n{normal_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l1main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"加强跟踪\n{l1main_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l2main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"计划维修\n{l2main_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l3main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"立即维修\n{l3main_count}",
+        "autoAdjust": True,
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center",
+            "whiteSpace": "pre"
+        }
+    }]
+    
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),
@@ -386,5 +449,9 @@ def update_both_tables(n_intervals):
         total_exception_count,
         healthy_count,
         subhealthy_count,
-        faulty_count
+        faulty_count,
+        normal_annotations,
+        l1main_annotations,
+        l2main_annotations,
+        l3main_annotations
     )

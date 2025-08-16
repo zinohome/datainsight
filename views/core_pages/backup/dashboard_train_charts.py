@@ -73,7 +73,7 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                html.Div(id='train-chart-link-container', children=create_train_chart_link(themetoken, None))
+                                html.Div(id='train-chart-link-container', children=create_train_chart_link(themetoken, 'carriage'))
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}
@@ -90,8 +90,257 @@ def render(themetoken):
                         descriptionStyle={"color": themetoken["colorText"]},
                         title="当前空调状态",
                         chart=fac.AntdRow(
-                            [''],
-                            style={"height": "100px",
+                            [
+                                # 空调状态统计
+                                fac.AntdCol(
+                                    blank_card(
+                                        rootStyle={
+                                            "background": themetoken["colorBgCard"]},
+                                        children=fac.AntdRow(
+                                            [
+                                                # 圆环图1-正常运营
+                                                fac.AntdCol(
+                                                    fact.AntdPie(
+                                                        id="t_c_opstatus_normal-pie",
+                                                        data=[{"value": 100}],
+                                                        angleField="value",
+                                                        radius=0.9,  # 外半径设为0.9
+                                                        innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
+                                                        color="#22c55e",
+                                                        tooltip=False,
+                                                        statistic=False,
+                                                        label=False,
+                                                        annotations=[{
+                                                            "type": "text",
+                                                            "position": ["50%", "50%"],
+                                                            "content": f"正常运营\n{0}",
+                                                            "style": {
+                                                                "fill": "white",
+                                                                "fontSize": 12,
+                                                                "textAlign": "center"
+                                                            }
+                                                        }]
+                                                    ),
+                                                    span=6,
+                                                    style={"display": "flex",
+                                                           "justifyContent": "center",
+                                                           "alignItems": "flex-start",
+                                                           "padding": "5px 10px 0",
+                                                           "height": "100%"}
+                                                ),
+                                                # 圆环图2-加强跟踪
+                                                fac.AntdCol(
+                                                    fact.AntdPie(
+                                                        id="t_c_opstatus_l1main-pie",
+                                                        data=[{"value": 100}],
+                                                        angleField="value",
+                                                        radius=0.9,  # 外半径设为0.9
+                                                        innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
+                                                        color="#eab308",
+                                                        tooltip=False,
+                                                        statistic=False,
+                                                        label=False,
+                                                        annotations=[{
+                                                            "type": "text",
+                                                            "position": ["50%", "50%"],
+                                                            "content": f"加强跟踪\n{0}",
+                                                            "style": {
+                                                                "fill": "white",
+                                                                "fontSize": 12,
+                                                                "textAlign": "center"
+                                                            }
+                                                        }]
+                                                    ),
+                                                    span=6,
+                                                    style={"display": "flex",
+                                                           "justifyContent": "center",
+                                                           "alignItems": "flex-start",
+                                                           "padding": "5px 10px 0",
+                                                           "height": "100%"}
+                                                ),
+                                                # 圆环图3-计划维修
+                                                fac.AntdCol(
+                                                    fact.AntdPie(
+                                                        id="t_c_opstatus_l2main-pie",
+                                                        data=[{"value": 100}],
+                                                        angleField="value",
+                                                        radius=0.9,  # 外半径设为0.9
+                                                        innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
+                                                        color="#f97316",
+                                                        tooltip=False,
+                                                        statistic=False,
+                                                        label=False,
+                                                        annotations=[{
+                                                            "type": "text",
+                                                            "position": ["50%", "50%"],
+                                                            "content": f"计划维修\n{0}",
+                                                            "style": {
+                                                                "fill": "white",
+                                                                "fontSize": 12,
+                                                                "textAlign": "center"
+                                                            }
+                                                        }]
+                                                    ),
+                                                    span=6,
+                                                    style={"display": "flex",
+                                                           "justifyContent": "center",
+                                                           "alignItems": "flex-start",
+                                                           "padding": "5px 10px 0",
+                                                           "height": "100%"}
+                                                ),
+                                                # 圆环图4-立即维修
+                                                fac.AntdCol(
+                                                    fact.AntdPie(
+                                                        id="t_c_opstatus_l3main-pie",
+                                                        data=[{"value": 100}],
+                                                        angleField="value",
+                                                        radius=0.9,  # 外半径设为0.9
+                                                        innerRadius=0.8,
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
+                                                        color="#ef4444",
+                                                        tooltip=False,
+                                                        statistic=False,
+                                                        label=False,
+                                                        annotations=[{
+                                                            "type": "text",
+                                                            "position": ["50%", "50%"],
+                                                            "content": f"立即维修\n{0}",
+                                                            "autoAdjust": True,
+                                                            "style": {
+                                                                "fill": "white",
+                                                                "fontSize": 12,
+                                                                "textAlign": "center",
+                                                                "whiteSpace": "pre"
+                                                            }
+                                                        }]
+                                                    ),
+                                                    span=6,
+                                                    style={"display": "flex",
+                                                           "justifyContent": "center",
+                                                           "alignItems": "flex-start",
+                                                           "padding": "5px 10px 0",
+                                                           "height": "100%"}
+                                                )
+                                            ],
+                                            style={"height": "100px",
+                                                   "alignItems": "flex-start",
+                                                   "margin": 0,
+                                                   "padding": 0}
+                                        ),
+                                    ),
+                                    span=24,
+                                ),
+                                # 空调数量统计
+                                fac.AntdCol(
+                                    blank_card(
+                                        rootStyle={
+                                            "background": themetoken["colorBgCard"]},
+                                        children=fac.AntdRow(
+                                            [
+                                                fac.AntdCol(
+                                                    fac.AntdDivider(
+                                                        '今日预警/报警空调数量', innerTextOrientation='left'),
+                                                    span=24,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='预警数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_warning_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#f97316',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='告警数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_alarm_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='总异常数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_total_exception_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='健康期空调数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_healthy_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#22c55e',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='亚健康期空调数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_subhealthy_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#f97316',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                                fac.AntdCol(
+                                                    fac.AntdStatistic(
+                                                        title='故障期空调数量',
+                                                        value=fuc.FefferyCountUp(
+                                                            id='t_c_faulty_count',
+                                                            end=0, duration=3),
+                                                        valueStyle={
+                                                            'color': '#ef4444',
+                                                            'fontSize': '28px',
+                                                            'fontWeight': 'bold',
+                                                        },
+                                                    ),
+                                                    span=8,
+                                                ),
+                                            ],
+                                            style={"height": "60px",
+                                                "alignItems": "flex-start",
+                                                "margin": 0,
+                                                "padding": 0}
+                                        ),
+                                    ),
+                                    span=24,
+                                style={"marginTop": "180px"},
+                                ),
+                             ],
+                            style={"height": "120px",
                                    "alignItems": "flex-start",
                                     "margin": 0,
                                     "padding": 0}

@@ -8,6 +8,7 @@ import heapq
 import random
 import time
 from datetime import datetime, timedelta
+import pytz
 
 from dash import callback, Output, Input, State, callback_context
 from configs import BaseConfig
@@ -17,6 +18,9 @@ import pandas as pd
 from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
+from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
+from orm.chart_line_fault_type import ChartLineFaultType
+from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 from dash import dcc
 from views.core_pages.train_chart_link import create_train_chart_link
 from configs.layout_config import LayoutConfig
@@ -62,6 +66,99 @@ def sync_url_params_to_form(modified_timestamp, url_params):
 
     train_no = url_params.get('train_no') or None
     return train_no
+
+
+# 获取空调状态数据的方法
+def get_opstatus_data(train_no=None):
+    # 查询空调状态数据
+    query = ChartViewTrainOpstatus.select()
+    # 按车号排序
+    query = query.order_by(ChartViewTrainOpstatus.dvc_train_no)
+    
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartViewTrainOpstatus.dvc_train_no == train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取故障类型数据的方法
+def get_fault_type_data(train_no=None):
+    # 查询故障类型数据
+    query = ChartLineFaultType.select()
+    # 按故障类型和车号排序
+    query = query.order_by(ChartLineFaultType.故障类型, ChartLineFaultType.dvc_train_no)
+    
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartLineFaultType.dvc_train_no == train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取健康状态统计数据的方法
+def get_health_status_count_data(train_no=None):
+    # 查询健康状态统计数据
+    query = ChartLineHealthStatusCount.select()
+    # 按车号和健康状态排序
+    query = query.order_by(ChartLineHealthStatusCount.dvc_train_no, ChartLineHealthStatusCount.device_health_status)
+    
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartLineHealthStatusCount.dvc_train_no == train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
 
 
 # 从数据库获取所有故障数据的函数
@@ -166,7 +263,17 @@ def get_all_fault_data(train_no=None):
      Output('t_f_fault-wordcloud', 'data'),
      Output('t_w_warning-wordcloud', 'data'),
      Output('t_h_health_table', 'data'),
-     Output('t_h_health_bar', 'data')
+     Output('t_h_health_bar', 'data'),
+     Output('t_c_warning_count', 'end'),
+     Output('t_c_alarm_count', 'end'),
+     Output('t_c_total_exception_count', 'end'),
+     Output('t_c_healthy_count', 'end'),
+     Output('t_c_subhealthy_count', 'end'),
+     Output('t_c_faulty_count', 'end'),
+     Output('t_c_opstatus_normal-pie', 'annotations'),
+     Output('t_c_opstatus_l1main-pie', 'annotations'),
+     Output('t_c_opstatus_l2main-pie', 'annotations'),
+     Output('t_c_opstatus_l3main-pie', 'annotations')
      ],
     [Input('l-update-data-interval', 'n_intervals'),
      Input('t_url-params-store', 'data'),
@@ -205,7 +312,17 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
             [],  # 故障词云数据
             [],  # 预警词云数据
             [],  # 健康表格数据
-            []   # 健康柱状图数据
+            [],  # 健康柱状图数据
+            0,   # 预警数量
+            0,   # 告警数量
+            0,   # 总异常数量
+            0,   # 健康期空调数量
+            0,   # 亚健康期空调数量
+            0,   # 故障期空调数量
+            [],  # 正常运营圆环图annotations
+            [],  # 加强跟踪圆环图annotations
+            [],  # 计划维修圆环图annotations
+            []   # 立即维修圆环图annotations
         )
 
     all_data = get_all_fault_data(selected_train_no)
@@ -261,6 +378,92 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     # 调用独立的健康数据查询函数
     formatted_health, bar_data = get_health_data(selected_train_no)
 
+    # 调用get_opstatus_data方法获取空调状态数据
+    opstatus_data = get_opstatus_data(selected_train_no)
+
+    # 调用get_fault_type_data方法获取故障类型数据
+    fault_type_data = get_fault_type_data(selected_train_no)
+
+    # 调用get_health_status_count_data方法获取健康状态统计数据
+    health_status_count_data = get_health_status_count_data(selected_train_no)
+
+    # 计算预警数量
+    warning_count = sum(item['故障数量'] for item in fault_type_data if item['故障类型'] == '预警')
+
+    # 计算告警数量
+    alarm_count = sum(item['故障数量'] for item in fault_type_data if item['故障类型'] == '故障')
+
+    # 计算总异常数量
+    total_exception_count = sum(item['故障数量'] for item in fault_type_data)
+
+    # 计算健康期空调数量
+    healthy_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '健康')
+
+    # 计算亚健康期空调数量
+    subhealthy_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '亚健康')
+
+    # 计算故障期空调数量
+    faulty_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '非健康')
+
+    # 初始化圆环图计数器
+    normal_count = 0
+    l1main_count = 0
+    l2main_count = 0
+    l3main_count = 0
+
+    # 遍历opstatus_data更新计数器
+    for item in opstatus_data:
+        normal_count += item['正常运营']
+        l3main_count += item['立即维修']
+        l1main_count += item['加强跟踪']
+        l2main_count += item['计划维修']
+
+    # 构建圆环图annotations数据
+    normal_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"正常运营\n{normal_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l1main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"加强跟踪\n{l1main_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l2main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"计划维修\n{l2main_count}",
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center"
+        }
+    }]
+    
+    l3main_annotations = [{
+        "type": "text",
+        "position": ["50%", "50%"],
+        "content": f"立即维修\n{l3main_count}",
+        "autoAdjust": True,
+        "style": {
+            "fill": "white",
+            "fontSize": 12,
+            "textAlign": "center",
+            "whiteSpace": "pre"
+        }
+    }]
 
     # 转换为DataFrame并返回字典列表
     log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
@@ -272,7 +475,17 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
         fault_wordcloud_data,
         warning_wordcloud_data,
         pd.DataFrame(formatted_health).to_dict('records'),
-        bar_data
+        bar_data,
+        warning_count,
+        alarm_count,
+        total_exception_count,
+        healthy_count,
+        subhealthy_count,
+        faulty_count,
+        normal_annotations,
+        l1main_annotations,
+        l2main_annotations,
+        l3main_annotations
     )
 
 

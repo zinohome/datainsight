@@ -90,7 +90,7 @@ def render(themetoken):
                                                         annotations=[{
                                                             "type": "text",
                                                             "position": ["50%", "50%"],
-                                                            "content": f"正常运营\n{75}",
+                                                            "content": f"正常运营\n{0}",
                                                             "style": {
                                                                 "fill": "white",
                                                                 "fontSize": 12,
@@ -121,7 +121,7 @@ def render(themetoken):
                                                         annotations=[{
                                                             "type": "text",
                                                             "position": ["50%", "50%"],
-                                                            "content": f"加强跟踪\n{60}",
+                                                            "content": f"加强跟踪\n{0}",
                                                             "style": {
                                                                 "fill": "white",
                                                                 "fontSize": 12,
@@ -152,7 +152,7 @@ def render(themetoken):
                                                         annotations=[{
                                                             "type": "text",
                                                             "position": ["50%", "50%"],
-                                                            "content": f"计划维修\n{85}",
+                                                            "content": f"计划维修\n{0}",
                                                             "style": {
                                                                 "fill": "white",
                                                                 "fontSize": 12,
@@ -170,7 +170,7 @@ def render(themetoken):
                                                 # 圆环图4-立即维修
                                                 fac.AntdCol(
                                                     fact.AntdPie(
-                                                        id="l_c_opstatus_l1main-pie",
+                                                        id="l_c_opstatus_l3main-pie",
                                                         data=[{"value": 100}],
                                                         angleField="value",
                                                         radius=0.9,  # 外半径设为0.9
@@ -183,7 +183,7 @@ def render(themetoken):
                                                         annotations=[{
                                                             "type": "text",
                                                             "position": ["50%", "50%"],
-                                                            "content": f"立即维修\n{90}",
+                                                            "content": f"立即维修\n{0}",
                                                             "autoAdjust": True,
                                                             "style": {
                                                                 "fill": "white",
@@ -330,7 +330,7 @@ def render(themetoken):
                                                         title='预警数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_warning_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#f97316',
                                                             'fontSize': '28px',
@@ -344,7 +344,7 @@ def render(themetoken):
                                                         title='告警数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_alarm_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#ef4444',
                                                             'fontSize': '28px',
@@ -358,7 +358,7 @@ def render(themetoken):
                                                         title='总异常数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_total_exception_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#ef4444',
                                                             'fontSize': '28px',
@@ -372,7 +372,7 @@ def render(themetoken):
                                                         title='健康期空调数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_healthy_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#22c55e',
                                                             'fontSize': '28px',
@@ -386,7 +386,7 @@ def render(themetoken):
                                                         title='亚健康期空调数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_subhealthy_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#f97316',
                                                             'fontSize': '28px',
@@ -400,7 +400,7 @@ def render(themetoken):
                                                         title='故障期空调数量',
                                                         value=fuc.FefferyCountUp(
                                                             id='l_c_faulty_count',
-                                                            end=10, duration=3),
+                                                            end=0, duration=3),
                                                         valueStyle={
                                                             'color': '#ef4444',
                                                             'fontSize': '28px',
