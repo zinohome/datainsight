@@ -20,6 +20,7 @@ from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
 from configs.layout_config import LayoutConfig
 from views.core_pages.train_chart_info import create_train_chart_info
+from orm.chart_carriage_base import ChartCarriageBase
 
 
 # 解析URL参数回调
@@ -195,3 +196,109 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no)
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records')
     )
+
+# 获取车厢基础数据的函数
+def get_carriage_base_data(train_no=None):
+    # 构建查询
+    query = ChartCarriageBase.select()
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartCarriageBase.dvc_train_no == train_no)
+    else:
+        return {}
+
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            # 按车厢号分组
+            result = {}
+            for item in data:
+                carriage_no = item['dvc_carriage_no']
+                # 保存原始运行模式值用于颜色映射
+                original_mode = item['运行模式']
+                
+                # 运行模式映射
+                mode_map = {
+                    '0': '停机',
+                    '1': '通风',
+                    '2': '强冷',
+                    '3': '弱冷',
+                    '6': '紧急通风',
+                    '7': '预冷'
+                }
+                # 确保运行模式是整数后再转为字符串
+                mode_str = str(original_mode)
+                
+                item['运行模式'] = mode_map.get(mode_str, '未定义')
+                item['original_mode'] = original_mode
+                result[carriage_no] = item
+            return result
+    finally:
+        # 强制将当前连接放回连接池
+        try:
+            conn = db.connection()
+            key = db.conn_key(conn)
+            with db._pool_lock:
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 更新六个车厢信息表格的回调函数
+@callback(
+    [Output('c_i_info_table1', 'data'),
+     Output('c_i_info_table2', 'data'),
+     Output('c_i_info_table3', 'data'),
+     Output('c_i_info_table4', 'data'),
+     Output('c_i_info_table5', 'data'),
+     Output('c_i_info_table6', 'data')],
+    [Input('c_train_no', 'value')]
+)
+def update_carriage_info_tables(train_no):
+    log.debug(f"[update_carriage_info_tables] 更新车厢信息表格，train_no: {train_no}")
+
+    # 如果train_no不存在，全部返回空数组
+    if not train_no:
+        return [], [], [], [], [], []
+
+    # 获取数据
+    carriage_data = get_carriage_base_data(train_no)
+    log.debug(f"[update_carriage_info_tables] 车厢数据: {carriage_data}")
+
+    # 运行模式颜色映射
+    mode_color_map = {
+        '0': 'red',        # 停机
+        '1': 'gray',       # 通风
+        '2': 'blue',       # 强冷
+        '3': 'lightblue',  # 弱冷
+        '6': 'yellow',     # 紧急通风
+        '7': 'green'       # 预冷
+    }
+
+    # 准备六个表格的数据
+    table_data = []
+    for i in range(1, 7):
+        if i in carriage_data:
+            item = carriage_data[i]
+            # 使用原始运行模式值进行颜色映射
+            mode_str = str(item['original_mode'])
+            mode_text = item['运行模式']  # 直接使用已经转换好的中文文本
+            mode_color = mode_color_map.get(mode_str, 'default')
+
+            # 提取需要的字段并格式化为标签
+            formatted_data = [{
+                '运行模式': {'tag': mode_text, 'color': mode_color},
+                '目标温度': {'tag': f"{item['目标温度']:.1f}°C", 'color': 'cyan'},
+                '新风温度': {'tag': f"{item['新风温度']:.1f}°C", 'color': 'cyan'},
+                '回风温度': {'tag': f"{item['回风温度']:.1f}°C", 'color': 'cyan'}
+            }]
+            table_data.append(formatted_data)
+        else:
+            table_data.append([])
+
+    return tuple(table_data)

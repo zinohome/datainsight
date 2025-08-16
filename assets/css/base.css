@@ -50,8 +50,9 @@
     background: transparent !important;
 }
 .cfault-table th {
-    font-size: 10px !important;
+    font-size: 12px !important;
     background: transparent !important;
+    color: #888888 !important;
 }
 
 /* 隐藏滚动条 */
@@ -87,6 +88,8 @@
 
 .fault-table th {
     font-size: 12px !important;
+    background: transparent !important;
+    color: #888888 !important;
 }
 
 /* 细滚动条样式 */

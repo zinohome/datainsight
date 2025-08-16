@@ -105,7 +105,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                             },
                             children=[
                                 fac.AntdAccordion(
-                                    id='c_i_accordion-demo',
+                                    id='c_i_accordion-train',
                                     items=[
                                         {
                                             'title': f'运行参数',
@@ -136,13 +136,14 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                                                     'color': themetoken["colorText"],
                                                                                     'backgroundColor': 'transparent'
                                                                                 },
+                                                                                'renderOptions': {'renderType': 'tags'},
                                                                             }
                                                                             for column in c_i_info_table_colnames
                                                                         ],
                                                                         size='small',
                                                                         pagination=False,
                                                                         bordered=False,
-                                                                        maxHeight=40,
+                                                                        maxHeight=50,
                                                                         mode='server-side',
                                                                         className="cfault-table",
                                                                         style={
@@ -158,7 +159,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                                 ),
                                                                 span=4,  # 6个表格，每个占4列，共24列
                                                                 style={
-                                                                    'maxHeight': '50px',  # 调整表格最大高度
+                                                                    'maxHeight': '60px',  # 调整表格最大高度
                                                                     'overflow': 'hidden',
                                                                     'padding': '0 2px'
                                                                 }
@@ -166,7 +167,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                             for tbl in range (1, 7)
                                                         ],
                                                         style={
-                                                            'height': '50px',  # 调整行高度
+                                                            'height': '60px',  # 调整行高度
                                                             'overflow-y': 'hidden',
                                                             'padding': '0',  # 移除上下内边距
                                                             'width': '100%'
@@ -178,6 +179,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                         }
                                     ],
                                     defaultActiveKey=['1'],
+                                    activeKey=['1'],
                                     size='small',
                                     expandIconPosition='left',
                                     ghost=True,

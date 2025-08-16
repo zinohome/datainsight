@@ -9,7 +9,7 @@ class ChartCarriageBase(Model):
     """
     dvc_train_no = CharField(max_length=50, verbose_name='车号')
     dvc_carriage_no = IntegerField(verbose_name='车厢号')
-    运行模式 = TextField(verbose_name='运行模式')
+    运行模式 = IntegerField(verbose_name='运行模式')
     目标温度 = FloatField(verbose_name='目标温度')
     新风温度 = FloatField(verbose_name='新风温度')
     回风温度 = FloatField(verbose_name='回风温度')

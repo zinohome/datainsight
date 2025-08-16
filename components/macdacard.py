@@ -104,7 +104,7 @@ def macda_card(
                 # 分隔线
                 fac.AntdDivider(
                     lineColor='#dae0ea',
-                    style=style(marginTop=6,
+                    style=style(marginTop=2,
                                 marginBottom=6,
                                 borderTopWidth=1),
                     size="small",
@@ -133,7 +133,7 @@ def macda_card(
         style={
             **dict(
                 height=height,
-                padding=20,
+                padding=10,
                 # 动态获取背景色配置
                 background=LayoutConfig.dashboard_theme['colorBgCard'],
                 borderRadius=8,

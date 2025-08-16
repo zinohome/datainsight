@@ -87,7 +87,7 @@ def render(themetoken):
                     ),
                     span=24,
                 ),
-                # 当前空调状态区域 - 左侧单列，视觉上跨两行
+                # 当前车厢空调状态区域 - 左侧单列，视觉上跨两行
                 fac.AntdCol(
                     fac.AntdRow(
                         [
@@ -211,8 +211,28 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="机组实时信息",
-                                    chart=fac.AntdRow(),
-                                height=250,
+                                    chart=fac.AntdRow(
+                                        [
+                                            fac.AntdCol(
+                                                html.Img(
+                                                    src="/assets/imgs/circle_svg_unit1.svg",
+                                                    style={"width": "50%", "height": "50%", "objectFit": "contain"}
+                                                ),
+                                                span=24
+                                            ),
+                                            fac.AntdCol(
+                                                html.Img(
+                                                    src="/assets/imgs/circle_svg_unit1.svg",
+                                                    style={"width": "50%", "height": "50%", "objectFit": "contain"}
+                                                ),
+                                                span=24
+                                            )
+                                        ],
+                                        justify="center",
+                                        align="middle",
+                                        style={"height": "100%"}
+                                    ),
+                                    height=250,
                                 ),
                                 span=24,
                             ),
