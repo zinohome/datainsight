@@ -87,26 +87,7 @@ def render(themetoken):
                     ),
                     span=24,
                 ),
-
                 # 当前空调状态区域 - 左侧单列，视觉上跨两行
-                fac.AntdCol(
-                    macda_card(
-                        rootStyle={"background": themetoken["colorBgCard"]},
-                        titleStyle={"color": themetoken["colorText"]},
-                        descriptionStyle={"color": themetoken["colorText"]},
-                        title="当前空调状态",
-                        chart=fac.AntdRow(
-                            [''],
-                            style={"height": "100px",
-                                   "alignItems": "flex-start",
-                                    "margin": 0,
-                                    "padding": 0}
-                        ),
-                        height=350,
-                    ),
-                    span=6,
-                ),
-                # 右侧图表容器 - 宽度18列，包含6个图表，分两行三列排列
                 fac.AntdCol(
                     fac.AntdRow(
                         [
@@ -145,7 +126,7 @@ def render(themetoken):
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=280,
+                                            maxHeight=200,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -159,11 +140,11 @@ def render(themetoken):
                                         ),
                                     text='数据加载中',
                                     ),
-                                height=350,
+                                height=280,
                                 ),
-                                span=8,
+                                span=24,
                             ),
-                            # 状态预警图表
+                        # 状态预警图表
                             fac.AntdCol(
                                 macda_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
@@ -197,7 +178,7 @@ def render(themetoken):
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=280,
+                                            maxHeight=200,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -211,169 +192,58 @@ def render(themetoken):
                                         ),
                                     text='数据加载中',
                                     ),
-                                    height=350,
+                                    height=280,
                                 ),
-                                span=8,
+                                span=24,
                             ),
-                            # 寿命预测图表
+                        ],
+                    ),
+                    span=8,
+                ),
+                # 右侧图表容器 - 宽度16列，包含3个图表，分两行两列排列
+                fac.AntdCol(
+                    fac.AntdRow(
+                        [
+                            # 机组实时信息
                             fac.AntdCol(
                                 macda_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
-                                    title="寿命预测",
-                                    chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='c_h_health_table',
-                                            columns=[
-                                                {
-                                                    'title': column,
-                                                    'dataIndex': column,
-                                                    'width': '{:.2f}%'.format(100 / len(c_h_health_table_colnames)),
-                                                    'headerCellStyle': {
-                                                        'fontWeight': 'bold',
-                                                        'border': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    'cellStyle': {
-                                                        'borderRight': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    **({'renderOptions': {
-                                                        'renderType': 'mini-progress',
-                                                        'progressOneHundredPercentColor': '#f08c00',
-                                                    }} if column == '耗用率' else {})
-                                                }
-                                                for column in c_h_health_table_colnames
-                                            ],
-                                            size='small',
-                                            pagination=False,
-                                            bordered=False,
-                                            maxHeight=250,
-                                            mode='server-side',
-                                            className="fault-table",
-                                            style={
-                                                'height': '100%',
-                                                'width': '100%',
-                                                'border': 'none',
-                                                'border-collapse': 'collapse',
-                                                'border-spacing': '0',
-                                                'backgroundColor': 'transparent'
-                                            },
-                                        ),
-                                        text='数据加载中',
-                                    ),
-                                    height=350,
+                                    title="机组实时信息",
+                                    chart=fac.AntdRow(),
+                                height=250,
                                 ),
-                                span=8,
+                                span=24,
                             ),
-                            # 典型故障图表
+                            # 关键指标：机组一
                             fac.AntdCol(
                                 macda_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型故障",
-                                    chart=fac.AntdRow(
-                                        [
-                                            fact.AntdWordCloud(
-                                                id="c_f_fault-wordcloud",
-                                                wordField="word",
-                                                weightField="value",
-                                                height=300,
-                                                colorField='word',
-                                                wordStyle={'fontSize': [12, 36]},
-                                            ),
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                    height=350,
+                                    title="关键指标：机组一",
+                                    chart=fac.AntdRow(),
+                                    height=250,
                                 ),
-                                span=8,
+                                span=12,
                             ),
-                            # 典型预警图表
+                            # 关键指标：机组二
                             fac.AntdCol(
                                 macda_card(
                                     rootStyle={"background": themetoken["colorBgCard"]},
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
-                                    title="典型预警",
-                                    chart=fac.AntdRow(
-                                        [
-                                            fact.AntdWordCloud(
-                                                id="c_w_warning-wordcloud",
-                                                wordField="word",
-                                                weightField="value",
-                                                height=300,
-                                                colorField='word',
-                                                wordStyle={'fontSize': [12, 36]},
-                                            ),
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                    height=350,
+                                    title="关键指标：机组二",
+                                    chart=fac.AntdRow(),
+                                    height=250,
                                 ),
-                                span=8,
-                            ),
-                            # 部件寿命图表
-                            fac.AntdCol(
-                                macda_card(
-                                    rootStyle={"background": themetoken["colorBgCard"]},
-                                    titleStyle={"color": themetoken["colorText"]},
-                                    descriptionStyle={"color": themetoken["colorText"]},
-                                    title="部件耗用率%",
-                                    chart=fac.AntdRow(
-                                [
-                                            fact.AntdBar(
-                                                id='c_h_health_bar',
-                                                data=[
-                                                    {
-                                                        'carriage': f'12101-{i}',
-                                                        'ratio': random.randint(0, 10),
-                                                        'param': f'item{j}',
-                                                    }
-                                                    for i in range(1, 7)
-                                                    for j in range(1, 15)
-                                                ],
-                                                xField='ratio',
-                                                yField='carriage',
-                                                seriesField='param',
-                                                isStack=True,
-                                                isPercent=False,
-                                                label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
-                                                style={
-                                                    'height': '100%',
-                                                    'width': '100%',
-                                                    'border': 'none',
-                                                    'border-collapse': 'collapse',
-                                                    'border-spacing': '0',
-                                                    'backgroundColor': 'transparent'
-                                                },
-                                            )
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                    height=350,
-                                ),
-                                span=8,
+                                span=12,
                             ),
                         ],
                         gutter=[10, 10],
                     ),
-                    span=18,
+                    span=16,
                 ),
             ],
             gutter=[10, 10],
