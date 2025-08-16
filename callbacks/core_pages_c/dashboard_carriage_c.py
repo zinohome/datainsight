@@ -7,9 +7,10 @@ class _sentinel:
 import heapq
 import random
 import time
+from datetime import datetime, timedelta
+import pytz
 
-from dash import callback, Output, Input, State
-
+from dash import callback, Output, Input, State, callback_context
 from configs import BaseConfig
 from orm.db import db, log_pool_status
 from orm.chart_view_fault_timed import Chart_view_fault_timed
@@ -17,7 +18,73 @@ import pandas as pd
 from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
+from configs.layout_config import LayoutConfig
+from views.core_pages.train_chart_link import create_train_chart_link
 
+
+# 解析URL参数回调
+@callback(
+    Output('c_url-params-store', 'data'),
+    Input('url', 'search'),
+    prevent_initial_call=False
+)
+def update_url_params(search):
+    log.debug(f"[update_url_params] 开始解析URL参数: {search}")
+    parsed_train = ''
+    parsed_carriage = ''
+
+    if search:
+        try:
+            from urllib.parse import urlparse, parse_qs
+            params = parse_qs(search.lstrip('?'))
+            parsed_train = params.get('train_no', [''])[0]
+            parsed_carriage = params.get('carriage_no', [''])[0]
+        except Exception as e:
+            log.error(f"[update_url_params] 解析URL参数错误: {e}")
+
+    result = {
+        'train_no': parsed_train,
+        'carriage_no': parsed_carriage
+    }
+
+    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
+    return result
+
+# 同步URL参数到表单回调
+@callback(
+    [Output('c_train_no', 'value'),
+     Output('c_carriage_no', 'value')],
+    [Input('c_url-params-store', 'modified_timestamp')],
+    [State('c_url-params-store', 'data')],
+    prevent_initial_call=True
+)
+def sync_url_params_to_form(modified_timestamp, url_params):
+    time.sleep(0.5)  # 等待前端元素加载
+    log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
+    if not isinstance(url_params, dict):
+        return None, None
+
+    train_no = url_params.get('train_no') or None
+    carriage_no = url_params.get('carriage_no') or None
+    return train_no, carriage_no
+
+# 更新车厢图链接回调
+@callback(
+    Output('carriage-chart-link-container', 'children'),
+    [Input('c_train_no', 'value')],
+    [State('theme-mode-store', 'data')]
+)
+def update_carriage_chart_link(train_no, theme_mode):
+    """
+    根据车号和车厢号更新列车图链接
+    :param train_no: 车号
+    :param theme_mode: 主题模式
+    :return: 更新后的列车图链接组件
+    """
+    log.debug(f"[update_carriage_chart_link] 更新列车图链接，train_no: {train_no}")
+    themetoken = LayoutConfig.dashboard_theme
+    # 创建新的列车图链接
+    return create_train_chart_link(themetoken, 'param', train_no)
 
 # 从数据库获取所有故障数据的函数
 

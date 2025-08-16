@@ -21,6 +21,9 @@ def render(themetoken):
     c_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
     c_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
     return [
+        # URL参数处理
+        dcc.Location(id='url', refresh=False),
+        dcc.Store(id='c_url-params-store', data={}),
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
         # 数据统一更新轮询
@@ -76,7 +79,7 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                create_train_chart_link(themetoken,'param')
+                                html.Div(id='carriage-chart-link-container', children=create_train_chart_link(themetoken, 'param'))
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}

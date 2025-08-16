@@ -115,7 +115,9 @@ def render(themetoken):
                             style={"textDecoration": "none"}
                         ),
                         height="calc(70vh - 20px)",
-                        chart=fact.AntdLine(
+                        chart=
+                        fac.AntdSpin(
+                        fact.AntdLine(
                             id="param_operation-data-chart",
                             animation={
                                 'appear': {'animation': 'fade-in', 'duration': 1000, 'delay': 0},
@@ -138,6 +140,8 @@ def render(themetoken):
                                    "#ff4d4f", "#722ed1", "#fa8c16",
                                    "#13c2c2", "#7cb305", "#ff7a45",
                                    "#2f54eb", "#f5222d", "#fa8c16"],
+                        ),
+                        text='数据加载中',
                         ),
                     ),
                     span=24,
