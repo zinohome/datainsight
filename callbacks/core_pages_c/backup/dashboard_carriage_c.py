@@ -19,7 +19,7 @@ from collections import Counter
 from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
 from configs.layout_config import LayoutConfig
-from views.core_pages.train_chart_link import create_train_chart_link
+from views.core_pages.train_chart_info import create_train_chart_info
 
 
 # 解析URL参数回调
@@ -70,15 +70,15 @@ def sync_url_params_to_form(modified_timestamp, url_params):
 
 # 更新车厢图链接回调
 @callback(
-    Output('carriage-chart-link-container', 'children'),
+    Output('carriage-chart-info-container', 'children'),
     [Input('c_train_no', 'value')],
     [State('theme-mode-store', 'data')]
 )
-def update_carriage_chart_link(train_no, theme_mode):
-    log.debug(f"[update_carriage_chart_link] 更新列车图链接，train_no: {train_no}")
+def update_carriage_chart_info(train_no, theme_mode):
+    log.debug(f"[update_carriage_chart_info] 更新列车图链接，train_no: {train_no}")
     themetoken = LayoutConfig.dashboard_theme
     # 创建新的列车图链接
-    return create_train_chart_link(themetoken, 'param', train_no)
+    return create_train_chart_info(themetoken, 'param', train_no)
     """
     根据车号和车厢号更新列车图链接
     :param train_no: 车号
