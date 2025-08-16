@@ -75,6 +75,10 @@ def sync_url_params_to_form(modified_timestamp, url_params):
     [State('theme-mode-store', 'data')]
 )
 def update_carriage_chart_link(train_no, theme_mode):
+    log.debug(f"[update_carriage_chart_link] 更新列车图链接，train_no: {train_no}")
+    themetoken = LayoutConfig.dashboard_theme
+    # 创建新的列车图链接
+    return create_train_chart_link(themetoken, 'param', train_no)
     """
     根据车号和车厢号更新列车图链接
     :param train_no: 车号
@@ -88,11 +92,19 @@ def update_carriage_chart_link(train_no, theme_mode):
 
 # 从数据库获取所有故障数据的函数
 
-def get_all_fault_data():
+def get_all_fault_data(train_no=None, carriage_no=None):
     # 构建查询，获取所有故障类型的数据
     query = Chart_view_fault_timed.select()
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(Chart_view_fault_timed.dvc_train_no == train_no)
+
+    # 如果提供了carriage_no，添加筛选条件
+    if carriage_no:
+        query = query.where(Chart_view_fault_timed.dvc_carriage_no == carriage_no)
 
     # 执行查询并获取数据
     try:
@@ -114,21 +126,25 @@ def get_all_fault_data():
             log.warning(f"显式释放连接失败: {str(e)}")
 
 
-# 合并更新故障和预警表格数据及词云的回调函数
+# 合并更新故障和预警表格数据的回调函数
 @callback(
     [Output('c_w_warning-table', 'data'),
      Output('c_f_fault-table', 'data'),
-     Output('c_f_fault-wordcloud', 'data'),
-     Output('c_w_warning-wordcloud', 'data'),
-     Output('c_h_health_table', 'data'),
-     Output('c_h_health_bar', 'data')
      ],
-    Input('l-update-data-interval', 'n_intervals')
+    [Input('l-update-data-interval', 'n_intervals'),
+     Input('c_url-params-store', 'data'),
+     Input('c_query_button', 'nClicks')],
+    [State('c_train_no', 'value'),
+     State('c_carriage_no', 'value')]
 )
-def update_both_tables(n_intervals):
+def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no):
     """
     更新故障和预警表格数据，只执行一次SQL查询
     :param n_intervals: 定时器触发次数
+    :param url_params: URL参数存储
+    :param n_clicks: 查询按钮点击次数
+    :param train_no: 表单中的车号值
+    :param carriage_no: 表单中的车厢号值
     :return: 预警数据列表和故障数据列表
     """
     # 连接池状态监控
@@ -139,7 +155,21 @@ def update_both_tables(n_intervals):
         log.warning(f"连接池使用率过高 ({status['utilization']}%)，延迟查询...")
         time.sleep(3)  # 延迟1秒
 
-    all_data = get_all_fault_data()
+    # 确定要使用的train_no和carriage_no值（优先使用表单中的值，其次是URL参数中的值）
+    selected_train_no = train_no
+    selected_carriage_no = carriage_no
+    if not selected_train_no and isinstance(url_params, dict):
+        selected_train_no = url_params.get('train_no')
+    if not selected_carriage_no and isinstance(url_params, dict):
+        selected_carriage_no = url_params.get('carriage_no')
+    log.debug(f"[update_both_tables] 使用的train_no: {selected_train_no}, carriage_no: {selected_carriage_no}")
+
+    # 如果没有train_no或carriage_no，则返回空数据
+    if not selected_train_no or not selected_carriage_no:
+        log.debug("[update_both_tables] 未提供train_no或carriage_no，返回空数据")
+        return [], []
+
+    all_data = get_all_fault_data(selected_train_no, selected_carriage_no)
 
     # 拆分数据为预警和故障
     warning_data = [item for item in all_data if item['fault_type'] == '预警']
@@ -161,79 +191,7 @@ def update_both_tables(n_intervals):
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
     } for item in fault_data]
 
-    # 统计故障部件词频用于词云
-    if fault_data:
-        # 提取所有故障部件名称
-        param_names = [item['param_name'] for item in fault_data]
-        # 计算词频
-        param_counter = Counter(param_names)
-        # 格式化词云数据
-        fault_wordcloud_data = [{
-            'word': name,
-            'value': random.randint(10, 100) ** 3 * count
-        } for name, count in param_counter.items()]
-    else:
-        fault_wordcloud_data = []
-
-    # 统计预警部件词频用于词云
-    if warning_data:
-        # 提取所有预警部件名称
-        warning_param_names = [item['param_name'] for item in warning_data]
-        # 计算词频
-        warning_counter = Counter(warning_param_names)
-        # 格式化词云数据
-        warning_wordcloud_data = [{
-            'word': name,
-            'value': random.randint(10, 100) ** 3 * count
-        } for name, count in warning_counter.items()]
-    else:
-        warning_wordcloud_data = []
-
-    # 查询健康数据
-    with db.atomic():  # 添加上下文管理器
-        health_query = ChartHealthEquipment.select().order_by(
-            ChartHealthEquipment.车号,
-            ChartHealthEquipment.车厢号,
-            ChartHealthEquipment.耗用率.desc()
-        )
-        # 立即加载所有数据
-        formatted_health = [{
-            '车号': item.车号,
-            '车厢号': item.车厢号,
-            '部件': item.部件,
-            '耗用率': item.耗用率,
-            '额定寿命': item.额定寿命,
-            '已耗': item.已耗
-        } for item in health_query]
-
-    # 构建c_h_health_bar数据
-    bar_data = []
-
-    # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
-    if not hasattr(update_both_tables, 'select_index'):
-        update_both_tables.select_index = 0
-    health_bar_data = BaseConfig.health_bar_data_rnd
-    select_train = health_bar_data[update_both_tables.select_index % len(health_bar_data)] if health_bar_data else None
-    update_both_tables.select_index += 1
-
-    # 筛选出select_train的车厢数据
-    for item in formatted_health:
-        if item['车号'] == select_train:
-            bar_data.append({
-                'carriage': f"{item['车号']}-{item['车厢号']}",
-                'ratio': round(item['耗用率'] * 100, 2),
-                'param': item['部件'].replace('-', '')
-            })
-
-    # 转换为DataFrame并返回字典列表
-    log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
-    log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
-    log.debug(f"bar_data: {bar_data}")
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
-        pd.DataFrame(formatted_fault).to_dict('records'),
-        fault_wordcloud_data,
-        warning_wordcloud_data,
-        pd.DataFrame(formatted_health).to_dict('records'),
-        bar_data
+        pd.DataFrame(formatted_fault).to_dict('records')
     )
