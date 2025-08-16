@@ -16,7 +16,8 @@ def create_train_chart_link(themetoken, page_name, train_no=None):
     return (
         fac.AntdRow(
             style={
-                "width": "100%"
+                "width": "100%",
+                "margin": "0 auto"  # 居中显示
             },
             children=[
                 html.Div(

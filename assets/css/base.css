@@ -41,11 +41,51 @@
     color: #5d7189;
 }
 
+.cfault-table .ant-table-cell::before {
+    display: none !important;
+}
+
+.cfault-table td {
+    font-size: 12px !important;
+    background: transparent !important;
+}
+.cfault-table th {
+    font-size: 10px !important;
+    background: transparent !important;
+}
+
+/* 隐藏滚动条 */
+.cfault-table .ant-table-body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+}
+.cfault-table .ant-table-body::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.cfault-table .ant-table-body::-webkit-scrollbar-thumb {
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+}
+/* Firefox compatibility */
+.cfault-table .ant-table-body {
+    scrollbar-width: none !important;
+    overflow: hidden !important;
+}
+
+.cfault-table {
+    scrollbar-width: none;
+    overflow: hidden;
+}
 .fault-table .ant-table-cell::before {
     display: none !important;
 }
 
 .fault-table td {
+    font-size: 12px !important;
+}
+
+.fault-table th {
     font-size: 12px !important;
 }
 
