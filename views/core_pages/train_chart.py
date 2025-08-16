@@ -16,7 +16,7 @@ def create_train_chart(themetoken):
         style={
             "display": "flex",
             "alignItems": "center",
-            "padding": "5px",
+            "padding": "1px",
             "width": "100%"
         },
         children=[
