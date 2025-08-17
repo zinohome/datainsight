@@ -399,11 +399,15 @@ def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
      Output('c_i_unit2_current2', 'items')],
     [Input('l-update-data-interval', 'n_intervals'),
      Input('c_url-params-store', 'data'),
-     Input('c_query_button', 'nClicks')],
-    [State('c_train_no', 'value'),
-     State('c_carriage_no', 'value')]
+     Input('c_query_button', 'nClicks'),
+     Input('c_train_no', 'value'),
+     Input('c_carriage_no', 'value')],
+    prevent_initial_call=False
 )
-def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no, carriage_no):
+def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, carriage_no_value):
+    # 使用新的输入参数值
+    train_no = train_no_value
+    carriage_no = carriage_no_value
     log.debug(f"[update_unit_info_tables] 更新机组信息表格，train_no: {train_no}, carriage_no: {carriage_no}")
 
     # 如果没有train_no或carriage_no，返回空数据

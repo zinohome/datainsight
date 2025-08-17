@@ -38,8 +38,8 @@ class BaseConfig:
 
     # 日志配置参数
     app_log_filename: str = 'app.log'
-    app_log_level: str = 'DEBUG'
-    app_peewee_debug_log: bool = True
+    app_log_level: str = 'INFO'
+    app_peewee_debug_log: bool = False
 
     # 数据刷新时间配置
     line_update_data_interval: int = 5000

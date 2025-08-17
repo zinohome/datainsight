@@ -127,7 +127,7 @@ def render(themetoken):
                                             pagination=False,
                                             bordered = False,
                                             maxHeight=260,
-                                            mode = 'server-side',
+                                            mode = 'client-side',
                                             className = "fault-table",
                                             style = {
                                                 'height': '100%',
@@ -179,7 +179,7 @@ def render(themetoken):
                                             pagination=False,
                                             bordered = False,
                                             maxHeight=260,
-                                            mode = 'server-side',
+                                            mode = 'client-side',
                                             className = "fault-table",
                                             style = {
                                                 'height': '100%',
@@ -266,7 +266,7 @@ def render(themetoken):
                                                                         size="small",
                                                                         pagination=False,
                                                                         bordered=False,
-                                                                        mode = 'server-side',
+                                                                        mode = 'client-side',
                                                                         className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
@@ -331,7 +331,7 @@ def render(themetoken):
                                                                         size="small",
                                                                         pagination=False,
                                                                         bordered=False,
-                                                                        mode = 'server-side',
+                                                                        mode = 'client-side',
                                                                         className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
