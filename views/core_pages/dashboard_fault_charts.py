@@ -14,7 +14,7 @@ from configs import BaseConfig
 def render(themetoken, url_params=None):
     colnames = [
         '车号', '车厢号', '故障名称', '开始时间', '结束时间',
-        '状态', '故障等级', '类型', '维修建议'
+        '状态', '故障等级', '类型', '维修建议', '操作'
     ]
     h_clean_table_columns=['车号', '车厢号', '部件', '已耗[秒/次]', '清除时间']
     return [
@@ -120,7 +120,17 @@ def render(themetoken, url_params=None):
                                                 'color': themetoken["colorText"],
                                                 'fontSize': '10px',
                                                 'backgroundColor': 'transparent'
-                                            }
+                                            },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'button',
+                                                        'renderButtonPopConfirmProps': {
+                                                                'title': '确认清除该预警/故障？',
+                                                                'okText': '确认',
+                                                                'cancelText': '取消',
+                                                            },
+                                                        }
+                                                    } if column == '操作' else {})
                                         }
                                         for column in colnames
                                     ],
