@@ -166,7 +166,7 @@ def sync_url_params_to_form(modified_timestamp, url_params):
         return None, None, None
     train_no = url_params.get('train_no') or None
     carriage_no = url_params.get('carriage_no') or None
-    component_type = url_params.get('component_type')
+    component_type = url_params.get('component_type') or None
     log.debug(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 部件={component_type}")
     return train_no, carriage_no, component_type
 
