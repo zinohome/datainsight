@@ -1,6 +1,18 @@
 CREATE OR REPLACE VIEW chart_carriage_param_current AS
-WITH latest_data AS (
-        -- dev表取最新5000条
+SELECT 
+    dvc_train_no,
+    dvc_carriage_no,
+    param_name,
+    param_value
+FROM (
+    SELECT 
+        dvc_train_no,
+        dvc_carriage_no,
+        param_name,
+        param_value,
+        ROW_NUMBER() OVER (PARTITION BY dvc_train_no, param_name ORDER BY msg_time DESC) AS rn
+    FROM (
+        -- dev表数据
         (SELECT
             dvc_train_no,
             dvc_carriage_no,
@@ -19,7 +31,7 @@ WITH latest_data AS (
 
         UNION ALL
 
-        -- pro表取最新5000条
+        -- pro表数据
         (SELECT
             dvc_train_no,
             dvc_carriage_no,
@@ -35,11 +47,6 @@ WITH latest_data AS (
         )
         ORDER BY msg_time DESC
         LIMIT 5000)
-    )
-SELECT DISTINCT ON (dvc_train_no, param_name)
-    dvc_train_no,
-    dvc_carriage_no,
-    param_name,
-    param_value
-FROM latest_data
-ORDER BY dvc_train_no, param_name, msg_time DESC;
+    ) AS combined_data
+) AS t
+WHERE t.rn = 1;
