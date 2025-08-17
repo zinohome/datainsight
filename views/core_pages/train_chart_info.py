@@ -57,20 +57,40 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                         style={
                                             "flex": "1 1 auto",  # 等比例分配剩余空间
                                             "minWidth": "60px",  # 最小宽度限制，防止过度压缩
-                                            "height": "74px",
-                                            "display": "flex",  # 启用flex布局拼接左右图片
+                                            "display": "flex",
+                                            "flexDirection": "column",  # 垂直排列图片和数字
+                                            "alignItems": "center",  # 水平居中
                                             "borderLeft": "0px dashed white"  # 车厢间分隔线
                                         },
                                         children=[
-                                            # 车厢左侧图片
-                                            html.Img(
-                                                src="/assets/imgs/train_bodyL.png",
-                                                style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                            html.Div(
+                                                style={
+                                                    "height": "74px",
+                                                    "width": "100%",
+                                                    "display": "flex",  # 启用flex布局拼接左右图片
+                                                },
+                                                children=[
+                                                    # 车厢左侧图片
+                                                    html.Img(
+                                                        src="/assets/imgs/train_bodyL.png",
+                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                    ),
+                                                    # 车厢右侧图片
+                                                    html.Img(
+                                                        src="/assets/imgs/train_bodyR.png",
+                                                        style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                                    )
+                                                ]
                                             ),
-                                            # 车厢右侧图片
-                                            html.Img(
-                                                src="/assets/imgs/train_bodyR.png",
-                                                style={"width": "50%", "height": "100%", "objectFit": "cover"}
+                                            # 车厢编号
+                                            html.Div(
+                                                f"{i + 1}",
+                                                style={
+                                                    "color": "white",
+                                                    "fontSize": "14px",
+                                                    "fontWeight": "bold",
+                                                    "marginTop": "5px"
+                                                }
                                             )
                                         ]
                                     )

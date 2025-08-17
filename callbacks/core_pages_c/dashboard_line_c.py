@@ -155,9 +155,7 @@ def get_health_data():
                 '车厢号': item.车厢号,
                 '部件': item.部件,
                 '耗用率': item.耗用率,
-                '额定寿命': item.额定寿命,
-                '已耗': item.已耗,
-                '操作': {'href': '/macda/dashboard/train?train_no=' + item.车号, 'target': '_self'}
+                '操作': {'href': '/macda/dashboard/health?train_no=' + str(item.车号) + '&carriage_no=' + str(item.车厢号), 'target': '_self'}
             } for item in health_query]
 
         # 构建l_h_health_bar数据

@@ -20,7 +20,7 @@ def render(themetoken):
     l_c_opstatus_table_colnames = ['车号', '立即维修', '加强跟踪', '计划维修', '操作']
     l_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间', '操作']
     l_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间', '操作']
-    l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗', '操作']
+    l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '操作']
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
@@ -614,10 +614,7 @@ def render(themetoken):
                                                             'renderType': 'link',
                                                             'renderLinkText': '详情'
                                                         }
-                                                    } if column == '操作' else {})
-
-
-                                                    
+                                                    } if column == '操作' else {})                                                    
                                                 }
                                                 for column in l_h_health_table_colnames
                                             ],

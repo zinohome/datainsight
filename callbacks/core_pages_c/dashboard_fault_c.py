@@ -164,7 +164,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
             '维修建议': item['repair_suggestion']
         } for item in data]
         log.debug(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
-        return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions'],'showQuickJumper': pagination['showQuickJumper']}
+        return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions']}
     except Exception as e:
         log.error(f"[update_dashboard_data] 查询错误: {e}")
         return []

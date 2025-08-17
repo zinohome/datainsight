@@ -183,7 +183,8 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no)
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
         '预警部件': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
 
     # 格式化故障数据
@@ -191,7 +192,8 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no)
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
         '故障部件': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
 
     return (

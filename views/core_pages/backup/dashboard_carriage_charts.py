@@ -17,9 +17,9 @@ from views.core_pages.train_chart_info import create_train_chart_info
 
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
-    c_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
-    c_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
-    c_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
+    c_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间', '操作']
+    c_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间', '操作']
+    c_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '操作']
     return [
         # URL参数处理
         dcc.Location(id='url', refresh=False),
@@ -119,14 +119,20 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in c_f_fault_table_colnames
                                             ],
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=260,
+                                            maxHeight=180,
                                             mode = 'client-side',
                                             className = "fault-table",
                                             style = {
@@ -171,14 +177,20 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in c_w_warning_table_colnames
                                             ],
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=260,
+                                            maxHeight=180,
                                             mode = 'client-side',
                                             className = "fault-table",
                                             style = {

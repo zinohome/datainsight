@@ -69,6 +69,16 @@ if __name__ == '__main__':
             logger.info(f"额定寿命: {record.额定寿命}")
             logger.info(f"已耗: {record.已耗}")
 
+        # 获取所有独特部件并按名称排序
+        components_query = ChartHealthEquipment.select(ChartHealthEquipment.部件).distinct().order_by(
+            ChartHealthEquipment.部件)
+        components = [record.部件 for record in components_query]
+
+        logger.info(f"查询到 {len(components)} 个独特部件")
+        logger.info("部件列表:")
+        for idx, component in enumerate(components, 1):
+            logger.info(f"  {idx}. {component}")
+        logger.info(components)
     except Exception as e:
         logger.error(f"测试错误: {str(e)}", exc_info=True)
     finally:

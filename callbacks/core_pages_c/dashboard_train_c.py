@@ -183,8 +183,7 @@ def get_health_data(train_no=None):
                 '车厢号': item.车厢号,
                 '部件': item.部件,
                 '耗用率': item.耗用率,
-                '额定寿命': item.额定寿命,
-                '已耗': item.已耗
+                '操作': {'href': '/macda/dashboard/health?train_no=' + str(item.车号) + '&carriage_no=' + str(item.车厢号), 'target': '_self'}
             } for item in health_query]
 
         # 构建t_h_health_bar数据
@@ -228,7 +227,14 @@ def get_health_data(train_no=None):
 
 def get_all_fault_data(train_no=None):
     # 构建查询，获取所有故障类型的数据
-    query = Chart_view_fault_timed.select()
+    # query = Chart_view_fault_timed.select()
+    # 构建查询，获取24小时内所有故障类型的数据
+    # 计算24小时前的时间点
+    twenty_four_hours_ago = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(hours=24)
+    if BaseConfig.fault_predict_time_limit_in_24hrs:
+        query = Chart_view_fault_timed.select().where(Chart_view_fault_timed.start_time >= twenty_four_hours_ago)
+    else:
+        query = Chart_view_fault_timed.select()
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
 
@@ -336,7 +342,8 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
         '预警部件': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
 
     # 格式化故障数据
@@ -344,7 +351,8 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
         '故障部件': item['param_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else ''
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
 
     # 统计故障部件词频用于词云

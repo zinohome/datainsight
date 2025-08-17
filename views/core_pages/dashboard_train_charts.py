@@ -18,9 +18,9 @@ from utils.log import log as log
 
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
-    t_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
-    t_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
-    t_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
+    t_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间', '操作']
+    t_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间', '操作']
+    t_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '操作']
     return [
         # URL参数处理
         dcc.Location(id='url', refresh=False),
@@ -381,7 +381,13 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in t_f_fault_table_colnames
                                             ],
@@ -433,7 +439,13 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in t_w_warning_table_colnames
                                             ],
@@ -489,7 +501,12 @@ def render(themetoken):
                                                     **({'renderOptions': {
                                                         'renderType': 'mini-progress',
                                                         'progressOneHundredPercentColor': '#f08c00',
-                                                    }} if column == '耗用率' else {})
+                                                    }} if column == '耗用率' else {
+                                                        'renderOptions': {
+                                                            'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in t_h_health_table_colnames
                                             ],
