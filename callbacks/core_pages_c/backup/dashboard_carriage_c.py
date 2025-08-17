@@ -21,6 +21,8 @@ from orm.chart_health_equipment import ChartHealthEquipment
 from configs.layout_config import LayoutConfig
 from views.core_pages.train_chart_info import create_train_chart_info
 from orm.chart_carriage_base import ChartCarriageBase
+from orm.chart_carriage_param import ChartCarriageParam
+from orm.chart_carriage_param_current import ChartCarriageParamCurrent
 
 
 # 解析URL参数回调
@@ -249,6 +251,42 @@ def get_carriage_base_data(train_no=None):
             log.warning(f"显式释放连接失败: {str(e)}")
 
 
+# 获取车厢参数数据的函数
+def get_carriage_param_data(train_no=None, carriage_no=None):
+    # 构建查询
+    query = ChartCarriageParam.select()
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartCarriageParam.dvc_train_no == train_no)
+    else:
+        return None
+
+    # 如果提供了carriage_no，添加筛选条件
+    if carriage_no:
+        query = query.where(ChartCarriageParam.dvc_carriage_no == carriage_no)
+
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            if data:
+                return data[0]  # 返回第一条记录
+            return None
+    finally:
+        # 强制将当前连接放回连接池
+        try:
+            conn = db.connection()
+            key = db.conn_key(conn)
+            with db._pool_lock:
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
 # 更新六个车厢信息表格的回调函数
 @callback(
     [Output('c_i_info_table1', 'data'),
@@ -257,9 +295,12 @@ def get_carriage_base_data(train_no=None):
      Output('c_i_info_table4', 'data'),
      Output('c_i_info_table5', 'data'),
      Output('c_i_info_table6', 'data')],
-    [Input('c_train_no', 'value')]
+    [Input('l-update-data-interval', 'n_intervals'),
+     Input('c_url-params-store', 'data'),
+     Input('c_query_button', 'nClicks')],
+    [State('c_train_no', 'value')]
 )
-def update_carriage_info_tables(train_no):
+def update_carriage_info_tables(n_intervals, url_params, n_clicks, train_no):
     log.debug(f"[update_carriage_info_tables] 更新车厢信息表格，train_no: {train_no}")
 
     # 如果train_no不存在，全部返回空数组
@@ -302,3 +343,180 @@ def update_carriage_info_tables(train_no):
             table_data.append([])
 
     return tuple(table_data)
+
+
+# 获取车厢当前参数数据的函数
+def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
+    # 构建查询
+    query = ChartCarriageParamCurrent.select()
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartCarriageParamCurrent.dvc_train_no == train_no)
+    else:
+        return []
+
+    # 如果提供了carriage_no，添加筛选条件
+    if carriage_no:
+        query = query.where(ChartCarriageParamCurrent.dvc_carriage_no == carriage_no)
+
+    # 如果提供了unit，添加筛选条件
+    if unit:
+        # 构建参数名称的like查询，例如'%U11%'
+        query = query.where(ChartCarriageParamCurrent.param_name.contains(unit))
+
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池
+        try:
+            conn = db.connection()
+            key = db.conn_key(conn)
+            with db._pool_lock:
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+# 更新机组信息表格的回调函数
+@callback(
+    [Output('c_i_info_unit1-table', 'data'),
+     Output('c_i_info_unit2-table', 'data'),
+     Output('c_i_unit1_supply_temp', 'percent'),
+     Output('c_i_unit1_humidity', 'percent'),
+     Output('c_i_unit1_car_temp', 'percent'),
+     Output('c_i_unit2_supply_temp', 'percent'),
+     Output('c_i_unit2_humidity', 'percent'),
+     Output('c_i_unit2_car_temp', 'percent'),
+     Output('c_i_unit1_current1', 'items'),
+     Output('c_i_unit1_current2', 'items'),
+     Output('c_i_unit2_current1', 'items'),
+     Output('c_i_unit2_current2', 'items')],
+    [Input('l-update-data-interval', 'n_intervals'),
+     Input('c_url-params-store', 'data'),
+     Input('c_query_button', 'nClicks')],
+    [State('c_train_no', 'value'),
+     State('c_carriage_no', 'value')]
+)
+def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no, carriage_no):
+    log.debug(f"[update_unit_info_tables] 更新机组信息表格，train_no: {train_no}, carriage_no: {carriage_no}")
+
+    # 如果没有train_no或carriage_no，返回空数据
+    if not train_no or not carriage_no:
+        log.debug("[update_unit_info_tables] 未提供train_no或carriage_no，返回空数据和默认值")
+        return [], [], 0, 0, 0, 0, 0, 0,[{'label': '0','content': '冷凝风机电流-U11'},
+                                         {'label': '0','content': '压缩机电流-U11'},
+                                         {'label': '0','content': '通风机电流-U11'}], \
+               [{'label': '0','content': '冷凝风机电流-U12'},
+                                         {'label': '0','content': '压缩机电流-U12'},
+                                         {'label': '0','content': '通风机电流-U12'}], \
+               [{'label': '0','content': '冷凝风机电流-U21'},
+                                         {'label': '0','content': '压缩机电流-U21'},
+                                         {'label': '0','content': '通风机电流-U21'}], \
+               [{'label': '0','content': '冷凝风机电流-U22'},
+                                         {'label': '0','content': '压缩机电流-U22'},
+                                         {'label': '0','content': '通风机电流-U22'}]
+
+    # 获取数据
+    param_data = get_carriage_param_data(train_no, carriage_no)
+    if not param_data:
+        log.debug("[update_unit_info_tables] 未找到参数数据，返回空数据和默认值")
+        return [], [], 0, 0, 0, 0, 0, 0,[{'label': '0','content': '冷凝风机电流-U11'},
+                                         {'label': '0','content': '压缩机电流-U11'},
+                                         {'label': '0','content': '通风机电流-U11'}], \
+               [{'label': '0','content': '冷凝风机电流-U12'},
+                                         {'label': '0','content': '压缩机电流-U12'},
+                                         {'label': '0','content': '通风机电流-U12'}], \
+               [{'label': '0','content': '冷凝风机电流-U21'},
+                                         {'label': '0','content': '压缩机电流-U21'},
+                                         {'label': '0','content': '通风机电流-U21'}], \
+               [{'label': '0','content': '冷凝风机电流-U22'},
+                                         {'label': '0','content': '压缩机电流-U22'},
+                                         {'label': '0','content': '通风机电流-U22'}]
+
+    log.debug(f"[update_unit_info_tables] 参数数据: {param_data}")
+
+    # 格式化机组1表格数据
+    unit1_data = [{
+        'pressure1': {'tag': f"{param_data.get('吸气压力_u11', 0):.2f} MPa", 'color': 'cyan'},
+        'pressure2': {'tag': f"{param_data.get('吸气压力_u12', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure1': {'tag': f"{param_data.get('高压压力_u11', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure2': {'tag': f"{param_data.get('高压压力_u12', 0):.2f} MPa", 'color': 'cyan'},
+        'temp1': {'tag': f"{param_data.get('新风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'temp2': {'tag': f"{param_data.get('回风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'temp3': {'tag': f"{param_data.get('送风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'co2': {'tag': f"{param_data.get('co2_u1', 0):.0f} ppm", 'color': 'cyan'},
+        'carTemp': {'tag': f"{param_data.get('车厢温度_1', 0):.1f}°C", 'color': 'cyan'},
+        'humidity': {'tag': f"{param_data.get('车厢湿度_1', 0):.1f}%", 'color': 'cyan'}
+    }]
+
+    # 格式化机组2表格数据
+    unit2_data = [{
+        'pressure1': {'tag': f"{param_data.get('吸气压力_u21', 0):.2f} MPa", 'color': 'cyan'},
+        'pressure2': {'tag': f"{param_data.get('吸气压力_u22', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure1': {'tag': f"{param_data.get('高压压力_u21', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure2': {'tag': f"{param_data.get('高压压力_u22', 0):.2f} MPa", 'color': 'cyan'},
+        'temp1': {'tag': f"{param_data.get('新风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'temp2': {'tag': f"{param_data.get('回风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'temp3': {'tag': f"{param_data.get('送风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'co2': {'tag': f"{param_data.get('co2_u2', 0):.0f} ppm", 'color': 'cyan'},
+        'carTemp': {'tag': f"{param_data.get('车厢温度_2', 0):.1f}°C", 'color': 'cyan'},
+        'humidity': {'tag': f"{param_data.get('车厢湿度_2', 0):.1f}%", 'color': 'cyan'}
+    }]
+    # 计算各参数的百分比值（除以100并保留三位小数）
+    unit1_supply_temp = round(param_data.get('送风温度_u1', 0) / 100, 3)
+    unit1_humidity = round(param_data.get('车厢温度_1', 0) / 100, 3)  # 注意：用户要求将车厢温度_1赋值给湿度
+    unit1_car_temp = round(param_data.get('车厢温度_1', 0) / 100, 3)
+    unit2_supply_temp = round(param_data.get('送风温度_u2', 0) / 100, 3)
+    unit2_humidity = round(param_data.get('车厢湿度_2', 0) / 100, 3)
+    unit2_car_temp = round(param_data.get('车厢温度_2', 0) / 100, 3)
+
+    # 获取各机组电流数据
+    unit1_current1_data = get_carriage_param_current_data(train_no, carriage_no, 'U11')
+    unit1_current2_data = get_carriage_param_current_data(train_no, carriage_no, 'U12')
+    unit2_current1_data = get_carriage_param_current_data(train_no, carriage_no, 'U21')
+    unit2_current2_data = get_carriage_param_current_data(train_no, carriage_no, 'U22')
+
+    # 格式化电流数据为items结构
+    def format_current_items(data, unit):
+        # 创建参数名称到标签的映射
+        param_map = {
+            '冷凝风机电流': '冷凝风机电流-{}'.format(unit),
+            '压缩机电流': '压缩机电流-{}'.format(unit),
+            '通风机电流': '通风机电流-{}'.format(unit)
+        }
+
+        # 初始化结果字典
+        result = {
+            '冷凝风机电流-{}'.format(unit): {'label': '0', 'content': '冷凝风机电流-{}'.format(unit)},
+            '压缩机电流-{}'.format(unit): {'label': '0', 'content': '压缩机电流-{}'.format(unit)},
+            '通风机电流-{}'.format(unit): {'label': '0', 'content': '通风机电流-{}'.format(unit)}
+        }
+
+        # 填充数据
+        for item in data:
+            param_name = item.get('param_name', '')
+            for key, value in param_map.items():
+                if key in param_name:
+                    result[value] = {'label': str(item.get('param_value', 0)), 'content': value}
+                    break
+
+        # 转换为列表并保持顺序
+        return [
+            result['冷凝风机电流-{}'.format(unit)],
+            result['压缩机电流-{}'.format(unit)],
+            result['通风机电流-{}'.format(unit)]
+        ]
+
+    # 格式化各机组电流数据
+    unit1_current1_items = format_current_items(unit1_current1_data, 'U11')
+    unit1_current2_items = format_current_items(unit1_current2_data, 'U12')
+    unit2_current1_items = format_current_items(unit2_current1_data, 'U21')
+    unit2_current2_items = format_current_items(unit2_current2_data, 'U22')
+
+    return unit1_data, unit2_data, unit1_supply_temp, unit1_humidity, unit1_car_temp, unit2_supply_temp, unit2_humidity, unit2_car_temp, unit1_current1_items, unit1_current2_items, unit2_current1_items, unit2_current2_items
