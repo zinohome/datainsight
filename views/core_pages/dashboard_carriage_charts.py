@@ -126,7 +126,7 @@ def render(themetoken):
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=200,
+                                            maxHeight=260,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -140,7 +140,7 @@ def render(themetoken):
                                         ),
                                     text='数据加载中',
                                     ),
-                                height=280,
+                                height=260,
                                 ),
                                 span=24,
                             ),
@@ -178,7 +178,7 @@ def render(themetoken):
                                             size='small',
                                             pagination=False,
                                             bordered = False,
-                                            maxHeight=200,
+                                            maxHeight=260,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -192,7 +192,7 @@ def render(themetoken):
                                         ),
                                     text='数据加载中',
                                     ),
-                                    height=280,
+                                    height=260,
                                 ),
                                 span=24,
                             ),
@@ -369,14 +369,116 @@ def render(themetoken):
                                                     [
                                                         # 机组一 送风温度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit1_supply_temp',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `送风温度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                         # 机组一 湿度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit1_humidity',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `湿度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                         # 机组一 车厢温度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit1_car_temp',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `车厢温度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                     ],
@@ -388,10 +490,62 @@ def render(themetoken):
                                                     [
                                                         # 机组一 电流一 
                                                         fac.AntdCol(
+                                                            fac.AntdSpace(
+                                                                [
+                                                                    fac.AntdTimeline(
+                                                                        id='c_i_unit1_current1',
+                                                                        items=[
+                                                                            {
+                                                                                'label': '13.2',
+                                                                                'content': '冷凝风机电流-U11'
+                                                                            },
+                                                                            {
+                                                                                'label': '11',
+                                                                                'content': '压缩机电流-U11'
+                                                                            },
+                                                                            {
+                                                                                'label': '9',
+                                                                                'content': '通风机电流-U11'
+                                                                            }
+                                                                        ],
+                                                                        mode='right'
+                                                                    )
+                                                                ],
+                                                                direction='vertical',
+                                                                style={
+                                                                    'width': '100%',
+                                                                },
+                                                            ),
                                                             span=12,
                                                         ),
                                                         # 机组一 电流二
                                                         fac.AntdCol(
+                                                            fac.AntdSpace(
+                                                                [
+                                                                    fac.AntdTimeline(
+                                                                        id='c_i_unit1_current2',
+                                                                        items=[
+                                                                            {
+                                                                                'label': '13.2',
+                                                                                'content': '冷凝风机电流-U12'
+                                                                            },
+                                                                            {
+                                                                                'label': '11',
+                                                                                'content': '压缩机电流-U12'
+                                                                            },
+                                                                            {
+                                                                                'label': '9',
+                                                                                'content': '通风机电流-U12'
+                                                                            }
+                                                                        ],
+                                                                        mode='right'
+                                                                    )
+                                                                ],
+                                                                direction='vertical',
+                                                                style={
+                                                                    'width': '100%',
+                                                                },
+                                                            ),
                                                             span=12,
                                                         ),
                                                     ],
@@ -421,14 +575,116 @@ def render(themetoken):
                                                     [
                                                         # 机组二 送风温度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit2_supply_temp',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `送风温度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                         # 机组二 湿度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit2_humidity',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `湿度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                         # 机组二 车厢温度
                                                         fac.AntdCol(
+                                                            fact.AntdGauge(
+                                                                id='c_i_unit2_car_temp',
+                                                                percent=0.5,
+                                                                padding=[5,5,5,5],
+                                                                renderer='svg',
+                                                                range={
+                                                                    'ticks': [0, 1 / 3, 2 / 3, 1],
+                                                                    'color': ['#F4664A', '#FAAD14', '#30BF78'],
+                                                                },
+                                                                indicator={
+                                                                    'shape': 'simple',
+                                                                    'pointer': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                    'pin': {
+                                                                        'style': {
+                                                                            'stroke': '#D0D0D0',
+                                                                        },
+                                                                    },
+                                                                },
+                                                                statistic={
+                                                                    'content': {
+                                                                        'formatter': {
+                                                                            'func': """({ percent }) => `车厢温度: ${(percent * 100).toFixed(1)}`"""
+                                                                        },
+                                                                        'style': {
+                                                                            'color': 'cyan',
+                                                                            'fontSize': '12px',
+                                                                        },
+                                                                    },
+                                                                },
+                                                            ),
                                                             span=8,
                                                         ),
                                                     ],
@@ -440,10 +696,62 @@ def render(themetoken):
                                                     [
                                                         # 机组二 电流一 
                                                         fac.AntdCol(
+                                                            fac.AntdSpace(
+                                                                [
+                                                                    fac.AntdTimeline(
+                                                                        id='c_i_unit2_current1',
+                                                                        items=[
+                                                                            {
+                                                                                'label': '13.2',
+                                                                                'content': '冷凝风机电流-U21'
+                                                                            },
+                                                                            {
+                                                                                'label': '11',
+                                                                                'content': '压缩机电流-U21'
+                                                                            },
+                                                                            {
+                                                                                'label': '9',
+                                                                                'content': '通风机电流-U21'
+                                                                            }
+                                                                        ],
+                                                                        mode='right'
+                                                                    )
+                                                                ],
+                                                                direction='vertical',
+                                                                style={
+                                                                    'width': '100%',
+                                                                },
+                                                            ),
                                                             span=12,
                                                         ),
                                                         # 机组二 电流二
                                                         fac.AntdCol(
+                                                            fac.AntdSpace(
+                                                                [
+                                                                    fac.AntdTimeline(
+                                                                        id='c_i_unit2_current1',
+                                                                        items=[
+                                                                            {
+                                                                                'label': '13.2',
+                                                                                'content': '冷凝风机电流-U22'
+                                                                            },
+                                                                            {
+                                                                                'label': '11',
+                                                                                'content': '压缩机电流-U22'
+                                                                            },
+                                                                            {
+                                                                                'label': '9',
+                                                                                'content': '通风机电流-U22'
+                                                                            }
+                                                                        ],
+                                                                        mode='right'
+                                                                    )
+                                                                ],
+                                                                direction='vertical',
+                                                                style={
+                                                                    'width': '100%',
+                                                                },
+                                                            ),
                                                             span=12,
                                                         ),
                                                     ],

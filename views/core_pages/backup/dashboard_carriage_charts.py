@@ -362,7 +362,47 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="关键指标：机组一",
-                                    chart=fac.AntdRow(),
+                                    chart=fac.AntdRow(
+                                        fac.AntdCol(
+                                            [
+                                                fac.AntdRow(
+                                                    [
+                                                        # 机组一 送风温度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                        # 机组一 湿度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                        # 机组一 车厢温度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                    ],
+                                                    align="bottom",
+                                                    justify="center",
+                                                    style={"height": "100px", "marginBottom": "5px"}
+                                                ),
+                                                fac.AntdRow(
+                                                    [
+                                                        # 机组一 电流一 
+                                                        fac.AntdCol(
+                                                            span=12,
+                                                        ),
+                                                        # 机组一 电流二
+                                                        fac.AntdCol(
+                                                            span=12,
+                                                        ),
+                                                    ],
+                                                    align="bottom",
+                                                    justify="center",
+                                                    style={"height": "100px", "marginBottom": "5px"}
+                                                ),
+                                            ],
+                                            span=24,
+                                        )
+                                    ),
                                     height=250,
                                 ),
                                 span=12,
@@ -374,7 +414,47 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="关键指标：机组二",
-                                    chart=fac.AntdRow(),
+                                    chart=fac.AntdRow(
+                                        fac.AntdCol(
+                                            [
+                                                fac.AntdRow(
+                                                    [
+                                                        # 机组二 送风温度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                        # 机组二 湿度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                        # 机组二 车厢温度
+                                                        fac.AntdCol(
+                                                            span=8,
+                                                        ),
+                                                    ],
+                                                    align="top",
+                                                    justify="center",
+                                                    style={"height": "100px", "marginBottom": "5px"}
+                                                ),
+                                                fac.AntdRow(
+                                                    [
+                                                        # 机组二 电流一 
+                                                        fac.AntdCol(
+                                                            span=12,
+                                                        ),
+                                                        # 机组二 电流二
+                                                        fac.AntdCol(
+                                                            span=12,
+                                                        ),
+                                                    ],
+                                                    align="top",
+                                                    justify="center",
+                                                    style={"height": "100px", "marginBottom": "5px"}
+                                                ),
+                                            ],
+                                            span=24,
+                                        )
+                                    ),
                                     height=250,
                                 ),
                                 span=12,
