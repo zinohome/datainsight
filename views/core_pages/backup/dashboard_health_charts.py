@@ -171,7 +171,7 @@ def render(themetoken, url_params=None):
                             },
                             children=[
                                 fac.AntdAccordion(
-                                    id='c_i_accordion-train',
+                                    id='h_i_accordion-clean',
                                     items=[
                                         {
                                             'title': f'清零记录',
@@ -201,8 +201,7 @@ def render(themetoken, url_params=None):
                                                                                     'borderBottom': '1px solid #e8e8e8',
                                                                                     'color': themetoken["colorText"],
                                                                                     'backgroundColor': 'transparent'
-                                                                                },
-                                                                                'renderOptions': {'renderType': 'tags'},
+                                                                                }
                                                                             }
                                                                             for column in h_clean_table_columns
                                                                         ],

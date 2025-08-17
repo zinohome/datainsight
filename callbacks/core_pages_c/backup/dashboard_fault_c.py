@@ -1,14 +1,10 @@
-# 添加 _sentinel 类定义
-class _sentinel:
-    def __lt__(self, other):
-        return True
 
 import heapq
 import random
 import time
 from datetime import datetime
 from dash import Input, Output, callback, State, no_update, callback_context, dcc
-from orm.db import db
+from orm.db import db, _sentinel
 from utils.log import log
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 from urllib.parse import urlparse, parse_qs

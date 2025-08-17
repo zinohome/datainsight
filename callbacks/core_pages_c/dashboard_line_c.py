@@ -1,8 +1,3 @@
-# 添加 _sentinel 类定义
-class _sentinel:
-    def __lt__(self, other):
-        return True
-
 import heapq
 import random
 import time
@@ -13,7 +8,7 @@ import pytz
 from dash import callback, Output, Input, State
 
 from configs import BaseConfig
-from orm.db import db, log_pool_status
+from orm.db import db, log_pool_status, _sentinel
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 import pandas as pd
 from collections import Counter

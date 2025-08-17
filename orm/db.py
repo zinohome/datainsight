@@ -4,6 +4,12 @@ import threading
 import time
 from utils.log import log as log
 
+# 添加 _sentinel 类定义
+class _sentinel:
+    def __lt__(self, other):
+        return True
+
+
 # 初始化数据库连接池
 db = PooledPostgresqlDatabase(
     database=BaseConfig.db_dbname,

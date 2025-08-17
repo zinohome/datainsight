@@ -1,7 +1,3 @@
-# 添加 _sentinel 类定义
-class _sentinel:
-    def __lt__(self, other):
-        return True
 
 import heapq
 import random
@@ -10,7 +6,7 @@ import time
 from datetime import datetime, timedelta
 from dash import Input, Output, callback, State, callback_context
 from orm.chart_view_param import Chart_view_param
-from orm.db import db
+from orm.db import db, _sentinel
 from utils.log import log
 import pandas as pd
 from io import BytesIO
