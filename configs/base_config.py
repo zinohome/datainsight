@@ -70,6 +70,9 @@ class BaseConfig:
         {"label": "6车厢", "value": "6"},
     ]
 
+    # 查询故障预警时间限制在24小时内
+    fault_predict_time_limit_in_24hrs: bool = False
+
     # 部件耗用率选择
     #health_bar_data_rnd = ['1633', '1634', '1635', '1636', '1637', '1638', '1639', '1640', '1641', '1642', '1643', '1644', '12101']
     health_bar_data_rnd: List[str] = ['12101']

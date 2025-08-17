@@ -386,7 +386,7 @@ def render(themetoken):
                                                 for column in t_f_fault_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered = False,
                                             maxHeight=280,
                                             mode = 'server-side',
@@ -438,7 +438,7 @@ def render(themetoken):
                                                 for column in t_w_warning_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered = False,
                                             maxHeight=280,
                                             mode = 'server-side',
@@ -494,7 +494,7 @@ def render(themetoken):
                                                 for column in t_h_health_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered=False,
                                             maxHeight=200,
                                             mode='server-side',

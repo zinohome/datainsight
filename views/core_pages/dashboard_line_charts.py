@@ -18,9 +18,9 @@ from .train_chart import create_train_chart
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
     l_c_opstatus_table_colnames = ['车号', '立即维修', '加强跟踪', '计划维修', '操作']
-    l_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间']
-    l_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间']
-    l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
+    l_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间', '操作']
+    l_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间', '操作']
+    l_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗', '操作']
     return [
         # 消息提示输出目标
         fac.Fragment(id="message-target"),
@@ -285,7 +285,7 @@ def render(themetoken):
                                                                     for column in l_c_opstatus_table_colnames
                                                                 ],
                                                                 size='small',
-                                                                pagination=False,
+                                                                pagination=True,
                                                                 bordered=False,
                                                                 maxHeight=240,
                                                                 mode='server-side',
@@ -471,12 +471,18 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in l_f_fault_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered=False,
                                             maxHeight=400,
                                             mode='server-side',
@@ -532,12 +538,18 @@ def render(themetoken):
                                                         'borderBottom': '1px solid #e8e8e8',
                                                         'color': themetoken["colorText"],
                                                         'backgroundColor': 'transparent'
-                                                    }
+                                                    },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
                                                 }
                                                 for column in l_w_warning_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered=False,
                                             maxHeight=400,
                                             mode='server-side',
@@ -597,14 +609,22 @@ def render(themetoken):
                                                     **({'renderOptions': {
                                                         'renderType': 'mini-progress',
                                                         'progressOneHundredPercentColor': '#f08c00',
-                                                    }} if column == '耗用率' else {})
+                                                    }} if column == '耗用率' else {
+                                                        'renderOptions': {
+                                                            'renderType': 'link',
+                                                            'renderLinkText': '详情'
+                                                        }
+                                                    } if column == '操作' else {})
+
+
+                                                    
                                                 }
                                                 for column in l_h_health_table_colnames
                                             ],
                                             size='small',
-                                            pagination=False,
+                                            pagination=True,
                                             bordered=False,
-                                            maxHeight=350,
+                                            maxHeight=300,
                                             mode='server-side',
                                             className="fault-table",
                                             style={
@@ -705,8 +725,7 @@ def render(themetoken):
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0,
-                                               "width": "100%",
-                                               "marginTop": "60px"}
+                                               "width": "100%",}
                                     ),
                                 ),
                                 span=8,

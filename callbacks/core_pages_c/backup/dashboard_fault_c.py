@@ -70,7 +70,7 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
     query_fault_type = ''
     query_start_time_range = None
 
-    if trigger_id == 'url-params-store' and url_params:
+    if trigger_id == 'f_url-params-store' and url_params:
         # 当URL参数变化时，使用URL参数进行查询
         query_train_no = url_params.get('train_no', '')
         query_carriage_no = url_params.get('carriage_no', '')
