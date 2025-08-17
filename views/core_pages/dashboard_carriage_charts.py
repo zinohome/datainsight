@@ -232,7 +232,7 @@ def render(themetoken):
                                                                         columns=[
                                                                             {
                                                                                 "title": title,
-                                                                                "dataIndex": dataIndex,
+                                                                                 "dataIndex": dataIndex,
                                                                                 "width": '{:.2f}%'.format(100 / 10),
                                                                                 "align": "center",
                                                                                 "headerCellStyle": {
@@ -246,8 +246,9 @@ def render(themetoken):
                                                                                     "borderRight": 'none',
                                                                                     "borderBottom": '1px solid #e8e8e8',
                                                                                     "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent'
-                                                                                }
+                                                                                    "backgroundColor": 'transparent',
+                                                                                },
+                                                                                "renderOptions": {'renderType': 'tags'},
                                                                             }
                                                                             for title, dataIndex in [
                                                                                 ("吸气压力1", "pressure1"),
@@ -262,12 +263,11 @@ def render(themetoken):
                                                                                 ("车厢湿度", "humidity")
                                                                             ]
                                                                         ],
-                                                                        data=[{"pressure1": "13.2", "pressure2": "0", "highPressure1": "0", "highPressure2": "0", "temp1": "0", "temp2": "0", "temp3": "0", "co2": "0", "carTemp": "0", "humidity": "0"}],
                                                                         size="small",
                                                                         pagination=False,
                                                                         bordered=False,
                                                                         mode = 'server-side',
-                                                                        className = "fault-table",
+                                                                        className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
                                                                     text='数据加载中',
@@ -311,8 +311,9 @@ def render(themetoken):
                                                                                     "borderRight": 'none',
                                                                                     "borderBottom": '1px solid #e8e8e8',
                                                                                     "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent'
-                                                                                }
+                                                                                    "backgroundColor": 'transparent',
+                                                                                },
+                                                                                "renderOptions": {'renderType': 'tags'},
                                                                             }
                                                                             for title, dataIndex in [
                                                                                 ("吸气压力1", "pressure1"),
@@ -327,12 +328,11 @@ def render(themetoken):
                                                                                 ("车厢湿度", "humidity")
                                                                             ]
                                                                         ],
-                                                                        data=[{"pressure1": "13.2", "pressure2": "0", "highPressure1": "0", "highPressure2": "0", "temp1": "0", "temp2": "0", "temp3": "0", "co2": "0", "carTemp": "0", "humidity": "0"}],
                                                                         size="small",
                                                                         pagination=False,
                                                                         bordered=False,
                                                                         mode = 'server-side',
-                                                                        className = "fault-table",
+                                                                        className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
                                                                     text='数据加载中',
@@ -379,7 +379,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -417,7 +416,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -455,7 +453,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -496,15 +493,15 @@ def render(themetoken):
                                                                         id='c_i_unit1_current1',
                                                                         items=[
                                                                             {
-                                                                                'label': '13.2',
+                                                                                'label': '0',
                                                                                 'content': '冷凝风机电流-U11'
                                                                             },
                                                                             {
-                                                                                'label': '11',
+                                                                                'label': '0',
                                                                                 'content': '压缩机电流-U11'
                                                                             },
                                                                             {
-                                                                                'label': '9',
+                                                                                'label': '0',
                                                                                 'content': '通风机电流-U11'
                                                                             }
                                                                         ],
@@ -526,15 +523,15 @@ def render(themetoken):
                                                                         id='c_i_unit1_current2',
                                                                         items=[
                                                                             {
-                                                                                'label': '13.2',
+                                                                                'label': '0',
                                                                                 'content': '冷凝风机电流-U12'
                                                                             },
                                                                             {
-                                                                                'label': '11',
+                                                                                'label': '0',
                                                                                 'content': '压缩机电流-U12'
                                                                             },
                                                                             {
-                                                                                'label': '9',
+                                                                                'label': '0',
                                                                                 'content': '通风机电流-U12'
                                                                             }
                                                                         ],
@@ -585,7 +582,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -623,7 +619,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -661,7 +656,6 @@ def render(themetoken):
                                                                     'color': ['#F4664A', '#FAAD14', '#30BF78'],
                                                                 },
                                                                 indicator={
-                                                                    'shape': 'simple',
                                                                     'pointer': {
                                                                         'style': {
                                                                             'stroke': '#D0D0D0',
@@ -702,15 +696,15 @@ def render(themetoken):
                                                                         id='c_i_unit2_current1',
                                                                         items=[
                                                                             {
-                                                                                'label': '13.2',
+                                                                                'label': '0',
                                                                                 'content': '冷凝风机电流-U21'
                                                                             },
                                                                             {
-                                                                                'label': '11',
+                                                                                'label': '0',
                                                                                 'content': '压缩机电流-U21'
                                                                             },
                                                                             {
-                                                                                'label': '9',
+                                                                                'label': '0',
                                                                                 'content': '通风机电流-U21'
                                                                             }
                                                                         ],
@@ -729,18 +723,18 @@ def render(themetoken):
                                                             fac.AntdSpace(
                                                                 [
                                                                     fac.AntdTimeline(
-                                                                        id='c_i_unit2_current1',
+                                                                        id='c_i_unit2_current2',
                                                                         items=[
                                                                             {
-                                                                                'label': '13.2',
+                                                                                'label': '0',
                                                                                 'content': '冷凝风机电流-U22'
                                                                             },
                                                                             {
-                                                                                'label': '11',
+                                                                                'label': '0',
                                                                                 'content': '压缩机电流-U22'
                                                                             },
                                                                             {
-                                                                                'label': '9',
+                                                                                'label': '0',
                                                                                 'content': '通风机电流-U22'
                                                                             }
                                                                         ],
