@@ -13,7 +13,7 @@ from configs import BaseConfig
 
 def render(themetoken, url_params=None):
     # 寿命页表格列名
-    colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗']
+    colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗', '操作']
     components_name = ['冷凝风机累计运行时间-U11', '冷凝风机累计运行时间-U12',
                   '冷凝风机累计运行时间-U21', '冷凝风机累计运行时间-U22',
                   '压缩机累计运行时间-U11', '压缩机累计运行时间-U12',
@@ -22,6 +22,7 @@ def render(themetoken, url_params=None):
                   '新风阀开关次数-U1', '新风阀开关次数-U2',
                   '通风机累计运行时间-U11', '通风机累计运行时间-U21'
     ]
+    h_clean_table_columns=['车号', '车厢号', '部件', '已耗', '清除时间']
     return [
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='h_url-params-store', data={}),
@@ -63,16 +64,6 @@ def render(themetoken, url_params=None):
                                             ),
                                             label='部件'
                                         ),
-                                        fac.AntdFormItem(
-                                            fac.AntdDateRangePicker(
-                                                placeholder=['从日期时间', '到日期时间'],
-                                                showTime={'defaultValue': ['08:30:00', '17:30:00']},
-                                                style={'width': 280},
-                                                needConfirm=True,
-                                                id='h_start_time_range'
-                                            ),
-                                            label='开始时间'
-                                        ),
                                         fac.AntdFormItem(fac.AntdButton('查询', id='h_query_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-search'), nClicks=0)),
                                         fac.AntdFormItem(fac.AntdButton('导出', id='h_export_button', type='primary', ghost=True, icon=fac.AntdIcon(icon='antd-download'), nClicks=0)),
                                     ],
@@ -100,7 +91,7 @@ def render(themetoken, url_params=None):
                             target=BaseConfig.external_link_target,
                             style={"textDecoration": "none"}
                         ),
-                        height="calc(70vh - 20px)",
+                        height="calc(55vh - 20px)",
                         chart=
                         fac.AntdSpin(
                         fac.AntdTable(
@@ -123,13 +114,23 @@ def render(themetoken, url_params=None):
                                                 'color': themetoken["colorText"],
                                                 'fontSize': '10px',
                                                 'backgroundColor': 'transparent'
-                                            }
+                                            },
+                                                    **({
+                                                        'renderOptions': {
+                                                        'renderType': 'button',
+                                                        'renderButtonPopConfirmProps': {
+                                                                'title': '确认清零？',
+                                                                'okText': '确认',
+                                                                'cancelText': '取消',
+                                                            },
+                                                        }
+                                                    } if column == '操作' else {})
                                         }
                                         for column in colnames
                                     ],
                             size="small",
                             bordered=False,
-                            maxHeight="calc(70vh - 20px)",
+                            maxHeight="calc(55vh - 20px)",
                             maxWidth='100%',
                             mode='server-side',
                             pagination={
@@ -154,5 +155,106 @@ def render(themetoken, url_params=None):
                 ),
             ],
             gutter=[10, 10],
-        )
+        ),
+                fac.AntdRow(
+                    style={
+                        "width": "100%",
+                        "marginTop": "1px"  # 减少顶部边距
+                    },
+                    children=[
+                        html.Div(
+                            style={
+                                "display": "flex",
+                                "alignItems": "center",
+                                "padding": "0px",
+                                "width": "100%"
+                            },
+                            children=[
+                                fac.AntdAccordion(
+                                    id='c_i_accordion-train',
+                                    items=[
+                                        {
+                                            'title': f'清零记录',
+                                            'key': 1,
+                                            'children': fac.AntdCol(
+                                                [
+                                                    fac.AntdRow(
+                                                        [
+                                                            fac.AntdCol(
+                                                                fac.AntdSpin(
+                                                                    fac.AntdTable(
+                                                                        id='h_clean_table',
+                                                                        columns=[
+                                                                            {
+                                                                                'title': column,
+                                                                                'dataIndex': column,
+                                                                                'width': '{:.2f}%'.format(100 / len(h_clean_table_columns)),
+                                                                                'headerCellStyle': {
+                                                                                    'fontWeight': 'bold',
+                                                                                    'border': 'none',
+                                                                                    'borderBottom': '1px solid #e8e8e8',
+                                                                                    'color': themetoken["colorText"],
+                                                                                    'backgroundColor': 'transparent'
+                                                                                },
+                                                                                'cellStyle': {
+                                                                                    'borderRight': 'none',
+                                                                                    'borderBottom': '1px solid #e8e8e8',
+                                                                                    'color': themetoken["colorText"],
+                                                                                    'backgroundColor': 'transparent'
+                                                                                },
+                                                                                'renderOptions': {'renderType': 'tags'},
+                                                                            }
+                                                                            for column in h_clean_table_columns
+                                                                        ],
+                                                                        size='small',
+                                                                        pagination={
+                                                                            'pageSize': 10,
+                                                                            'showSizeChanger': True,
+                                                                            'pageSizeOptions': [10, 20, 50, 100],
+                                                                            'position': 'bottomRight',
+                                                                            'showQuickJumper': True,
+                                                                        },
+                                                                        bordered=False,
+                                                                        maxHeight="calc(30vh - 20px)",
+                                                                        mode='server-side',
+                                                                        className="cfault-table",
+                                                                        style={
+                                                                            'height': '100%',
+                                                                            'width': '100%',
+                                                                            'border': 'none',
+                                                                            'border-collapse': 'collapse',
+                                                                            'border-spacing': '0',
+                                                                            'backgroundColor': 'transparent'
+                                                                        },
+                                                                    ),
+                                                                    text='数据加载中',
+                                                                ),
+                                                                span=24,
+                                                                style={
+                                                                    'maxHeight': "calc(30vh - 20px)",  # 调整表格最大高度
+                                                                    'overflow': 'hidden',
+                                                                    'padding': '0 2px'
+                                                                }
+                                                            )
+                                                        ],
+                                                        style={
+                                                            'height': '60px',  # 调整行高度
+                                                            'overflow-y': 'hidden',
+                                                            'padding': '0',  # 移除上下内边距
+                                                            'width': '100%'
+                                                        }
+                                                    ),
+                                                ],
+                                                span=24,
+                                            ),
+                                        }
+                                    ],
+                                    size='small',
+                                    expandIconPosition='left',
+                                    ghost=True,
+                                )
+                            ]
+                        )
+                    ]
+                )
     ]

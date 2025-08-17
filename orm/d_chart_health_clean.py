@@ -6,7 +6,7 @@ class DChartHealthClean(Model):
     """d_chart_health_clean表的ORM模型
     该表存储设备健康清洁相关数据
     """
-    clean_time = DateTimeField(verbose_name='清洁时间', primary_key=True)
+    clean_time = DateTimeField(verbose_name='清除时间', primary_key=True)
     车号 = IntegerField(verbose_name='车号')
     车厢号 = IntegerField(verbose_name='车厢号')
     部件 = TextField(verbose_name='部件')
