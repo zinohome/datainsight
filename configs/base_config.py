@@ -92,3 +92,5 @@ class BaseConfig:
     external_param_url: str = 'https://www.baidu.com'
     # 设备参数页面-“一期故障&预警跳转地址”
     external_fault_url: str = 'https://www.baidu.com'
+    # 设备参数页面-“一期空调寿命跳转地址”
+    external_health_url: str = 'https://www.baidu.com'

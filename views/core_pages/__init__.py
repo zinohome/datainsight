@@ -57,6 +57,8 @@ def render(current_pathname: str = None):
             return dashboard_param.render()
         elif current_pathname == "/macda/dashboard/fault":
             return dashboard_fault.render()
+        elif current_pathname == "/macda/dashboard/health":
+            return dashboard_fault.render()
 
     # 判断是否需要独立通配渲染
     elif any(

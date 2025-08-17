@@ -624,7 +624,7 @@ def render(themetoken):
                                             size='small',
                                             pagination=True,
                                             bordered=False,
-                                            maxHeight=300,
+                                            maxHeight=280,
                                             mode='server-side',
                                             className="fault-table",
                                             style={

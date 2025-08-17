@@ -71,6 +71,17 @@ def render():
                 "href": "/macda/dashboard/fault"
             }
         },
+        {
+            "component": "Item",
+            "props": {
+                "title": "寿命",
+                "key": "/macda/dashboard/health",
+                "icon": "antd-hourglass",
+                "style": dash_menuItem_style,
+                "id": "dashboard-menu-item-health",
+                "href": "/macda/dashboard/health"
+            }
+        },
     ]
 
     return fac.AntdAffix(
