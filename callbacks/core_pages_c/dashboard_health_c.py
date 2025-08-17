@@ -221,7 +221,7 @@ def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_n
                         车号=row_data['车号'],
                         车厢号=row_data['车厢号'],
                         部件=row_data['部件'],
-                        已耗=row_data['已耗']
+                        已耗=row_data['已耗[秒/次]']
                     )
                     log.info(f"[clean_table_callback] 成功添加清零记录: 车号={row_data['车号']}, 车厢号={row_data['车厢号']}, 部件={row_data['部件']}")
 
@@ -297,12 +297,6 @@ def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_n
             '车厢号': item['车厢号'],
             '部件': item['部件'],
             '已耗[秒/次]': item['已耗'],
-            '操作':{
-                'content': f'清零',
-                'type': 'dashed',
-                'danger': True,
-                'custom': f"{item['车号']}_{item['车厢号']}_{item['部件']}",
-            },
         } for item in data]
         log.debug(f"[clean_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
         return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions']}
