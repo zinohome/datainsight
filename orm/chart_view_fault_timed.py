@@ -29,7 +29,7 @@ class Chart_view_fault_timed(Model):
     
     class Meta:
         database = db  # 使用db.py中的数据库连接
-        table_name = 'chart_view_fault_timed'
+        table_name = 'c_chart_view_fault_timed'
         primary_key = False
         schema = 'public'
         indexes = (

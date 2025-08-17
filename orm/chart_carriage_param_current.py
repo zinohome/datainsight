@@ -14,7 +14,7 @@ class ChartCarriageParamCurrent(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_carriage_param_current'
+        table_name = 'c_chart_carriage_param_current'
         primary_key = False
         schema = 'public'
         ordering = ['dvc_train_no', 'param_name', '-msg_time']

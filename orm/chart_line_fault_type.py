@@ -12,7 +12,7 @@ class ChartLineFaultType(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_line_fault_type'
+        table_name = 'c_chart_line_fault_type'
         primary_key = False
         schema = 'public'
         ordering = ['故障类型', 'dvc_train_no']

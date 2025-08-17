@@ -16,7 +16,7 @@ class ChartCarriageBase(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_carriage_base'
+        table_name = 'c_chart_carriage_base'
         primary_key = False
         schema = 'public'
         ordering = ['dvc_train_no', 'dvc_carriage_no']

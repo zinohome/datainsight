@@ -12,7 +12,7 @@ class ChartLineHealthStatusCount(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_line_health_status_count'
+        table_name = 'c_chart_line_health_status_count'
         primary_key = False
         schema = 'public'
         ordering = ['dvc_train_no']

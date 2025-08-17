@@ -15,7 +15,7 @@ class ChartHealthEquipment(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_health_equipment'
+        table_name = 'c_chart_health_equipment'
         primary_key = False
         schema = 'public'
         ordering = ['车号', '车厢号', '-耗用率']

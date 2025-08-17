@@ -16,7 +16,7 @@ class ChartViewTrainOpstatus(Model):
 
     class Meta:
         database = db
-        table_name = 'chart_view_train_opstatus'
+        table_name = 'c_chart_view_train_opstatus'
         primary_key = False
         schema = 'public'
         ordering = ['dvc_train_no']
