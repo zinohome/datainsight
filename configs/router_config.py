@@ -6,7 +6,7 @@ from configs import BaseConfig
 
 class RouterConfig:
     """路由配置参数"""
-
+    prefix = BaseConfig.project_prefix
     # 与应用首页对应的pathname地址
     index_pathname: str = "/index"
 
@@ -32,81 +32,63 @@ class RouterConfig:
                     "component": "Item",
                     "props": {
                         "title": "数据大屏",
-                        "key": "/macda/dashboard",  # 修正路径：/dashboard -> /macda/dashboard
+                        "key": f"/{prefix}",  # 修正路径：/dashboard -> /{prefix}
                         "icon": "antd-bar-chart",
-                        "href": "/macda/dashboard",  # 修正路径：/dashboard -> /macda/dashboard
+                        "href": f"/{prefix}",  # 修正路径：/dashboard -> /{prefix}
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-线路图",
-                        "key": "/macda/dashboard/line",
+                        "key": f"/{prefix}/line",
                         "icon": "antd-ordered-list",
-                        "href": "/macda/dashboard/line",
+                        "href": f"/{prefix}/line",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-列车图",
-                        "key": "/macda/dashboard/train",
+                        "key": f"/{prefix}/train",
                         "icon": "antd-alert",
-                        "href": "/macda/dashboard/train",
+                        "href": f"/{prefix}/train",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-车厢图",
-                        "key": "/macda/dashboard/carriage",
+                        "key": f"/{prefix}/carriage",
                         "icon": "antd-car",
-                        "href": "/macda/dashboard/carriage",
+                        "href": f"/{prefix}/carriage",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-参数图",
-                        "key": "/macda/dashboard/param",
+                        "key": f"/{prefix}/param",
                         "icon": "antd-sliders",
-                        "href": "/macda/dashboard/param",
+                        "href": f"/{prefix}/param",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-故障图",
-                        "key": "/macda/dashboard/fault",
+                        "key": f"/{prefix}/fault",
                         "icon": "antd-exclamation-circle",
-                        "href": "/macda/dashboard/fault",
+                        "href": f"/{prefix}/fault",
                     },
                 },
                 {
                     "component": "Item",
                     "props": {
                         "title": "数据大屏-寿命图",
-                        "key": "/macda/dashboard/health",
+                        "key": f"/{prefix}/health",
                         "icon": "antd-exclamation-circle",
-                        "href": "/macda/dashboard/health",
-                    },
-                },
-                {
-                    "component": "Item",
-                    "props": {
-                        "title": "主要页面",
-                        "key": "/macada/page1",
-                        "icon": "antd-app-store",
-                        "href": "/macada/page1",
-                    },
-                },
-                {
-                    "component": "Item",
-                    "props": {
-                        "title": "url参数示例",
-                        "key": "/macada/url-params-page",
-                        "icon": "antd-link",
-                        "href": "/macada/url-params-page",
+                        "href": f"/{prefix}/health",
                     },
                 },
             ],
@@ -118,28 +100,26 @@ class RouterConfig:
         "/": "首页",
         index_pathname: "首页",
         # 数据大屏路由映射
-        "/macada/dashboard": "数据大屏",
-        "/macda/dashboard": "数据大屏入口页",
-        "/macda/dashboard/line": "数据大屏-折线图",
-        "/macda/dashboard/train": "数据大屏-列车图",
-        "/macda/dashboard/carriage": "数据大屏-车厢图",
-        "/macda/dashboard/param": "数据大屏-参数图",
-        "/macda/dashboard/fault": "数据大屏-故障图",
-        "/macda/dashboard/health": "数据大屏-故障图",
-        "/macada/page1": "主要页面",
-        "/macada/url-params-page": "url参数提取示例",
+        f"/{prefix}": "数据大屏",
+        f"/{prefix}": "数据大屏入口页",
+        f"/{prefix}/line": "数据大屏-折线图",
+        f"/{prefix}/train": "数据大屏-列车图",
+        f"/{prefix}/carriage": "数据大屏-车厢图",
+        f"/{prefix}/param": "数据大屏-参数图",
+        f"/{prefix}/fault": "数据大屏-故障图",
+        f"/{prefix}/health": "数据大屏-故障图",
         "/404-demo": "404状态页演示",
         "/500-demo": "500状态页演示",
     }
 
     # 独立数据大屏的核心页面
     independent_core_pathnames: List[Union[str, re.Pattern]] = [
-        "/macda/dashboard/line",
-        "/macda/dashboard/train",
-        "/macda/dashboard/carriage",
-        "/macda/dashboard/param",
-        "/macda/dashboard/fault",
-        "/macda/dashboard/health",
+        f"/{prefix}/line",
+        f"/{prefix}/train",
+        f"/{prefix}/carriage",
+        f"/{prefix}/param",
+        f"/{prefix}/fault",
+        f"/{prefix}/health",
     ]
 
 

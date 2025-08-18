@@ -13,8 +13,9 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 
 from components.horizontal_timeline import horizontal_timeline
 from components.macdacard import macda_card
+from configs import BaseConfig
 
-
+prefix = BaseConfig.project_prefix
 def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
     return [
@@ -82,7 +83,7 @@ def render(themetoken):
                                         ),
                                         # 车厢1-6（每节由左右图片拼接）
                                         *[dcc.Link(  # 添加链接组件
-                                            href=f"/macda/dashboard/carriage?carriage={i + 1}",
+                                            href=f"/{prefix}/carriage?carriage={i + 1}",
                                             children=html.Div(
                                                 style={
                                                     "flex": "1 1 auto",  # 等比例分配剩余空间

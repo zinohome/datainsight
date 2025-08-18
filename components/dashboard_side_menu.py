@@ -1,11 +1,14 @@
 from dash import html
 import feffery_antd_components as fac
 import feffery_utils_components as fuc
+
+from configs import BaseConfig
 from configs.layout_config import LayoutConfig
 from feffery_dash_utils.style_utils import style
 
 def render():
     """渲染数据大屏专用侧边导航栏"""
+    prefix = BaseConfig.project_prefix
     themetoken = LayoutConfig.dashboard_theme
     dash_menuItem_style =  {
                     "padding": "16px 0",  # 保持垂直间距
@@ -20,66 +23,66 @@ def render():
             "component": "Item",
             "props": {
                 "title": "线路",
-                "key": "/macda/dashboard/line",
+                "key": f"/{prefix}/line",
                 "icon": "antd-ordered-list",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-line",
-                "href": "/macda/dashboard/line"
+                "href": f"/{prefix}/line"
             }
         },
         {
             "component": "Item",
             "props": {
                 "title": "列车",
-                "key": "/macda/dashboard/train",
+                "key": f"/{prefix}/train",
                 "icon": "antd-alert",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-train",
-                "href": "/macda/dashboard/train"
+                "href": f"/{prefix}/train"
             }
         },
         {
             "component": "Item",
             "props": {
                 "title": "车厢",
-                "key": "/macda/dashboard/carriage",
+                "key": f"/{prefix}/carriage",
                 "icon": "antd-sliders",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-carriage",
-                "href": "/macda/dashboard/carriage"
+                "href": f"/{prefix}/carriage"
             }
         },
         {
             "component": "Item",
             "props": {
                 "title": "参数",
-                "key": "/macda/dashboard/param",
+                "key": f"/{prefix}/param",
                 "icon": "antd-line-chart",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-param",
-                "href": "/macda/dashboard/param"
+                "href": f"/{prefix}/param"
             }
         },
         {
             "component": "Item",
             "props": {
                 "title": "故障",
-                "key": "/macda/dashboard/fault",
+                "key": f"/{prefix}/fault",
                 "icon": "antd-disconnect",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-fault",
-                "href": "/macda/dashboard/fault"
+                "href": f"/{prefix}/fault"
             }
         },
         {
             "component": "Item",
             "props": {
                 "title": "寿命",
-                "key": "/macda/dashboard/health",
+                "key": f"/{prefix}/health",
                 "icon": "antd-hourglass",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-health",
-                "href": "/macda/dashboard/health"
+                "href": f"/{prefix}/health"
             }
         },
     ]

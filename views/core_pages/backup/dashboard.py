@@ -2,10 +2,12 @@ from dash import html
 import feffery_antd_components as fac
 from feffery_dash_utils.style_utils import style
 
+from configs import BaseConfig
+
 
 def render():
     """子页面：数据大屏入口页"""  # 更新文档字符串
-
+    prefix = BaseConfig.project_prefix
     return fac.AntdSpace(
         [
             fac.AntdBreadcrumb(
@@ -19,7 +21,7 @@ def render():
                     [
                         "点击",
                         html.A(
-                            "此处", href="/macda/dashboard/line", target="_blank"  # 修正路径：/dashboard/line -> /macda/dashboard/line
+                            "此处", href=f"/{prefix}/line", target="_blank"  
                         ),
                         "打开数据大屏页面。",  # 更新描述文本
                         html.Br(),

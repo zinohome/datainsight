@@ -3,6 +3,8 @@ import random
 import time
 from datetime import datetime, timedelta
 from dash import Input, Output, callback, State, no_update, callback_context, dcc
+
+from configs import BaseConfig
 from orm.db import db, _sentinel
 from utils.log import log
 # 导入寿命相关的ORM模型
@@ -12,6 +14,8 @@ from urllib.parse import urlparse, parse_qs
 import pandas as pd
 from io import BytesIO
 
+
+prefix = BaseConfig.project_prefix
 @callback(
     Output('h_url-params-store', 'data'),
     Input('url', 'search'),

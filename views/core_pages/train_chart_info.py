@@ -1,5 +1,7 @@
 from dash import html, dcc
 import feffery_antd_components as fac
+
+from configs import BaseConfig
 from utils.log import log as log
 
 
@@ -18,6 +20,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
     # 计算列车总宽度（车头+6节车厢+车尾）
     # 车头和车尾各44px，6节车厢每节最小60px
     train_total_width = 44 + 44 + (6 * 127*2)  # 524px
+    prefix = BaseConfig.project_prefix
 
     return (
         html.Div(
@@ -52,7 +55,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                 ),
                                 # 车厢1-6（每节由左右图片拼接）
                                 *[dcc.Link(  # 添加链接组件
-                                    href=f"/macda/dashboard/{page_name}?train_no={train_no}&carriage_no={i + 1}" if train_no else f"/macda/dashboard/{page_name}?carriage={i + 1}",
+                                    href=f"/{prefix}/{page_name}?train_no={train_no}&carriage_no={i + 1}" if train_no else f"/{prefix}/{page_name}?carriage={i + 1}",
                                     children=html.Div(
                                         style={
                                             "flex": "1 1 auto",  # 等比例分配剩余空间

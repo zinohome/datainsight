@@ -18,6 +18,8 @@ from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
 from orm.chart_line_fault_type import ChartLineFaultType
 from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 
+
+prefix = BaseConfig.project_prefix
 # 从数据库获取所有故障数据的函数
 
 def get_all_fault_data():
@@ -150,7 +152,7 @@ def get_health_data():
                 '车厢号': item.车厢号,
                 '部件': item.部件,
                 '耗用率': item.耗用率,
-                '操作': {'href': '/macda/dashboard/health?train_no=' + str(item.车号) + '&carriage_no=' + str(item.车厢号), 'target': '_self'}
+                '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
             } for item in health_query]
 
         # 构建l_h_health_bar数据
@@ -239,7 +241,7 @@ def update_both_tables(n_intervals):
         '车厢号': item['dvc_carriage_no'],
         '预警部件': item['param_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
+        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
     
     # 格式化故障数据
@@ -248,7 +250,7 @@ def update_both_tables(n_intervals):
         '车厢号': item['dvc_carriage_no'],
         '故障部件': item['param_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': '/macda/dashboard/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
+        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
     
     # 统计故障部件词频用于词云
@@ -364,7 +366,7 @@ def update_both_tables(n_intervals):
                 '立即维修': item['立即维修'],
                 '加强跟踪': item['加强跟踪'],
                 '计划维修': item['计划维修'],
-                '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+                '操作': {'href': f'/{prefix}/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
             })
         formatted_opstatus.extend(test_formatted_opstatus)
         '''
@@ -379,7 +381,7 @@ def update_both_tables(n_intervals):
             '立即维修': item['立即维修'],
             '加强跟踪': item['加强跟踪'],
             '计划维修': item['计划维修'],
-            '操作': {'href': '/macda/dashboard/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+            '操作': {'href': f'/{prefix}/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
         })
     
     

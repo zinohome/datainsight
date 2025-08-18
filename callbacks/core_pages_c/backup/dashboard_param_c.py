@@ -5,6 +5,8 @@ import time
 
 from datetime import datetime, timedelta
 from dash import Input, Output, callback, State, callback_context
+
+from configs import BaseConfig
 from orm.chart_view_param import Chart_view_param
 from orm.db import db, _sentinel
 from utils.log import log
@@ -12,6 +14,8 @@ import pandas as pd
 from io import BytesIO
 from dash import dcc
 
+
+prefix = BaseConfig.project_prefix
 # 解析URL参数回调
 @callback(
     Output('p_url-params-store', 'data'),

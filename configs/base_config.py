@@ -21,6 +21,9 @@ class BaseConfig:
     # 不在min_browser_versions规则内的浏览器将被直接拦截
     strict_browser_type_check: bool = False
 
+    # 项目前缀
+    #project_prefix: str = 'macda/dashboard'
+    project_prefix: str = 'macdadash'
     # setup_offline_detect
     setup_offline_detect: bool = False
 

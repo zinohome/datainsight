@@ -15,7 +15,6 @@ import callbacks.core_pages_c  # noqa: F401
 
 def get_page_search_options():
     """当前模块内工具函数，生成页面搜索选项"""
-
     options = [{"label": "首页", "value": "/"}]
 
     for pathname, title in RouterConfig.valid_pathnames.items():
@@ -45,20 +44,23 @@ def render(current_pathname: str = None):
         current_pathname (str, optional): 当前页面pathname. Defaults to None.
     """
 
+    # 获取项目prefix
+    prefix = BaseConfig.project_prefix
+
     # 判断是否需要独立渲染
     if current_pathname in RouterConfig.independent_core_pathnames:
         # 数据大屏内容页路径判断
-        if current_pathname == "/macda/dashboard/line":
+        if current_pathname == f"/{prefix}/line":
             return dashboard_line.render()
-        elif current_pathname == "/macda/dashboard/train":
+        elif current_pathname == f"/{prefix}/train":
             return dashboard_train.render()
-        elif current_pathname == "/macda/dashboard/carriage":
+        elif current_pathname == f"/{prefix}/carriage":
             return dashboard_carriage.render()
-        elif current_pathname == "/macda/dashboard/param":
+        elif current_pathname == f"/{prefix}/param":
             return dashboard_param.render()
-        elif current_pathname == "/macda/dashboard/fault":
+        elif current_pathname == f"/{prefix}/fault":
             return dashboard_fault.render()
-        elif current_pathname == "/macda/dashboard/health":
+        elif current_pathname == f"/{prefix}/health":
             return dashboard_health.render()
 
     # 判断是否需要独立通配渲染

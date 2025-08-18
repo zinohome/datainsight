@@ -14,7 +14,7 @@ from views.core_pages import (
 )
 
 # 路由配置参数
-from configs import RouterConfig
+from configs import RouterConfig, BaseConfig
 
 app.clientside_callback(
     # 控制核心页面侧边栏折叠
@@ -90,7 +90,7 @@ def core_router(
     current_url,
 ):
     """核心页面路由控制及侧边菜单同步"""
-
+    prefix = BaseConfig.project_prefix
     # 统一首页pathname
     if pathname == RouterConfig.index_pathname:
         pathname = "/"
@@ -144,7 +144,7 @@ def core_router(
     #     page_content = independent_page.render()
 
     # 新增数据大屏入口页路由处理
-    elif pathname == "/macda/dashboard":  # 修正路径：/dashboard -> /macda/dashboard
+    elif pathname == f"/{prefix}":  # 修正路径：
         # 更新页面返回内容
         page_content = dashboard.render()  # 使用数据大屏入口页组件
 
