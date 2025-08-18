@@ -6,7 +6,7 @@ feffery_utils_components>=0.3.2,<0.4.0
 flask-compress
 user_agents
 yarl
-dash_extensions>=2.0.4
+dash_extensions
 dash-offline-detect-plugin>=0.1.4
 dash-disable-devtool-plugin>=0.1.2
 psycopg2-binary>=2.9.10
