@@ -13,7 +13,7 @@ from configs import BaseConfig
 
 def render(themetoken, url_params=None):
     # 寿命页表格列名
-    colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命', '已耗', '操作']
+    colnames = ['车号', '车厢号', '部件', '耗用率', '额定寿命[小时/次]', '已耗[秒/次]', '操作']
     components_name = ['冷凝风机累计运行时间-U11', '冷凝风机累计运行时间-U12',
                   '冷凝风机累计运行时间-U21', '冷凝风机累计运行时间-U22',
                   '压缩机累计运行时间-U11', '压缩机累计运行时间-U12',
@@ -22,7 +22,7 @@ def render(themetoken, url_params=None):
                   '新风阀开关次数-U1', '新风阀开关次数-U2',
                   '通风机累计运行时间-U11', '通风机累计运行时间-U21'
     ]
-    h_clean_table_columns=['车号', '车厢号', '部件', '已耗', '清除时间']
+    h_clean_table_columns=['车号', '车厢号', '部件', '已耗[秒/次]', '清除时间']
     return [
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='h_url-params-store', data={}),
@@ -236,12 +236,6 @@ def render(themetoken, url_params=None):
                                                                 }
                                                             )
                                                         ],
-                                                        style={
-                                                            'height': '60px',  # 调整行高度
-                                                            'overflow-y': 'hidden',
-                                                            'padding': '0',  # 移除上下内边距
-                                                            'width': '100%'
-                                                        }
                                                     ),
                                                 ],
                                                 span=24,

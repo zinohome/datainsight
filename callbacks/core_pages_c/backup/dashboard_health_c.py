@@ -121,8 +121,8 @@ def health_table_callback(url_params, nClicks, pagination, train_no, carriage_no
             '车厢号': item['车厢号'],
             '部件': item['部件'],
             '耗用率': f"{item['耗用率']:.2%}",
-            '额定寿命': item['额定寿命'],
-            '已耗': item['已耗'],
+            '额定寿命[小时/次]': item['额定寿命'],
+            '已耗[秒/次]': item['已耗'],
             '操作':{
                         'content': f'清零',
                         'type': 'dashed',
@@ -166,7 +166,7 @@ def sync_url_params_to_form(modified_timestamp, url_params):
         return None, None, None
     train_no = url_params.get('train_no') or None
     carriage_no = url_params.get('carriage_no') or None
-    component_type = url_params.get('component_type')
+    component_type = url_params.get('component_type') or None
     log.debug(f"[sync_url_params_to_form] 同步到表单: 车号={train_no}, 车厢号={carriage_no}, 部件={component_type}")
     return train_no, carriage_no, component_type
 
@@ -180,15 +180,11 @@ def sync_url_params_to_form(modified_timestamp, url_params):
     [State('h_train_no', 'value'),
      State('h_carriage_no', 'value'),
      State('h_health_comp', 'value'),
-     State('h_clean_table', 'clickedContent'),
-     State('h_clean_table', 'clickedCustom'),
-     State('h_clean_table', 'recentlyButtonClickedDataIndex'),
-     State('h_clean_table', 'recentlyButtonClickedRow'),
      State('h_health-table', 'recentlyButtonClickedRow')],
     prevent_initial_call=False
 )
 
-def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_no, carriage_no, component_type, clickedContent, clickedCustom, recentlyButtonClickedDataIndex, recentlyButtonClickedRow, recentlyButtonClickedRow_health_table):
+def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_no, carriage_no, component_type, recentlyButtonClickedRow_health_table):
     ctx = callback_context
     # 打印完整的触发信息，帮助调试
     log.debug(f"[clean_table_callback] 触发详情: {ctx.triggered if ctx.triggered else '初始加载'}")
@@ -225,7 +221,7 @@ def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_n
                         车号=row_data['车号'],
                         车厢号=row_data['车厢号'],
                         部件=row_data['部件'],
-                        已耗=0  # 清零操作，已耗设为0
+                        已耗=row_data['已耗[秒/次]']
                     )
                     log.info(f"[clean_table_callback] 成功添加清零记录: 车号={row_data['车号']}, 车厢号={row_data['车厢号']}, 部件={row_data['部件']}")
 
@@ -296,17 +292,11 @@ def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_n
 
         # 格式化数据（包含操作按钮）
         formatted_data = [{
-            'clean_time': item['clean_time'].strftime('%Y-%m-%d %H:%M:%S'),
+            '清除时间': item['clean_time'].strftime('%Y-%m-%d %H:%M:%S'),
             '车号': item['车号'],
             '车厢号': item['车厢号'],
             '部件': item['部件'],
-            '已耗': item['已耗'],
-            '操作':{
-                'content': f'清零',
-                'type': 'dashed',
-                'danger': True,
-                'custom': f"{item['车号']}_{item['车厢号']}_{item['部件']}",
-            },
+            '已耗[秒/次]': item['已耗'],
         } for item in data]
         log.debug(f"[clean_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
         return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions']}
@@ -359,8 +349,8 @@ def export_health_data_to_excel(nClicks, train_no, carriage_no, component_type):
             '车厢号': item['车厢号'],
             '部件': item['部件'],
             '耗用率': f"{item['耗用率']:.2%}",
-            '额定寿命': item['额定寿命'],
-            '已耗': item['已耗']
+            '额定寿命[小时/次]': item['额定寿命'],
+            '已耗[秒/次]': item['已耗']
         } for item in data]
 
         # 创建Excel文件

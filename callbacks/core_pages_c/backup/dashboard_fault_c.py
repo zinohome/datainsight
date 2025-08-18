@@ -157,7 +157,13 @@ def fault_warning_table_callback(url_params, nClicks, pagination, train_no, carr
             '状态': item['status'],
             '故障等级': item['fault_level'],
             '类型': item['fault_type'],
-            '维修建议': item['repair_suggestion']
+            '维修建议': item['repair_suggestion'],
+            '操作':{
+                        'content': f'清除',
+                        'type': 'dashed',
+                        'danger': True,
+                        'custom': 'balabalabalabala',
+                    },
         } for item in data]
         log.debug(f"[fault_warning_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
         return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions']}

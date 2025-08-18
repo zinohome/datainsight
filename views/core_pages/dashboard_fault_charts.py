@@ -16,7 +16,7 @@ def render(themetoken, url_params=None):
         '车号', '车厢号', '故障名称', '开始时间', '结束时间',
         '状态', '故障等级', '类型', '维修建议', '操作'
     ]
-    h_clean_table_columns=['车号', '车厢号', '部件', '已耗[秒/次]', '清除时间']
+    f_clean_table_columns=['车号', '车厢号', '故障名称', '开始时间', '故障等级', '故障类型', '清除时间']
     return [
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='f_url-params-store', data={}),
@@ -194,7 +194,7 @@ def render(themetoken, url_params=None):
                                                                             {
                                                                                 'title': column,
                                                                                 'dataIndex': column,
-                                                                                'width': '{:.2f}%'.format(100 / len(h_clean_table_columns)),
+                                                                                'width': '{:.2f}%'.format(100 / len(f_clean_table_columns)),
                                                                                 'headerCellStyle': {
                                                                                     'fontWeight': 'bold',
                                                                                     'border': 'none',
@@ -209,7 +209,7 @@ def render(themetoken, url_params=None):
                                                                                     'backgroundColor': 'transparent'
                                                                                 }
                                                                             }
-                                                                            for column in h_clean_table_columns
+                                                                            for column in f_clean_table_columns
                                                                         ],
                                                                         size='small',
                                                                         pagination={
