@@ -12,7 +12,7 @@ git pull && \
 mkdir -p /opt/datainsight/log && \
 virtualenv venv && \
 . venv/bin/activate && \
-pip3 install -r requirements.txt && \
+pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple && \
 cp /bd_build/wait-for /usr/bin/wait-for && chmod 755 /usr/bin/wait-for && \
 cp /opt/datainsight/deployment/docker/bd_build/50_start_h.sh /etc/my_init.d/50_start_datainsight.sh && \
 chmod 755 /etc/my_init.d/50_start_datainsight.sh
