@@ -21,7 +21,7 @@ def render():
                     [
                         "点击",
                         html.A(
-                            "此处", href=f"/{prefix}/line", target="_blank"  
+                            "此处", href=f"/{prefix}/line", target="_blank"
                         ),
                         "打开数据大屏页面。",  # 更新描述文本
                         html.Br(),
