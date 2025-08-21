@@ -11,6 +11,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     simple_chart_card,
 )
 from components.macdacard import macda_card
+from components.scroll_table import scrollTable
 from configs import BaseConfig
 from .train_chart_link import create_train_chart_link
 from utils.log import log as log
@@ -362,8 +363,14 @@ def render(themetoken):
                                     title="故障告警",
                                     chart=
                                     fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='t_f_fault-table',
+                                        #fac.AntdTable(
+                                            scrollTable(
+                                            #id='t_f_fault-table',
+                                            table_id='t_f_fault-table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -392,9 +399,9 @@ def render(themetoken):
                                                 for column in t_f_fault_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
+                                            #pagination=True,
                                             bordered = False,
-                                            maxHeight=280,
+                                            #maxHeight=280,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -420,8 +427,14 @@ def render(themetoken):
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="状态预警",
                                     chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='t_w_warning-table',
+                                        #fac.AntdTable(
+                                            scrollTable(
+                                            #id='t_w_warning-table',
+                                            table_id='t_w_warning-table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -450,9 +463,9 @@ def render(themetoken):
                                                 for column in t_w_warning_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
+                                            #pagination=True,
                                             bordered = False,
-                                            maxHeight=280,
+                                            #maxHeight=280,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -478,8 +491,14 @@ def render(themetoken):
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="寿命预测",
                                     chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='t_h_health_table',
+                                        #fac.AntdTable(
+                                            scrollTable(
+                                            #id='t_h_health_table',
+                                            table_id='t_h_health_table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -511,9 +530,9 @@ def render(themetoken):
                                                 for column in t_h_health_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
+                                            #pagination=True,
                                             bordered=False,
-                                            maxHeight=200,
+                                            #maxHeight=200,
                                             mode='server-side',
                                             className="fault-table",
                                             style={

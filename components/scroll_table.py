@@ -41,7 +41,9 @@ def scrollTable(
         html.Div(table_body, id=f'{table_id}-outer', style={
             'height': f'{container_height}px',
             'overflowY': 'auto',
-            'width': '100%'
+            'width': '100%',
+            'scrollbar-width': 'thin',
+            'scrollbar-color': 'rgba(191, 191, 191, 0.3) transparent'
         }, **{
             'data-scroll-table': '1',
             'data-scroll-interval': str(scroll_interval),

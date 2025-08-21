@@ -11,6 +11,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     simple_chart_card,
 )
 from components.macdacard import macda_card
+from components.scroll_table import scrollTable
 from configs import BaseConfig
 from .train_chart import create_train_chart
 
@@ -251,8 +252,14 @@ def render(themetoken):
                                                             size=20,
                                                         ),
                                                         fac.AntdSpin(
-                                                            fac.AntdTable(
-                                                                id='l_c_opstatus-table',
+                                                            #fac.AntdTable(
+                                                                scrollTable(
+                                                                #id='l_c_opstatus-table',
+                                                                table_id='l_c_opstatus-table',
+                                                                data=[],
+                                                                scroll_interval=1200,
+                                                                visible_rows=10,
+                                                                row_height=24,
                                                                 columns=[
                                                                     {
                                                                         'title': column,
@@ -285,9 +292,9 @@ def render(themetoken):
                                                                     for column in l_c_opstatus_table_colnames
                                                                 ],
                                                                 size='small',
-                                                                pagination=True,
+                                                                #pagination=True,
                                                                 bordered=False,
-                                                                maxHeight=240,
+                                                                #maxHeight=240,
                                                                 mode='server-side',
                                                                 className="fault-table",
                                                                 style={
@@ -452,8 +459,12 @@ def render(themetoken):
                                         }
                                     ),
                                     chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='l_f_fault-table',
+                                        scrollTable(
+                                            table_id='l_f_fault-table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -482,9 +493,7 @@ def render(themetoken):
                                                 for column in l_f_fault_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
                                             bordered=False,
-                                            maxHeight=400,
                                             mode='server-side',
                                             className="fault-table",
                                             style={
@@ -519,8 +528,12 @@ def render(themetoken):
                                         }
                                     ),
                                     chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='l_w_warning-table',
+                                        scrollTable(
+                                            table_id='l_w_warning-table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -549,9 +562,7 @@ def render(themetoken):
                                                 for column in l_w_warning_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
                                             bordered=False,
-                                            maxHeight=400,
                                             mode='server-side',
                                             className="fault-table",
                                             style={
@@ -586,8 +597,12 @@ def render(themetoken):
                                         }
                                     ),
                                     chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='l_h_health_table',
+                                        scrollTable(
+                                            table_id='l_h_health_table',
+                                            data=[],
+                                            scroll_interval=1200,
+                                            visible_rows=10,
+                                            row_height=24,
                                             columns=[
                                                 {
                                                     'title': column,
@@ -619,9 +634,7 @@ def render(themetoken):
                                                 for column in l_h_health_table_colnames
                                             ],
                                             size='small',
-                                            pagination=True,
                                             bordered=False,
-                                            maxHeight=280,
                                             mode='server-side',
                                             className="fault-table",
                                             style={
