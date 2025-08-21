@@ -25,7 +25,7 @@ class BaseConfig:
     #project_prefix: str = 'macda/dashboard'
     project_prefix: str = 'macdadash'
     # setup_offline_detect
-    setup_offline_detect: bool = False
+    setup_offline_detect: bool = True
 
     # 数据库连接配置参数
     db_dbname: str = 'postgres'
