@@ -21,6 +21,7 @@ def render(themetoken, url_params=None):
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='f_url-params-store', data={}),
         dcc.Store(id="theme-mode-store", data="dark"),
+        dcc.Store(id='fault-table-refresh-trigger'),
         dcc.Download(id='f_download-excel'),
         # 仪表盘网格布局
         fac.AntdRow(
@@ -154,7 +155,7 @@ def render(themetoken, url_params=None):
                                 'backgroundColor': 'transparent'
                             },
                         ),
-                        text='数据加载中',
+                        text='',
                         ),
                     ),
                     span=24,
@@ -232,7 +233,7 @@ def render(themetoken, url_params=None):
                                                                             'backgroundColor': 'transparent'
                                                                         },
                                                                     ),
-                                                                    text='数据加载中',
+                                                                    text='',
                                                                 ),
                                                                 span=24,
                                                                 style={

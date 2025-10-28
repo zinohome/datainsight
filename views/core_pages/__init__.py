@@ -51,6 +51,7 @@ def render(current_pathname: str = None):
     if current_pathname in RouterConfig.independent_core_pathnames:
         # 数据大屏内容页路径判断
         if current_pathname == f"/{prefix}/line":
+            print ("line dashboard 开始渲染")
             return dashboard_line.render()
         elif current_pathname == f"/{prefix}/train":
             return dashboard_train.render()
@@ -111,7 +112,7 @@ def render(current_pathname: str = None):
                                         [
                                             # logo
                                             html.Img(
-                                                src="/assets/imgs/logo.svg",
+                                                src="/sz16phmHVAC2/assets/imgs/logo.svg",
                                                 height=32,
                                                 style=style(display="block"),
                                             ),

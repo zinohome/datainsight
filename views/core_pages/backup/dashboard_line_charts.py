@@ -299,7 +299,7 @@ def render(themetoken):
                                                                     'backgroundColor': 'transparent'
                                                                 },
                                                             ),
-                                                            text='数据加载中',
+                                                            text='',
                                                         )
                                                     ],
                                                     span=24
@@ -496,7 +496,7 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                        text='数据加载中',
+                                        text='',
                                     ),
                                     height=400,
                                 ),
@@ -563,7 +563,7 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                        text='数据加载中',
+                                        text='',
                                     ),
                                     height=400,
                                 ),
@@ -633,7 +633,7 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                        text='数据加载中',
+                                        text='',
                                     ),
                                     height=400,
                                 ),

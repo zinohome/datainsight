@@ -13,7 +13,7 @@ def render(e: str = None):
         fac.AntdResult(
             # 自定义状态图片
             icon=html.Img(
-                src="/assets/imgs/status/500.svg",
+                src="/sz16phmHVAC2/assets/imgs/status/500.svg",
                 style=style(height="50vh", pointerEvents="none"),
             ),
             title=fac.AntdText("系统内部错误", style=style(fontSize=20)),

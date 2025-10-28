@@ -1,4 +1,4 @@
-from dash import html
+from dash import html, get_asset_url
 import feffery_antd_components as fac
 
 
@@ -22,7 +22,8 @@ def create_train_chart(themetoken):
         children=[
             # 车头（左侧图片）
             html.Img(
-                src="/assets/imgs/train_headL.png",  # 车头左侧图片
+                #src="/sz16phmHVAC2/assets/imgs/train_headL.png",  # 车头左侧图片
+                src=get_asset_url("imgs/train_headL.png"),
                 style={
                     "flex": "0 0 44px",
                     "height": "74px",
@@ -42,19 +43,22 @@ def create_train_chart(themetoken):
                 children=[
                     # 车厢左侧图片
                     html.Img(
-                        src="/assets/imgs/train_bodyL.png",
+                        #src="/sz16phmHVAC2/assets/imgs/train_bodyL.png",
+                        src=get_asset_url("imgs/train_bodyL.png"),
                         style={"width": "50%", "height": "100%", "objectFit": "cover"}
                     ),
                     # 车厢右侧图片
                     html.Img(
-                        src="/assets/imgs/train_bodyR.png",
+                        #src="/sz16phmHVAC2/assets/imgs/train_bodyR.png",
+                        src=get_asset_url("imgs/train_bodyR.png"),
                         style={"width": "50%", "height": "100%", "objectFit": "cover"}
                     )
                 ]
             ) for i in range(6)],  # 6节车厢
             # 车尾（右侧图片）
             html.Img(
-                src="/assets/imgs/train_headR.png",  # 车尾右侧图片
+                #src="/sz16phmHVAC2/assets/imgs/train_headR.png",  # 车尾右侧图片
+                src=get_asset_url("imgs/train_headR.png"),
                 style={
                     "flex": "0 0 44px",
                     "height": "74px",

@@ -20,6 +20,19 @@ from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 
 
 prefix = BaseConfig.project_prefix
+
+def get_carriage_field_value(item):
+    """
+    根据配置获取车厢字段值
+    :param item: 数据项字典
+    :return: 车厢字段值
+    """
+    if BaseConfig.use_carriage_field:
+        # 优先使用 msg_calc_dvc_no，如果没有则使用 dvc_carriage_no
+        return item.get('msg_calc_dvc_no', item.get('dvc_carriage_no', ''))
+    else:
+        # 优先使用 dvc_carriage_no，如果没有则使用 msg_calc_dvc_no
+        return item.get('dvc_carriage_no', item.get('msg_calc_dvc_no', ''))
 # 从数据库获取所有故障数据的函数
 
 def get_all_fault_data():
@@ -28,10 +41,8 @@ def get_all_fault_data():
     # 构建查询，获取24小时内所有故障类型的数据
     # 计算24小时前的时间点
     twenty_four_hours_ago = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(hours=24)
-    if BaseConfig.fault_predict_time_limit_in_24hrs:
-        query = Chart_view_fault_timed.select().where(Chart_view_fault_timed.start_time >= twenty_four_hours_ago)
-    else:
-        query = Chart_view_fault_timed.select()
+    query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.update_time >= twenty_four_hours_ago) &
+                                                  (Chart_view_fault_timed.status == '持续'))
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
     
@@ -142,14 +153,19 @@ def get_health_data():
     try:
         with db.atomic():  # 添加上下文管理器
             health_query = ChartHealthEquipment.select().order_by(
-                ChartHealthEquipment.车号,
-                ChartHealthEquipment.车厢号,
                 ChartHealthEquipment.耗用率.desc()
             )
             # 立即加载所有数据
             formatted_health = [{
                 '车号': item.车号,
                 '车厢号': item.车厢号,
+                '部件': item.部件,
+                '耗用率': item.耗用率,
+                '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
+            } for item in health_query]
+
+            new_formatted_health = [{
+                '车厢': item.车厢,
                 '部件': item.部件,
                 '耗用率': item.耗用率,
                 '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
@@ -174,7 +190,7 @@ def get_health_data():
                     'param': item['部件'].replace('-', '')
                 })
         
-        return formatted_health, bar_data
+        return new_formatted_health, bar_data
     finally:
         # 强制将当前连接放回连接池（绕过自动管理逻辑）
         try:
@@ -194,8 +210,8 @@ def get_health_data():
 @callback(
     [Output('l_w_warning-table', 'data'),
      Output('l_f_fault-table', 'data'),
-     Output('l_f_fault-wordcloud', 'data'),
-     Output('l_w_warning-wordcloud', 'data'),
+    #  Output('l_f_fault-wordcloud', 'data'),
+    #  Output('l_w_warning-wordcloud', 'data'),
      Output('l_h_health_table', 'data'),
      Output('l_h_health_bar', 'data'),
      Output('l_c_opstatus-table', 'data'),
@@ -237,26 +253,26 @@ def update_both_tables(n_intervals):
     
     # 格式化预警数据
     formatted_warning = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '预警部件': item['param_name'],
+        '车厢': get_carriage_field_value(item),
+        '预警部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
+        '维修建议': item['repair_suggestion']
+        # '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
     
     # 格式化故障数据
     formatted_fault = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '故障部件': item['param_name'],
+        '车厢': get_carriage_field_value(item),
+        '故障部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
+        '维修建议': item['repair_suggestion']
+        # '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
     
     # 统计故障部件词频用于词云
     if fault_data:
         # 提取所有故障部件名称
-        param_names = [item['param_name'] for item in fault_data]
+        param_names = [item['fault_name'] for item in fault_data]
         # 计算词频
         param_counter = Counter(param_names)
         # 格式化词云数据
@@ -270,7 +286,7 @@ def update_both_tables(n_intervals):
     # 统计预警部件词频用于词云
     if warning_data:
         # 提取所有预警部件名称
-        warning_param_names = [item['param_name'] for item in warning_data]
+        warning_param_names = [item['fault_name'] for item in warning_data]
         # 计算词频
         warning_counter = Counter(warning_param_names)
         # 格式化词云数据
@@ -335,10 +351,10 @@ def update_both_tables(n_intervals):
         if isinstance(latest_time, str):
             latest_time = datetime.strptime(latest_time, '%Y-%m-%d %H:%M:%S')
         # 仅当latest_time没有时区信息时才添加
-        if latest_time.tzinfo is None:
+        if latest_time and latest_time.tzinfo is None:
             latest_time = tz.localize(latest_time)
         
-        if latest_time < five_minutes_ago:
+        if latest_time is None or latest_time < five_minutes_ago:
             status = '离线'
         else:
             if item['latest_op_condition'] == 1:
@@ -376,15 +392,18 @@ def update_both_tables(n_intervals):
         l1main_count += item['加强跟踪']
         l2main_count += item['计划维修']
 
+        if int(item['dvc_train_no']) <= 1632:
+            op_link = {'href': BaseConfig.external_main_status_url, 'target': '_self'}
+        else:
+            op_link = {'href': f'/{prefix}/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+
         formatted_opstatus.append({
             '车号': {'status': badge_status, 'text': item['dvc_train_no']},
             '立即维修': item['立即维修'],
             '加强跟踪': item['加强跟踪'],
             '计划维修': item['计划维修'],
-            '操作': {'href': f'/{prefix}/train?train_no=' + item['dvc_train_no'], 'target': '_self'}
+            '操作': op_link
         })
-    
-    
     
     # 转换为DataFrame并返回字典列表
     log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
@@ -441,8 +460,8 @@ def update_both_tables(n_intervals):
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),
-        fault_wordcloud_data,
-        warning_wordcloud_data,
+        # fault_wordcloud_data,
+        # warning_wordcloud_data,
         pd.DataFrame(formatted_health).to_dict('records'),
         bar_data,
         pd.DataFrame(formatted_opstatus).to_dict('records'),

@@ -32,9 +32,9 @@ class RouterConfig:
                     "component": "Item",
                     "props": {
                         "title": "数据大屏",
-                        "key": f"/{prefix}",  # 修正路径：/dashboard -> /{prefix}
+                        "key": f"/{prefix}/",  # 修正路径：/dashboard -> /{prefix}
                         "icon": "antd-bar-chart",
-                        "href": f"/{prefix}",  # 修正路径：/dashboard -> /{prefix}
+                        "href": f"/{prefix}/",  # 修正路径：/dashboard -> /{prefix}
                     },
                 },
                 {
@@ -101,7 +101,7 @@ class RouterConfig:
         index_pathname: "首页",
         # 数据大屏路由映射
         f"/{prefix}": "数据大屏",
-        f"/{prefix}": "数据大屏入口页",
+        f"/{prefix}/": "数据大屏入口页",
         f"/{prefix}/line": "数据大屏-折线图",
         f"/{prefix}/train": "数据大屏-列车图",
         f"/{prefix}/carriage": "数据大屏-车厢图",

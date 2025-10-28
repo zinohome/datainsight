@@ -15,6 +15,7 @@ from utils.log import log as log
 from orm.chart_health_equipment import ChartHealthEquipment
 from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
 from orm.chart_line_fault_type import ChartLineFaultType
+from orm.chart_line_fault_param_type import ChartLineFaultParamType
 from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 from dash import dcc
 from views.core_pages.train_chart_link import create_train_chart_link
@@ -44,7 +45,7 @@ def update_url_params(search):
         'train_no': parsed_train
     }
 
-    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
+    # log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
     return result
 
 # 同步URL参数到表单回调
@@ -56,7 +57,7 @@ def update_url_params(search):
 )
 def sync_url_params_to_form(modified_timestamp, url_params):
     time.sleep(0.5)  # 等待前端元素加载
-    log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
+    # log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
     if not isinstance(url_params, dict):
         return None
 
@@ -105,6 +106,37 @@ def get_fault_type_data(train_no=None):
     # 如果提供了train_no，添加筛选条件
     if train_no:
         query = query.where(ChartLineFaultType.dvc_train_no == train_no)
+    
+    # 执行查询并获取数据
+    try:
+        with db.atomic():
+            data = list(query.dicts())
+            return data
+    finally:
+        # 强制将当前连接放回连接池（绕过自动管理逻辑）
+        try:
+            conn = db.connection()  # 获取当前线程连接
+            key = db.conn_key(conn)  # 生成连接唯一标识
+            with db._pool_lock:  # 线程安全操作
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    # 将连接添加回空闲连接堆
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
+# 获取故障类型数据的方法
+def get_fault_type_param_data(train_no=None):
+    # 查询故障类型数据
+    query = ChartLineFaultParamType.select()
+    # 按故障类型和车号排序
+    query = query.order_by(ChartLineFaultParamType.dvc_train_no, ChartLineFaultParamType.故障数量)
+
+    # 如果提供了train_no，添加筛选条件
+    if train_no:
+        query = query.where(ChartLineFaultParamType.dvc_train_no == train_no)
     
     # 执行查询并获取数据
     try:
@@ -227,10 +259,9 @@ def get_all_fault_data(train_no=None):
     # 构建查询，获取24小时内所有故障类型的数据
     # 计算24小时前的时间点
     twenty_four_hours_ago = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(hours=24)
-    if BaseConfig.fault_predict_time_limit_in_24hrs:
-        query = Chart_view_fault_timed.select().where(Chart_view_fault_timed.start_time >= twenty_four_hours_ago)
-    else:
-        query = Chart_view_fault_timed.select()
+    # query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.update_time >= twenty_four_hours_ago) & 
+    #                                               (Chart_view_fault_timed.status == '持续'))
+    query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.status == '持续'))
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
 
@@ -262,20 +293,17 @@ def get_all_fault_data(train_no=None):
 @callback(
     [Output('t_w_warning-table', 'data'),
      Output('t_f_fault-table', 'data'),
-     Output('t_f_fault-wordcloud', 'data'),
-     Output('t_w_warning-wordcloud', 'data'),
+    #  Output('t_f_fault-wordcloud', 'data'),
+    #  Output('t_w_warning-wordcloud', 'data'),
      Output('t_h_health_table', 'data'),
-     Output('t_h_health_bar', 'data'),
+    #  Output('t_h_health_bar', 'data'),
      Output('t_c_warning_count', 'end'),
      Output('t_c_alarm_count', 'end'),
      Output('t_c_total_exception_count', 'end'),
      Output('t_c_healthy_count', 'end'),
      Output('t_c_subhealthy_count', 'end'),
      Output('t_c_faulty_count', 'end'),
-     Output('t_c_opstatus_normal-pie', 'annotations'),
-     Output('t_c_opstatus_l1main-pie', 'annotations'),
-     Output('t_c_opstatus_l2main-pie', 'annotations'),
-     Output('t_c_opstatus_l3main-pie', 'annotations')
+     Output('fault_type_param_data', 'data')
      ],
     [Input('l-update-data-interval', 'n_intervals'),
      Input('t_url-params-store', 'data'),
@@ -337,7 +365,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     formatted_warning = [{
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
-        '预警部件': item['param_name'],
+        '预警部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
         '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
@@ -346,7 +374,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     formatted_fault = [{
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
-        '故障部件': item['param_name'],
+        '故障部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
         '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
@@ -354,7 +382,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     # 统计故障部件词频用于词云
     if fault_data:
         # 提取所有故障部件名称
-        param_names = [item['param_name'] for item in fault_data]
+        param_names = [item['fault_name'] for item in fault_data]
         # 计算词频
         param_counter = Counter(param_names)
         # 格式化词云数据
@@ -368,7 +396,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     # 统计预警部件词频用于词云
     if warning_data:
         # 提取所有预警部件名称
-        warning_param_names = [item['param_name'] for item in warning_data]
+        warning_param_names = [item['fault_name'] for item in warning_data]
         # 计算词频
         warning_counter = Counter(warning_param_names)
         # 格式化词云数据
@@ -383,10 +411,14 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     formatted_health, bar_data = get_health_data(selected_train_no)
 
     # 调用get_opstatus_data方法获取空调状态数据
-    opstatus_data = get_opstatus_data(selected_train_no)
+    # opstatus_data = get_opstatus_data(selected_train_no)
 
     # 调用get_fault_type_data方法获取故障类型数据
     fault_type_data = get_fault_type_data(selected_train_no)
+
+    fault_type_param_data_rows = get_fault_type_param_data(selected_train_no)
+
+    fault_type_param_data = [{"name": r["故障部件"], "value": r["故障数量"]} for r in fault_type_param_data_rows]
 
     # 调用get_health_status_count_data方法获取健康状态统计数据
     health_status_count_data = get_health_status_count_data(selected_train_no)
@@ -409,87 +441,25 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     # 计算故障期空调数量
     faulty_count = sum(item['device_count'] for item in health_status_count_data if item['device_health_status'] == '非健康')
 
-    # 初始化圆环图计数器
-    normal_count = 0
-    l1main_count = 0
-    l2main_count = 0
-    l3main_count = 0
-
-    # 遍历opstatus_data更新计数器
-    for item in opstatus_data:
-        normal_count += item['正常运营']
-        l3main_count += item['立即维修']
-        l1main_count += item['加强跟踪']
-        l2main_count += item['计划维修']
-
-    # 构建圆环图annotations数据
-    normal_annotations = [{
-        "type": "text",
-        "position": ["50%", "50%"],
-        "content": f"正常运营\n{normal_count}",
-        "style": {
-            "fill": "white",
-            "fontSize": 12,
-            "textAlign": "center"
-        }
-    }]
-    
-    l1main_annotations = [{
-        "type": "text",
-        "position": ["50%", "50%"],
-        "content": f"加强跟踪\n{l1main_count}",
-        "style": {
-            "fill": "white",
-            "fontSize": 12,
-            "textAlign": "center"
-        }
-    }]
-    
-    l2main_annotations = [{
-        "type": "text",
-        "position": ["50%", "50%"],
-        "content": f"计划维修\n{l2main_count}",
-        "style": {
-            "fill": "white",
-            "fontSize": 12,
-            "textAlign": "center"
-        }
-    }]
-    
-    l3main_annotations = [{
-        "type": "text",
-        "position": ["50%", "50%"],
-        "content": f"立即维修\n{l3main_count}",
-        "autoAdjust": True,
-        "style": {
-            "fill": "white",
-            "fontSize": 12,
-            "textAlign": "center",
-            "whiteSpace": "pre"
-        }
-    }]
 
     # 转换为DataFrame并返回字典列表
-    log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
-    log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
-    log.debug(f"bar_data: {bar_data}")
+    # log.debug(f"fault_wordcloud_data: {fault_wordcloud_data}")
+    # log.debug(f"warning_wordcloud_data: {warning_wordcloud_data}")
+    # log.debug(f"bar_data: {bar_data}")
     return (
         pd.DataFrame(formatted_warning).to_dict('records'),
         pd.DataFrame(formatted_fault).to_dict('records'),
-        fault_wordcloud_data,
-        warning_wordcloud_data,
+        # fault_wordcloud_data,
+        # warning_wordcloud_data,
         pd.DataFrame(formatted_health).to_dict('records'),
-        bar_data,
+        # bar_data,
         warning_count,
         alarm_count,
         total_exception_count,
         healthy_count,
         subhealthy_count,
         faulty_count,
-        normal_annotations,
-        l1main_annotations,
-        l2main_annotations,
-        l3main_annotations
+        fault_type_param_data
     )
 
 

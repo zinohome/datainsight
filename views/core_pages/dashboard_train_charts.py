@@ -11,7 +11,6 @@ from feffery_dash_utils.template_utils.dashboard_components import (
     simple_chart_card,
 )
 from components.macdacard import macda_card
-from components.scroll_table import scrollTable
 from configs import BaseConfig
 from .train_chart_link import create_train_chart_link
 from utils.log import log as log
@@ -89,151 +88,9 @@ def render(themetoken):
                         rootStyle={"background": themetoken["colorBgCard"]},
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
-                        title="当前空调状态",
+                        title="今日预警/报警空调数量",
                         chart=fac.AntdRow(
                             [
-                                # 空调状态统计
-                                fac.AntdCol(
-                                    blank_card(
-                                        rootStyle={
-                                            "background": themetoken["colorBgCard"]},
-                                        children=fac.AntdRow(
-                                            [
-                                                # 圆环图1-正常运营
-                                                fac.AntdCol(
-                                                    fact.AntdPie(
-                                                        id="t_c_opstatus_normal-pie",
-                                                        data=[{"value": 100}],
-                                                        angleField="value",
-                                                        radius=0.9,  # 外半径设为0.9
-                                                        innerRadius=0.8,
-                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
-                                                        color="#22c55e",
-                                                        tooltip=False,
-                                                        statistic=False,
-                                                        label=False,
-                                                        annotations=[{
-                                                            "type": "text",
-                                                            "position": ["50%", "50%"],
-                                                            "content": f"正常运营\n{0}",
-                                                            "style": {
-                                                                "fill": "white",
-                                                                "fontSize": 12,
-                                                                "textAlign": "center"
-                                                            }
-                                                        }]
-                                                    ),
-                                                    span=6,
-                                                    style={"display": "flex",
-                                                           "justifyContent": "center",
-                                                           "alignItems": "flex-start",
-                                                           "padding": "5px 10px 0",
-                                                           "height": "100%"}
-                                                ),
-                                                # 圆环图2-加强跟踪
-                                                fac.AntdCol(
-                                                    fact.AntdPie(
-                                                        id="t_c_opstatus_l1main-pie",
-                                                        data=[{"value": 100}],
-                                                        angleField="value",
-                                                        radius=0.9,  # 外半径设为0.9
-                                                        innerRadius=0.8,
-                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
-                                                        color="#eab308",
-                                                        tooltip=False,
-                                                        statistic=False,
-                                                        label=False,
-                                                        annotations=[{
-                                                            "type": "text",
-                                                            "position": ["50%", "50%"],
-                                                            "content": f"加强跟踪\n{0}",
-                                                            "style": {
-                                                                "fill": "white",
-                                                                "fontSize": 12,
-                                                                "textAlign": "center"
-                                                            }
-                                                        }]
-                                                    ),
-                                                    span=6,
-                                                    style={"display": "flex",
-                                                           "justifyContent": "center",
-                                                           "alignItems": "flex-start",
-                                                           "padding": "5px 10px 0",
-                                                           "height": "100%"}
-                                                ),
-                                                # 圆环图3-计划维修
-                                                fac.AntdCol(
-                                                    fact.AntdPie(
-                                                        id="t_c_opstatus_l2main-pie",
-                                                        data=[{"value": 100}],
-                                                        angleField="value",
-                                                        radius=0.9,  # 外半径设为0.9
-                                                        innerRadius=0.8,
-                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
-                                                        color="#f97316",
-                                                        tooltip=False,
-                                                        statistic=False,
-                                                        label=False,
-                                                        annotations=[{
-                                                            "type": "text",
-                                                            "position": ["50%", "50%"],
-                                                            "content": f"计划维修\n{0}",
-                                                            "style": {
-                                                                "fill": "white",
-                                                                "fontSize": 12,
-                                                                "textAlign": "center"
-                                                            }
-                                                        }]
-                                                    ),
-                                                    span=6,
-                                                    style={"display": "flex",
-                                                           "justifyContent": "center",
-                                                           "alignItems": "flex-start",
-                                                           "padding": "5px 10px 0",
-                                                           "height": "100%"}
-                                                ),
-                                                # 圆环图4-立即维修
-                                                fac.AntdCol(
-                                                    fact.AntdPie(
-                                                        id="t_c_opstatus_l3main-pie",
-                                                        data=[{"value": 100}],
-                                                        angleField="value",
-                                                        radius=0.9,  # 外半径设为0.9
-                                                        innerRadius=0.8,
-                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
-                                                        color="#ef4444",
-                                                        tooltip=False,
-                                                        statistic=False,
-                                                        label=False,
-                                                        annotations=[{
-                                                            "type": "text",
-                                                            "position": ["50%", "50%"],
-                                                            "content": f"立即维修\n{0}",
-                                                            "autoAdjust": True,
-                                                            "style": {
-                                                                "fill": "white",
-                                                                "fontSize": 12,
-                                                                "textAlign": "center",
-                                                                "whiteSpace": "pre"
-                                                            }
-                                                        }]
-                                                    ),
-                                                    span=6,
-                                                    style={"display": "flex",
-                                                           "justifyContent": "center",
-                                                           "alignItems": "flex-start",
-                                                           "padding": "5px 10px 0",
-                                                           "height": "100%"}
-                                                )
-                                            ],
-                                            style={"height": "100px",
-                                                   "alignItems": "flex-start",
-                                                   "margin": 0,
-                                                   "padding": 0}
-                                        ),
-                                    ),
-                                    span=24,
-                                ),
                                 # 空调数量统计
                                 fac.AntdCol(
                                     blank_card(
@@ -241,11 +98,6 @@ def render(themetoken):
                                             "background": themetoken["colorBgCard"]},
                                         children=fac.AntdRow(
                                             [
-                                                fac.AntdCol(
-                                                    fac.AntdDivider(
-                                                        '今日预警/报警空调数量', innerTextOrientation='left'),
-                                                    span=24,
-                                                ),
                                                 fac.AntdCol(
                                                     fac.AntdStatistic(
                                                         title='预警数量',
@@ -338,13 +190,62 @@ def render(themetoken):
                                         ),
                                     ),
                                     span=24,
-                                style={"marginTop": "180px"},
+                                    style={"marginTop": "5px"},
+                                ),
+                                # 空调状态统计
+                                fac.AntdCol(
+                                    blank_card(
+                                        rootStyle={
+                                            "background": themetoken["colorBgCard"]},
+                                        children=fac.AntdRow(
+                                            [
+                                                fac.AntdCol(
+                                                    fac.AntdDivider(
+                                                        '预警/报警类型', innerTextOrientation='left'),
+                                                    span=24,
+                                                ),
+                                                # 圆行图-故障部件
+                                                fac.AntdCol(
+                                                    fact.AntdPie(
+                                                        id="fault_type_param_data",
+                                                        data=[],
+                                                        angleField="value",
+                                                        colorField="name",
+                                                        radius=0.7,  # 外半径设为0.9
+                                                        pieStyle={'stroke': 'transparent', 'lineWidth': 0},  # 移除边框
+                                                        tooltip=True,
+                                                        statistic=True,
+                                                        legend={
+                                                                'position': 'top',  # 图例位置
+                                                                },
+                                                        label={
+                                                                'type': 'outer',
+                                                                'content': '{name}: {value}',
+                                                                'style': {'fill': '#f3efec'},
+                                                                }
+                                                    ),
+                                                    style={"display": "flex",
+                                                           "justifyContent": "center",
+                                                           "alignItems": "flex-start",
+                                                           "padding": "5px 20px 0",
+                                                           "minHeight": "130px",
+                                                           "width": "100%"}
+                                                )
+                                            ],
+                                            style={"minHeight": "130px",
+                                                   "alignItems": "flex-start",
+                                                   "margin": 0,
+                                                   "padding": "0 6px"}
+                                        ),
+                                    ),
+                                    span=24,
+                                    style={"marginTop": "50px"},
                                 ),
                              ],
                             style={"height": "120px",
                                    "alignItems": "flex-start",
-                                    "margin": 0,
-                                    "padding": 0}
+                                   "margin": 0,
+                                   "padding": 0}
                         ),
                         height=280,
                     ),
@@ -363,14 +264,8 @@ def render(themetoken):
                                     title="故障告警",
                                     chart=
                                     fac.AntdSpin(
-                                        #fac.AntdTable(
-                                            scrollTable(
-                                            #id='t_f_fault-table',
-                                            table_id='t_f_fault-table',
-                                            data=[],
-                                            scroll_interval=1200,
-                                            visible_rows=10,
-                                            row_height=24,
+                                        fac.AntdTable(
+                                            id='t_f_fault-table',
                                             columns=[
                                                 {
                                                     'title': column,
@@ -399,9 +294,9 @@ def render(themetoken):
                                                 for column in t_f_fault_table_colnames
                                             ],
                                             size='small',
-                                            #pagination=True,
+                                            pagination=True,
                                             bordered = False,
-                                            #maxHeight=280,
+                                            maxHeight=580,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -413,9 +308,9 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                    text='数据加载中',
+                                    text='',
                                     ),
-                                height=280,
+                                height=600,
                                 ),
                                 span=8,
                             ),
@@ -427,14 +322,8 @@ def render(themetoken):
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="状态预警",
                                     chart=fac.AntdSpin(
-                                        #fac.AntdTable(
-                                            scrollTable(
-                                            #id='t_w_warning-table',
-                                            table_id='t_w_warning-table',
-                                            data=[],
-                                            scroll_interval=1200,
-                                            visible_rows=10,
-                                            row_height=24,
+                                        fac.AntdTable(
+                                            id='t_w_warning-table',
                                             columns=[
                                                 {
                                                     'title': column,
@@ -463,9 +352,9 @@ def render(themetoken):
                                                 for column in t_w_warning_table_colnames
                                             ],
                                             size='small',
-                                            #pagination=True,
+                                            pagination=True,
                                             bordered = False,
-                                            #maxHeight=280,
+                                            maxHeight=580,
                                             mode = 'server-side',
                                             className = "fault-table",
                                             style = {
@@ -477,9 +366,9 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                    text='数据加载中',
+                                    text='',
                                     ),
-                                    height=280,
+                                    height=600,
                                 ),
                                 span=8,
                             ),
@@ -491,14 +380,8 @@ def render(themetoken):
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="寿命预测",
                                     chart=fac.AntdSpin(
-                                        #fac.AntdTable(
-                                            scrollTable(
-                                            #id='t_h_health_table',
-                                            table_id='t_h_health_table',
-                                            data=[],
-                                            scroll_interval=1200,
-                                            visible_rows=10,
-                                            row_height=24,
+                                        fac.AntdTable(
+                                            id='t_h_health_table',
                                             columns=[
                                                 {
                                                     'title': column,
@@ -530,9 +413,9 @@ def render(themetoken):
                                                 for column in t_h_health_table_colnames
                                             ],
                                             size='small',
-                                            #pagination=True,
+                                            pagination=True,
                                             bordered=False,
-                                            #maxHeight=200,
+                                            maxHeight=580,
                                             mode='server-side',
                                             className="fault-table",
                                             style={
@@ -544,99 +427,99 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                        text='数据加载中',
+                                        text='',
                                     ),
-                                    height=300,
+                                    height=600,
                                 ),
                                 span=8,
                             ),
                             # 典型故障图表
-                            fac.AntdCol(
-                                blank_card(
-                                    rootStyle={"background": themetoken["colorBgCard"]},
-                                    children=fac.AntdRow(
-                                        [
-                                            fact.AntdWordCloud(
-                                                id="t_f_fault-wordcloud",
-                                                wordField="word",
-                                                weightField="value",
-                                                height=300,
-                                                colorField='word',
-                                                wordStyle={'fontSize': [12, 36]},
-                                            ),
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                ),
-                                span=8,
-                            ),
-                            # 典型预警图表
-                            fac.AntdCol(
-                                blank_card(
-                                    rootStyle={"background": themetoken["colorBgCard"]},
-                                    children=fac.AntdRow(
-                                        [
-                                            fact.AntdWordCloud(
-                                                id="t_w_warning-wordcloud",
-                                                wordField="word",
-                                                weightField="value",
-                                                height=300,
-                                                colorField='word',
-                                                wordStyle={'fontSize': [12, 36]},
-                                            ),
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                ),
-                                span=8,
-                            ),
-                            # 部件寿命图表
-                            fac.AntdCol(
-                                blank_card(
-                                    rootStyle={"background": themetoken["colorBgCard"]},
-                                    children=fac.AntdRow(
-                                [
-                                            fact.AntdBar(
-                                                id='t_h_health_bar',
-                                                data=[
-                                                    {
-                                                        'carriage': f'12101-{i}',
-                                                        'ratio': random.randint(0, 10),
-                                                        'param': f'item{j}',
-                                                    }
-                                                    for i in range(1, 7)
-                                                    for j in range(1, 15)
-                                                ],
-                                                xField='ratio',
-                                                yField='carriage',
-                                                seriesField='param',
-                                                isStack=True,
-                                                isPercent=False,
-                                                label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
-                                                style={
-                                                    'height': '100%',
-                                                    'width': '100%',
-                                                    'border': 'none',
-                                                    'border-collapse': 'collapse',
-                                                    'border-spacing': '0',
-                                                    'backgroundColor': 'transparent'
-                                                },
-                                            )
-                                        ],
-                                        style={"height": "300px",
-                                               "alignItems": "flex-start",
-                                               "margin": 0,
-                                               "padding": 0}
-                                    ),
-                                ),
-                                span=8,
-                            ),
+                            # fac.AntdCol(
+                            #     blank_card(
+                            #         rootStyle={"background": themetoken["colorBgCard"]},
+                            #         children=fac.AntdRow(
+                            #             [
+                            #                 fact.AntdWordCloud(
+                            #                     id="t_f_fault-wordcloud",
+                            #                     wordField="word",
+                            #                     weightField="value",
+                            #                     height=300,
+                            #                     colorField='word',
+                            #                     wordStyle={'fontSize': [12, 36]},
+                            #                 ),
+                            #             ],
+                            #             style={"height": "300px",
+                            #                    "alignItems": "flex-start",
+                            #                    "margin": 0,
+                            #                    "padding": 0}
+                            #         ),
+                            #     ),
+                            #     span=8,
+                            # ),
+                            # # 典型预警图表
+                            # fac.AntdCol(
+                            #     blank_card(
+                            #         rootStyle={"background": themetoken["colorBgCard"]},
+                            #         children=fac.AntdRow(
+                            #             [
+                            #                 fact.AntdWordCloud(
+                            #                     id="t_w_warning-wordcloud",
+                            #                     wordField="word",
+                            #                     weightField="value",
+                            #                     height=300,
+                            #                     colorField='word',
+                            #                     wordStyle={'fontSize': [12, 36]},
+                            #                 ),
+                            #             ],
+                            #             style={"height": "300px",
+                            #                    "alignItems": "flex-start",
+                            #                    "margin": 0,
+                            #                    "padding": 0}
+                            #         ),
+                            #     ),
+                            #     span=8,
+                            # ),
+                            # # 部件寿命图表
+                            # fac.AntdCol(
+                            #     blank_card(
+                            #         rootStyle={"background": themetoken["colorBgCard"]},
+                            #         children=fac.AntdRow(
+                            #     [
+                            #                 fact.AntdBar(
+                            #                     id='t_h_health_bar',
+                            #                     data=[
+                            #                         {
+                            #                             'carriage': f'12101-{i}',
+                            #                             'ratio': random.randint(0, 10),
+                            #                             'param': f'item{j}',
+                            #                         }
+                            #                         for i in range(1, 7)
+                            #                         for j in range(1, 15)
+                            #                     ],
+                            #                     xField='ratio',
+                            #                     yField='carriage',
+                            #                     seriesField='param',
+                            #                     isStack=True,
+                            #                     isPercent=False,
+                            #                     label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
+                            #                     style={
+                            #                         'height': '100%',
+                            #                         'width': '100%',
+                            #                         'border': 'none',
+                            #                         'border-collapse': 'collapse',
+                            #                         'border-spacing': '0',
+                            #                         'backgroundColor': 'transparent'
+                            #                     },
+                            #                 )
+                            #             ],
+                            #             style={"height": "300px",
+                            #                    "alignItems": "flex-start",
+                            #                    "margin": 0,
+                            #                    "padding": 0}
+                            #         ),
+                            #     ),
+                            #     span=8,
+                            # ),
                         ],
                         gutter=[10, 10],
                     ),

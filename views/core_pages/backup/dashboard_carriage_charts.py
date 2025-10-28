@@ -144,7 +144,7 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                    text='数据加载中',
+                                    text='',
                                     ),
                                 height=260,
                                 ),
@@ -202,7 +202,7 @@ def render(themetoken):
                                                 'backgroundColor': 'transparent'
                                             },
                                         ),
-                                    text='数据加载中',
+                                    text='',
                                     ),
                                     height=260,
                                 ),
@@ -282,7 +282,7 @@ def render(themetoken):
                                                                         className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
-                                                                    text='数据加载中',
+                                                                    text='',
                                                                 ),
                                                                 span=20,
                                                             ),
@@ -347,7 +347,7 @@ def render(themetoken):
                                                                         className = "cfault-table",
                                                                         style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                     ),
-                                                                    text='数据加载中',
+                                                                    text='',
                                                                 ),
                                                                 span=20
                                                             )

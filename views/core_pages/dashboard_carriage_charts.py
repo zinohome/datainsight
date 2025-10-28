@@ -19,7 +19,6 @@ def render(themetoken):
     """数据大屏-折线图页面主内容渲染"""
     c_f_fault_table_colnames = ['车号', '车厢号', '故障部件', '开始时间', '操作']
     c_w_warning_table_colnames = ['车号', '车厢号', '预警部件', '开始时间', '操作']
-    c_h_health_table_colnames = ['车号', '车厢号', '部件', '耗用率', '操作']
     return [
         # URL参数处理
         dcc.Location(id='url', refresh=False),
@@ -79,7 +78,7 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                html.Div(id='carriage-chart-info-container', children=create_train_chart_info(themetoken, 'param'))
+                                html.Div(id='carriage-chart-info-container', children=create_train_chart_info(themetoken, 'carriage'))
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}
@@ -99,52 +98,49 @@ def render(themetoken):
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="故障告警",
                                     chart=
-                                    fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='c_f_fault-table',
-                                            columns=[
-                                                {
-                                                    'title': column,
-                                                    'dataIndex': column,
-                                                    'width': '{:.2f}%'.format(100 / len(c_f_fault_table_colnames)),
-                                                    'headerCellStyle': {
-                                                        'fontWeight': 'bold',
-                                                        'border': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    'cellStyle': {
-                                                        'borderRight': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    **({
-                                                        'renderOptions': {
-                                                        'renderType': 'link',
-                                                            'renderLinkText': '详情'
-                                                        }
-                                                    } if column == '操作' else {})
-                                                }
-                                                for column in c_f_fault_table_colnames
-                                            ],
-                                            size='small',
-                                            pagination=False,
-                                            bordered = False,
-                                            maxHeight=180,
-                                            mode = 'client-side',
-                                            className = "fault-table",
-                                            style = {
-                                                'height': '100%',
-                                                'width': '100%',
-                                                'border': 'none',
-                                                'border-collapse': 'collapse',
-                                                'border-spacing': '0',
-                                                'backgroundColor': 'transparent'
-                                            },
-                                        ),
-                                    text='数据加载中',
+                                    fac.AntdTable(
+                                        id='c_f_fault-table',
+                                        columns=[
+                                            {
+                                                'title': column,
+                                                'dataIndex': column,
+                                                'width': '{:.2f}%'.format(100 / len(c_f_fault_table_colnames)),
+                                                'headerCellStyle': {
+                                                    'fontWeight': 'bold',
+                                                    'border': 'none',
+                                                    'borderBottom': '1px solid #e8e8e8',
+                                                    'color': themetoken["colorText"],
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                                'cellStyle': {
+                                                    'borderRight': 'none',
+                                                    'borderBottom': '1px solid #e8e8e8',
+                                                    'color': themetoken["colorText"],
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                                **({
+                                                    'renderOptions': {
+                                                    'renderType': 'link',
+                                                        'renderLinkText': '详情'
+                                                    }
+                                                } if column == '操作' else {})
+                                            }
+                                            for column in c_f_fault_table_colnames
+                                        ],
+                                        size='small',
+                                        pagination=False,
+                                        bordered = False,
+                                        maxHeight=180,
+                                        mode = 'client-side',
+                                        className = "fault-table",
+                                        style = {
+                                            'height': '100%',
+                                            'width': '100%',
+                                            'border': 'none',
+                                            'border-collapse': 'collapse',
+                                            'border-spacing': '0',
+                                            'backgroundColor': 'transparent'
+                                        },
                                     ),
                                 height=260,
                                 ),
@@ -157,52 +153,49 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="状态预警",
-                                    chart=fac.AntdSpin(
-                                        fac.AntdTable(
-                                            id='c_w_warning-table',
-                                            columns=[
-                                                {
-                                                    'title': column,
-                                                    'dataIndex': column,
-                                                    'width': '{:.2f}%'.format(100 / len(c_w_warning_table_colnames)),
-                                                    'headerCellStyle': {
-                                                        'fontWeight': 'bold',
-                                                        'border': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    'cellStyle': {
-                                                        'borderRight': 'none',
-                                                        'borderBottom': '1px solid #e8e8e8',
-                                                        'color': themetoken["colorText"],
-                                                        'backgroundColor': 'transparent'
-                                                    },
-                                                    **({
-                                                        'renderOptions': {
-                                                        'renderType': 'link',
-                                                            'renderLinkText': '详情'
-                                                        }
-                                                    } if column == '操作' else {})
-                                                }
-                                                for column in c_w_warning_table_colnames
-                                            ],
-                                            size='small',
-                                            pagination=False,
-                                            bordered = False,
-                                            maxHeight=180,
-                                            mode = 'client-side',
-                                            className = "fault-table",
-                                            style = {
-                                                'height': '100%',
-                                                'width': '100%',
-                                                'border': 'none',
-                                                'border-collapse': 'collapse',
-                                                'border-spacing': '0',
-                                                'backgroundColor': 'transparent'
-                                            },
-                                        ),
-                                    text='数据加载中',
+                                    chart=fac.AntdTable(
+                                        id='c_w_warning-table',
+                                        columns=[
+                                            {
+                                                'title': column,
+                                                'dataIndex': column,
+                                                'width': '{:.2f}%'.format(100 / len(c_w_warning_table_colnames)),
+                                                'headerCellStyle': {
+                                                    'fontWeight': 'bold',
+                                                    'border': 'none',
+                                                    'borderBottom': '1px solid #e8e8e8',
+                                                    'color': themetoken["colorText"],
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                                'cellStyle': {
+                                                    'borderRight': 'none',
+                                                    'borderBottom': '1px solid #e8e8e8',
+                                                    'color': themetoken["colorText"],
+                                                    'backgroundColor': 'transparent'
+                                                },
+                                                **({
+                                                    'renderOptions': {
+                                                    'renderType': 'link',
+                                                        'renderLinkText': '详情'
+                                                    }
+                                                } if column == '操作' else {})
+                                            }
+                                            for column in c_w_warning_table_colnames
+                                        ],
+                                        size='small',
+                                        pagination=False,
+                                        bordered = False,
+                                        maxHeight=180,
+                                        mode = 'client-side',
+                                        className = "fault-table",
+                                        style = {
+                                            'height': '100%',
+                                            'width': '100%',
+                                            'border': 'none',
+                                            'border-collapse': 'collapse',
+                                            'border-spacing': '0',
+                                            'backgroundColor': 'transparent'
+                                        },
                                     ),
                                     height=260,
                                 ),
@@ -223,6 +216,15 @@ def render(themetoken):
                                     titleStyle={"color": themetoken["colorText"]},
                                     descriptionStyle={"color": themetoken["colorText"]},
                                     title="机组实时信息",
+                                    description=html.A(
+                                        id='param-link',
+                                        children="更多",
+                                        target=BaseConfig.external_link_target,
+                                        style={
+                                            # "color": themetoken["colorText"],  # 继承原文本颜色
+                                            "textDecoration": "none"  # 可选：移除下划线
+                                        }
+                                    ),
                                     chart=fac.AntdRow(
                                             fac.AntdCol(
                                             [
@@ -231,58 +233,55 @@ def render(themetoken):
                                                         [
                                                             fac.AntdCol(
                                                                 html.Img(
-                                                                    src="/assets/imgs/circle_svg_unit1.svg",
+                                                                    src="/sz16phmHVAC2/assets/imgs/circle_svg_unit1.svg",
                                                                     style={"width": "100px", "height": "100px", "objectFit": "contain"}
                                                                 ),
                                                                 style={"textAlign": "right"},
                                                                 span=2
                                                             ),
                                                             fac.AntdCol(
-                                                                fac.AntdSpin(
-                                                                    fac.AntdTable(
-                                                                        id='c_i_info_unit1-table',
-                                                                        columns=[
-                                                                            {
-                                                                                "title": title,
-                                                                                 "dataIndex": dataIndex,
-                                                                                "width": '{:.2f}%'.format(100 / 10),
-                                                                                "align": "center",
-                                                                                "headerCellStyle": {
-                                                                                    "fontWeight": 'bold',
-                                                                                    "border": 'none',
-                                                                                    "borderBottom": '1px solid #e8e8e8',
-                                                                                    "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent'
-                                                                                },
-                                                                                "cellStyle": {
-                                                                                    "borderRight": 'none',
-                                                                                    "borderBottom": '1px solid #e8e8e8',
-                                                                                    "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent',
-                                                                                },
-                                                                                "renderOptions": {'renderType': 'tags'},
-                                                                            }
-                                                                            for title, dataIndex in [
-                                                                                ("吸气压力1", "pressure1"),
-                                                                                ("吸气压力2", "pressure2"),
-                                                                                ("高压压力1", "highPressure1"),
-                                                                                ("高压压力2", "highPressure2"),
-                                                                                ("新风温度", "temp1"),
-                                                                                ("回风温度", "temp2"),
-                                                                                ("送风温度", "temp3"),
-                                                                                ("CO2浓度", "co2"),
-                                                                                ("车厢温度", "carTemp"),
-                                                                                ("车厢湿度", "humidity")
-                                                                            ]
-                                                                        ],
-                                                                        size="small",
-                                                                        pagination=False,
-                                                                        bordered=False,
-                                                                        mode = 'client-side',
-                                                                        className = "cfault-table",
-                                                                        style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
-                                                                    ),
-                                                                    text='数据加载中',
+                                                                fac.AntdTable(
+                                                                    id='c_i_info_unit1-table',
+                                                                    columns=[
+                                                                        {
+                                                                            "title": title,
+                                                                            "dataIndex": dataIndex,
+                                                                            "width": '{:.2f}%'.format(100 / 10),
+                                                                            "align": "center",
+                                                                            "headerCellStyle": {
+                                                                                "fontWeight": 'bold',
+                                                                                "border": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent'
+                                                                            },
+                                                                            "cellStyle": {
+                                                                                "borderRight": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent',
+                                                                            },
+                                                                            "renderOptions": {'renderType': 'tags'},
+                                                                        }
+                                                                        for title, dataIndex in [
+                                                                            ("吸气压力1", "pressure1"),
+                                                                            ("吸气压力2", "pressure2"),
+                                                                            ("高压压力1", "highPressure1"),
+                                                                            ("高压压力2", "highPressure2"),
+                                                                            ("新风温度", "temp1"),
+                                                                            ("回风温度", "temp2"),
+                                                                            ("送风温度", "temp3"),
+                                                                            ("CO2浓度", "co2"),
+                                                                            ("车厢温度", "carTemp"),
+                                                                            ("车厢湿度", "humidity")
+                                                                        ]
+                                                                    ],
+                                                                    size="small",
+                                                                    pagination=False,
+                                                                    bordered=False,
+                                                                    mode = 'client-side',
+                                                                    className = "cfault-table",
+                                                                    style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                 ),
                                                                 span=20,
                                                             ),
@@ -296,58 +295,55 @@ def render(themetoken):
                                                         [
                                                             fac.AntdCol(
                                                                 html.Img(
-                                                                    src="/assets/imgs/circle_svg_unit2.svg",
+                                                                    src="/sz16phmHVAC2/assets/imgs/circle_svg_unit2.svg",
                                                                     style={"width": "100px", "height": "100px", "objectFit": "contain"}
                                                                 ),
                                                                 style={"textAlign": "right"},
                                                                 span=2
                                                             ),
                                                             fac.AntdCol(
-                                                                fac.AntdSpin(
-                                                                    fac.AntdTable(
-                                                                        id='c_i_info_unit2-table',
-                                                                        columns=[
-                                                                            {
-                                                                                "title": title,
-                                                                                "dataIndex": dataIndex,
-                                                                                "width": '{:.2f}%'.format(100 / 10),
-                                                                                "align": "center",
-                                                                                "headerCellStyle": {
-                                                                                    "fontWeight": 'bold',
-                                                                                    "border": 'none',
-                                                                                    "borderBottom": '1px solid #e8e8e8',
-                                                                                    "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent'
-                                                                                },
-                                                                                "cellStyle": {
-                                                                                    "borderRight": 'none',
-                                                                                    "borderBottom": '1px solid #e8e8e8',
-                                                                                    "color": themetoken["colorText"],
-                                                                                    "backgroundColor": 'transparent',
-                                                                                },
-                                                                                "renderOptions": {'renderType': 'tags'},
-                                                                            }
-                                                                            for title, dataIndex in [
-                                                                                ("吸气压力1", "pressure1"),
-                                                                                ("吸气压力2", "pressure2"),
-                                                                                ("高压压力1", "highPressure1"),
-                                                                                ("高压压力2", "highPressure2"),
-                                                                                ("新风温度", "temp1"),
-                                                                                ("回风温度", "temp2"),
-                                                                                ("送风温度", "temp3"),
-                                                                                ("CO2浓度", "co2"),
-                                                                                ("车厢温度", "carTemp"),
-                                                                                ("车厢湿度", "humidity")
-                                                                            ]
-                                                                        ],
-                                                                        size="small",
-                                                                        pagination=False,
-                                                                        bordered=False,
-                                                                        mode = 'client-side',
-                                                                        className = "cfault-table",
-                                                                        style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
-                                                                    ),
-                                                                    text='数据加载中',
+                                                                fac.AntdTable(
+                                                                    id='c_i_info_unit2-table',
+                                                                    columns=[
+                                                                        {
+                                                                            "title": title,
+                                                                            "dataIndex": dataIndex,
+                                                                            "width": '{:.2f}%'.format(100 / 10),
+                                                                            "align": "center",
+                                                                            "headerCellStyle": {
+                                                                                "fontWeight": 'bold',
+                                                                                "border": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent'
+                                                                            },
+                                                                            "cellStyle": {
+                                                                                "borderRight": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent',
+                                                                            },
+                                                                            "renderOptions": {'renderType': 'tags'},
+                                                                        }
+                                                                        for title, dataIndex in [
+                                                                            ("吸气压力1", "pressure1"),
+                                                                            ("吸气压力2", "pressure2"),
+                                                                            ("高压压力1", "highPressure1"),
+                                                                            ("高压压力2", "highPressure2"),
+                                                                            ("新风温度", "temp1"),
+                                                                            ("回风温度", "temp2"),
+                                                                            ("送风温度", "temp3"),
+                                                                            ("CO2浓度", "co2"),
+                                                                            ("车厢温度", "carTemp"),
+                                                                            ("车厢湿度", "humidity")
+                                                                        ]
+                                                                    ],
+                                                                    size="small",
+                                                                    pagination=False,
+                                                                    bordered=False,
+                                                                    mode = 'client-side',
+                                                                    className = "cfault-table",
+                                                                    style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
                                                                 ),
                                                                 span=20
                                                             )
@@ -405,7 +401,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `送风温度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `送风温度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',
@@ -442,7 +438,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `湿度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `湿度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',
@@ -479,7 +475,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `车厢温度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `车厢温度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',
@@ -608,7 +604,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `送风温度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `送风温度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',
@@ -645,7 +641,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `湿度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `湿度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',
@@ -682,7 +678,7 @@ def render(themetoken):
                                                                 statistic={
                                                                     'content': {
                                                                         'formatter': {
-                                                                            'func': """({ percent }) => `车厢温度: ${(percent * 100).toFixed(1)}`"""
+                                                                            'func': """({ percent }) => `车厢温度: ${ percent }`"""
                                                                         },
                                                                         'style': {
                                                                             'color': 'cyan',

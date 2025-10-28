@@ -148,7 +148,7 @@ def render(themetoken, url_params=None):
                                 'backgroundColor': 'transparent'
                             },
                         ),
-                        text='数据加载中',
+                        text='',
                         ),
                     ),
                     span=24,
@@ -226,7 +226,7 @@ def render(themetoken, url_params=None):
                                                                             'backgroundColor': 'transparent'
                                                                         },
                                                                     ),
-                                                                    text='数据加载中',
+                                                                    text='',
                                                                 ),
                                                                 span=24,
                                                                 style={

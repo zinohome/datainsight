@@ -2,7 +2,7 @@ from peewee import Model, CharField, DateTimeField, IntegerField, TextField
 from pytz import timezone
 from orm.db import db, initialize_db, close_db  # 导入db模块
 
-class Chart_view_fault_timed(Model):
+class Chart_table_fault_timed(Model):
     msg_calc_dvc_no = CharField(max_length=50, verbose_name='车厢')
     dvc_train_no = CharField(max_length=50, verbose_name='车号')
     dvc_carriage_no = IntegerField(verbose_name='车厢号')
@@ -31,7 +31,7 @@ class Chart_view_fault_timed(Model):
     
     class Meta:
         database = db  # 使用db.py中的数据库连接
-        table_name = 'c_chart_view_fault_timed'
+        table_name = 'sec_fault_records'
         primary_key = False
         schema = 'public'
         indexes = (

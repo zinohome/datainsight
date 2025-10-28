@@ -66,6 +66,7 @@ def render(themetoken):
                                             fac.AntdSelect(
                                                 options=BaseConfig.carriage_select_options,
                                                 style={'width': 100},
+                                                mode='multiple',
                                                 id='p_carriage_no'
                                             ),
                                             label='车厢号'
@@ -82,7 +83,7 @@ def render(themetoken):
                                         fac.AntdFormItem(
                                             fac.AntdDateRangePicker(
                                                 placeholder=['从日期时间', '到日期时间'],
-                                                showTime={'defaultValue': ['08:30:00', '17:30:00']},
+                                                showTime={'defaultValue': ['08:30:00', '08:44:30']},
                                                 style={'width': 280},
                                                 needConfirm=True,
                                                 id='p_start_time_range'
@@ -96,6 +97,16 @@ def render(themetoken):
                                     layout='inline',
                                     style={'justifyContent': 'center'},
                                 ),
+                                html.Div(id='global-message-trigger', style={'display': 'none'}),
+
+                                # 2. 真正的提示组件，永久挂载，不自动闪现
+                                fac.AntdMessage(
+                                    content='时间间隔不能超过 15 分钟，已自动调整',
+                                    type='warning',
+                                    duration=3,
+                                    id='param-message',
+                                    maxCount=0          # 关键：初始不让它弹
+                                )
                             ]
                         )
                     ),
@@ -108,12 +119,6 @@ def render(themetoken):
                         titleStyle={"color": themetoken["colorText"]},
                         descriptionStyle={"color": themetoken["colorText"]},
                         title="参数运行数据",
-                        description=html.A(
-                            "一期运行参数",
-                            href=BaseConfig.external_param_url,
-                            target=BaseConfig.external_link_target,
-                            style={"textDecoration": "none"}
-                        ),
                         height="calc(70vh - 20px)",
                         chart=
                         fac.AntdSpin(
@@ -126,8 +131,8 @@ def render(themetoken):
                                 'leave': {'animation': 'fade-out', 'duration': 400, 'delay': 0}
                             },
                             data=[],  # 初始为空，由回调填充
-                            xField="time_minute",
-                            yField="avg_value",
+                            xField="msg_calc_dvc_time",
+                            yField="param_value",
                             seriesField="param_name",
                             smooth=True,
                             theme={
@@ -135,13 +140,13 @@ def render(themetoken):
                                 "background":"transparent",
                             },
                             slider={},
-                            isStack=True,
+                            isStack=False,
                             color=["#1890ff", "#faad14", "#52c41a",
                                    "#ff4d4f", "#722ed1", "#fa8c16",
                                    "#13c2c2", "#7cb305", "#ff7a45",
                                    "#2f54eb", "#f5222d", "#fa8c16"],
                         ),
-                        text='数据加载中',
+                        text='',
                         ),
                     ),
                     span=24,

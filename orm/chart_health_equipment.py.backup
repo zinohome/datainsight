@@ -6,7 +6,6 @@ class ChartHealthEquipment(Model):
     """chart_health_equipment视图的ORM模型
     该视图通过UNION ALL组合了dev_view_health_equipment_mat和pro_view_health_equipment_mat两个表的健康状态数据
     """
-    车厢 = CharField(max_length=50, verbose_name='车厢')
     车号 = CharField(max_length=50, verbose_name='车号')
     车厢号 = IntegerField(verbose_name='车厢号')
     部件 = CharField(max_length=200, verbose_name='部件')
@@ -19,7 +18,7 @@ class ChartHealthEquipment(Model):
         table_name = 'c_chart_health_equipment'
         primary_key = False
         schema = 'public'
-        ordering = ['-耗用率']
+        ordering = ['车号', '车厢号', '-耗用率']
         indexes = (
             (('车号', '车厢号'), False),
             (('部件',), False),

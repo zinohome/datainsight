@@ -1,9 +1,12 @@
 import dash
-from flask import request
+from flask import request, redirect, send_from_directory
 from user_agents import parse
 from dash_offline_detect_plugin import setup_offline_detect_plugin
 import logging
-
+import os
+import mimetypes
+# 防止系统缺失注册
+mimetypes.add_type('image/svg+xml', '.svg')
 # 应用基础参数
 from configs import BaseConfig
 
@@ -20,10 +23,28 @@ app = dash.Dash(
     title=BaseConfig.app_title,
     suppress_callback_exceptions=True,
     compress=True,  # 隐式依赖flask-compress
-    update_title=None
+    update_title=None,
+    requests_pathname_prefix='/sz16phmHVAC2/',  # 末尾一定要有 /
+    routes_pathname_prefix='/sz16phmHVAC2/',
+    assets_url_path='sz16phmHVAC2/assets',
+    assets_folder='assets',                     # ← 你的硬盘目录（默认就是 assets）
+    serve_locally=True,                         # ← 关键2：必须本地服务
 )
 
 server = app.server
+
+@app.server.route('/assets/<path:filename>')
+def redirect_old_assets(filename):
+    return redirect(f'/sz16phmHVAC2/assets/{filename}', code=301)
+
+# ② 把 /sz16phmHVAC2/assets 真正挂到硬盘 assets/
+@app.server.route('/sz16phmHVAC2/assets/<path:filename>')
+def serve_assets(filename):
+    return send_from_directory(
+        os.path.join(app.server.root_path, 'assets'),
+        filename,
+        mimetype='image/svg+xml' if filename.lower().endswith('.svg') else None
+    )
 
 @app.server.before_request
 def check_browser():

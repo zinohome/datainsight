@@ -178,7 +178,7 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                                             'backgroundColor': 'transparent'
                                                                         },
                                                                     ),
-                                                                    text='数据加载中',
+                                                                    text='',
                                                                 ),
                                                                 span=4,  # 6个表格，每个占4列，共24列
                                                                 style={

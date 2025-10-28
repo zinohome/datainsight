@@ -1,11 +1,67 @@
 import dash
-from dash.dependencies import Input, Output, State
-from dash import no_update
+from dash.dependencies import Input, Output, State, MATCH
+from dash import no_update, dcc
 
 from configs import BaseConfig
 
 prefix = BaseConfig.project_prefix
+menu_data = [
+    {
+        "title": "线路",
+        "key": f"/{prefix}/line",
+        "href": f"/{prefix}/line",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/line-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/line-icon-active.svg",
+    },
+    {
+        "title": "列车",
+        "key": f"/{prefix}/train",
+        "href": f"/{prefix}/train",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/train-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/train-icon-active.svg",
+    },
+    {
+        "title": "车厢",
+        "key": f"/{prefix}/carriage",
+        "href": f"/{prefix}/carriage",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/carriage-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/carriage-icon-active.svg",
+    },
+    {
+        "title": "参数",
+        "key": f"/{prefix}/param",
+        "href": f"/{prefix}/param",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/param-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/param-icon-active.svg",
+    },
+    {
+        "title": "故障",
+        "key": f"/{prefix}/fault",
+        "href": f"/{prefix}/fault",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/fault-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/fault-icon-active.svg",
+    },
+    {
+        "title": "寿命",
+        "key": f"/{prefix}/health",
+        "href": f"/{prefix}/health",
+        "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/health-icon.svg",
+        "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/health-icon-active.svg",
+    },
+    ]
+
 def register_dashboard_menu_callbacks(app):
+    @app.callback(
+        Output({"type": "menu-item-icon", "index": MATCH}, "src"),
+        Input('current-key-store', 'data'),
+        State({"type": "menu-item-icon", "index": MATCH}, "id"),
+    )
+    def update_icon(current_key, icon_id):
+        for item in menu_data:
+            if item["key"] == icon_id["index"]:
+                return item["icon_src_active"] if current_key == item["key"] else item["icon_src"]
+        return no_update
+
     """注册仪表盘菜单相关回调"""
     # 线路菜单回调
     @app.callback(
@@ -105,24 +161,15 @@ def register_dashboard_menu_callbacks(app):
     
     # 注册菜单状态同步回调
     @app.callback(
-        Output('dashboard-side-menu', 'currentKey'),
-        Input('root-url', 'pathname'),
+        Output('current-key-store', 'data'),
+        Input('url', 'pathname'),
         prevent_initial_call=True
     )
     def sync_menu_current_key(pathname):
-        # 匹配路径
-        if pathname == f'/{prefix}/line':
-            return f'/{prefix}/line'
-        elif pathname == f'/{prefix}/train':
-            return f'/{prefix}/train'
-        elif pathname == f'/{prefix}/carriage':
-            return f'/{prefix}/carriage'
-        elif pathname == f'/{prefix}/param':
-            return f'/{prefix}/param'
-        elif pathname == f'/{prefix}/fault':
-            return f'/{prefix}/fault'
-        elif pathname == f'/{prefix}/health':
-            return f'/{prefix}/health'
+        for item in menu_data:
+            if pathname == item["key"]:
+                print(f"Setting currentKey to: {item['key']}")
+                return item["key"]
         # 默认返回线路页面
         return f'/{prefix}/line'
 

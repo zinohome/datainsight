@@ -3,13 +3,11 @@ from pytz import timezone
 from orm.db import db, initialize_db, close_db  # 导入db模块
 
 class Chart_view_fault_timed(Model):
-    msg_calc_dvc_no = CharField(max_length=50, verbose_name='车厢')
     dvc_train_no = CharField(max_length=50, verbose_name='车号')
     dvc_carriage_no = IntegerField(verbose_name='车厢号')
-    fault_name = CharField(max_length=200, verbose_name='故障名称')
+    param_name = CharField(max_length=200, verbose_name='故障名称')
     start_time = DateTimeField(verbose_name='开始时间')
     end_time = DateTimeField(verbose_name='结束时间')
-    update_time = DateTimeField(verbose_name='更新时间')
     status = CharField(max_length=20, verbose_name='状态')
     fault_level = IntegerField(verbose_name='故障等级')
     fault_type = CharField(max_length=50, verbose_name='类型')

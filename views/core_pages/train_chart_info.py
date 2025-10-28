@@ -1,4 +1,4 @@
-from dash import html, dcc
+from dash import html, dcc, get_asset_url
 import feffery_antd_components as fac
 
 from configs import BaseConfig
@@ -45,7 +45,8 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                             children=[
                                 # 车头（左侧图片）
                                 html.Img(
-                                    src="/assets/imgs/train_headL.png",  # 车头左侧图片
+                                    #src="/sz16phmHVAC2/assets/imgs/train_headL.png",  # 车头左侧图片
+                                    src=get_asset_url("imgs/train_headL.png"),
                                     style={
                                         "flex": "0 0 44px",
                                         "height": "74px",
@@ -61,9 +62,11 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                             "flex": "1 1 auto",  # 等比例分配剩余空间
                                             "minWidth": "60px",  # 最小宽度限制，防止过度压缩
                                             "display": "flex",
-                                            "flexDirection": "column",  # 垂直排列图片和数字
+                                            "flexDirection": "column",  # 垂直排列图片
                                             "alignItems": "center",  # 水平居中
-                                            "borderLeft": "0px dashed white"  # 车厢间分隔线
+                                            "justifyContent": "flex-start",  # 垂直靠上
+                                            "borderLeft": "0px dashed white",  # 车厢间分隔线
+                                            "height": "74px",          # 与图片总高一致
                                         },
                                         children=[
                                             html.Div(
@@ -75,12 +78,14 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                 children=[
                                                     # 车厢左侧图片
                                                     html.Img(
-                                                        src="/assets/imgs/train_bodyL.png",
+                                                        #src="/sz16phmHVAC2/assets/imgs/train_bodyL.png",
+                                                        src=get_asset_url("imgs/train_bodyL.png"),
                                                         style={"width": "50%", "height": "100%", "objectFit": "cover"}
                                                     ),
                                                     # 车厢右侧图片
                                                     html.Img(
-                                                        src="/assets/imgs/train_bodyR.png",
+                                                        #src="/sz16phmHVAC2/assets/imgs/train_bodyR.png",
+                                                        src=get_asset_url("imgs/train_bodyR.png"),
                                                         style={"width": "50%", "height": "100%", "objectFit": "cover"}
                                                     )
                                                 ]
@@ -92,7 +97,8 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                     "color": "white",
                                                     "fontSize": "14px",
                                                     "fontWeight": "bold",
-                                                    "marginTop": "5px"
+                                                    "marginTop": "auto",   # 关键：顶到最下面
+                                                    "paddingBottom": "2px" # 微调，看着不贴边
                                                 }
                                             )
                                         ]
@@ -100,7 +106,8 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                 ) for i in range(6)],  # 6节车厢
                                 # 车尾（右侧图片）
                                 html.Img(
-                                    src="/assets/imgs/train_headR.png",  # 车尾右侧图片
+                                    #src="/sz16phmHVAC2/assets/imgs/train_headR.png",  # 车尾右侧图片
+                                    src=get_asset_url("imgs/train_headR.png"),
                                     style={
                                         "flex": "0 0 44px",
                                         "height": "74px",
@@ -138,59 +145,56 @@ def create_train_chart_info(themetoken, page_name, train_no=None):
                                                     fac.AntdRow(
                                                         [
                                                             fac.AntdCol(
-                                                                fac.AntdSpin(
-                                                                    fac.AntdTable(
-                                                                        id=f'c_i_info_table{tbl}',
-                                                                        columns=[
-                                                                            {
-                                                                                'title': column,
-                                                                                'dataIndex': column,
-                                                                                'width': '{:.2f}%'.format(100 / len(c_i_info_table_colnames)),
-                                                                                'headerCellStyle': {
-                                                                                    'fontWeight': 'bold',
-                                                                                    'border': 'none',
-                                                                                    'borderBottom': '1px solid #e8e8e8',
-                                                                                    'color': themetoken["colorText"],
-                                                                                    'backgroundColor': 'transparent'
-                                                                                },
-                                                                                'cellStyle': {
-                                                                                    'borderRight': 'none',
-                                                                                    'borderBottom': '1px solid #e8e8e8',
-                                                                                    'color': themetoken["colorText"],
-                                                                                    'backgroundColor': 'transparent'
-                                                                                },
-                                                                                'renderOptions': {'renderType': 'tags'},
-                                                                            }
-                                                                            for column in c_i_info_table_colnames
-                                                                        ],
-                                                                        size='small',
-                                                                        pagination=False,
-                                                                        bordered=False,
-                                                                        maxHeight=50,
-                                                                        mode='server-side',
-                                                                        className="cfault-table",
-                                                                        style={
-                                                                            'height': '100%',
-                                                                            'width': '100%',
-                                                                            'border': 'none',
-                                                                            'border-collapse': 'collapse',
-                                                                            'border-spacing': '0',
-                                                                            'backgroundColor': 'transparent'
-                                                                        },
-                                                                    ),
-                                                                    text='数据加载中',
+                                                                fac.AntdTable(
+                                                                    id=f'c_i_info_table{tbl}',
+                                                                    columns=[
+                                                                        {
+                                                                            'title': column,
+                                                                            'dataIndex': column,
+                                                                            'width': '{:.2f}%'.format(100 / len(c_i_info_table_colnames)),
+                                                                            'headerCellStyle': {
+                                                                                'fontWeight': 'bold',
+                                                                                'border': 'none',
+                                                                                'borderBottom': '1px solid #e8e8e8',
+                                                                                'color': themetoken["colorText"],
+                                                                                'backgroundColor': 'transparent'
+                                                                            },
+                                                                            'cellStyle': {
+                                                                                'borderRight': 'none',
+                                                                                'borderBottom': '1px solid #e8e8e8',
+                                                                                'color': themetoken["colorText"],
+                                                                                'backgroundColor': 'transparent'
+                                                                            },
+                                                                            'renderOptions': {'renderType': 'tags'},
+                                                                        }
+                                                                        for column in c_i_info_table_colnames
+                                                                    ],
+                                                                    size='small',
+                                                                    pagination=False,
+                                                                    bordered=False,
+                                                                    maxHeight=60,
+                                                                    mode='server-side',
+                                                                    className="cfault-table",
+                                                                    style={
+                                                                        'height': '100%',
+                                                                        'width': '100%',
+                                                                        'border': 'none',
+                                                                        'border-collapse': 'collapse',
+                                                                        'border-spacing': '0',
+                                                                        'backgroundColor': 'transparent'
+                                                                    },
                                                                 ),
                                                                 span=4,  # 6个表格，每个占4列，共24列
                                                                 style={
-                                                                    'maxHeight': '60px',  # 调整表格最大高度
+                                                                    'maxHeight': '80px',  # 调整表格最大高度
                                                                     'overflow': 'hidden',
-                                                                    'padding': '0 2px'
+                                                                    'padding': '1px 2px'
                                                                 }
                                                             )
                                                             for tbl in range (1, 7)
                                                         ],
                                                         style={
-                                                            'height': '60px',  # 调整行高度
+                                                            'height': '80px',  # 调整行高度
                                                             'overflow-y': 'hidden',
                                                             'padding': '0',  # 移除上下内边距
                                                             'width': '100%'

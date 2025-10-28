@@ -144,7 +144,7 @@ def core_router(
     #     page_content = independent_page.render()
 
     # 新增数据大屏入口页路由处理
-    elif pathname == f"/{prefix}":  # 修正路径：
+    elif pathname == f"/{prefix}/":  # 修正路径：
         # 更新页面返回内容
         page_content = dashboard.render()  # 使用数据大屏入口页组件
 

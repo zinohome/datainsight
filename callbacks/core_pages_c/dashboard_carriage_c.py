@@ -25,29 +25,49 @@ prefix = BaseConfig.project_prefix
 @callback(
     Output('c_url-params-store', 'data'),
     Input('url', 'search'),
+    State('c_url-params-store', 'data'),
     prevent_initial_call=False
 )
-def update_url_params(search):
+def update_url_params(search, current_data):
     log.debug(f"[update_url_params] 开始解析URL参数: {search}")
-    parsed_train = ''
-    parsed_carriage = ''
+    
+    # 如果search为空，保持当前数据不变
+    if not search:
+        return current_data or {'train_no': None, 'carriage_no': None}
+    
+    try:
+        from urllib.parse import urlparse, parse_qs
+        params = parse_qs(search.lstrip('?'))
+        
+        # 获取新参数
+        new_train = params.get('train_no', [''])[0]
+        new_carriage = params.get('carriage_no', [''])[0]
+        
+        # 如果参数没有实际变化，保持当前数据
+        if (current_data and 
+            current_data.get('train_no') == new_train and 
+            current_data.get('carriage_no') == new_carriage):
+            return current_data
+            
+        return {
+            'train_no': new_train,
+            'carriage_no': new_carriage
+        }
+    except Exception as e:
+        log.error(f"[update_url_params] 解析URL参数错误: {e}")
+        return current_data or {'train_no': None, 'carriage_no': None}
 
-    if search:
-        try:
-            from urllib.parse import urlparse, parse_qs
-            params = parse_qs(search.lstrip('?'))
-            parsed_train = params.get('train_no', [''])[0]
-            parsed_carriage = params.get('carriage_no', [''])[0]
-        except Exception as e:
-            log.error(f"[update_url_params] 解析URL参数错误: {e}")
+@callback(
+    Output('param-link', 'href'),
+    Input('c_url-params-store', 'data')
+)
+def update_param_link(url_params):
+    if not url_params:
+        return f"/{BaseConfig.project_prefix}/param"
+    train_no = url_params.get('train_no', '')
+    carriage_no = url_params.get('carriage_no', '')
+    return f"/{BaseConfig.project_prefix}/param?train_no={train_no}&carriage_no={carriage_no}"
 
-    result = {
-        'train_no': parsed_train,
-        'carriage_no': parsed_carriage
-    }
-
-    log.debug(f"[update_url_params] URL参数解析完成，存储结果: {result}")
-    return result
 
 # 同步URL参数到表单回调
 @callback(
@@ -58,13 +78,18 @@ def update_url_params(search):
     prevent_initial_call=True
 )
 def sync_url_params_to_form(modified_timestamp, url_params):
-    time.sleep(0.5)  # 等待前端元素加载
+    # time.sleep(0.5)  # 等待前端元素加载
     log.debug(f"[sync_url_params_to_form] 同步URL参数到表单: {url_params}")
     if not isinstance(url_params, dict):
         return None, None
 
     train_no = url_params.get('train_no') or None
     carriage_no = url_params.get('carriage_no') or None
+    # 添加参数验证
+    if train_no is not None:
+        train_no = str(train_no).strip()
+    if carriage_no is not None:
+        carriage_no = str(carriage_no).strip()
     return train_no, carriage_no
 
 # 更新车厢图链接回调
@@ -77,7 +102,7 @@ def update_carriage_chart_info(train_no, theme_mode):
     log.debug(f"[update_carriage_chart_info] 更新列车图链接，train_no: {train_no}")
     themetoken = LayoutConfig.dashboard_theme
     # 创建新的列车图链接
-    return create_train_chart_info(themetoken, 'param', train_no)
+    return create_train_chart_info(themetoken, 'carriage', train_no)
     """
     根据车号和车厢号更新列车图链接
     :param train_no: 车号
@@ -92,8 +117,10 @@ def update_carriage_chart_info(train_no, theme_mode):
 # 从数据库获取所有故障数据的函数
 
 def get_all_fault_data(train_no=None, carriage_no=None):
+    twenty_four_hours_ago = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(hours=24)
     # 构建查询，获取所有故障类型的数据
-    query = Chart_view_fault_timed.select()
+    query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.update_time >= twenty_four_hours_ago) & 
+                                                  (Chart_view_fault_timed.status == '持续'))
     # 按开始时间降序排序
     query = query.order_by(Chart_view_fault_timed.start_time.desc())
 
@@ -178,7 +205,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no)
     formatted_warning = [{
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
-        '预警部件': item['param_name'],
+        '预警部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
         '操作': {'href': f'/{prefix}/fault?train_no={str(item["dvc_train_no"])}&carriage_no={str(item["dvc_carriage_no"])}&fault_type=预警', 'target': '_self'}
     } for item in warning_data]
@@ -187,7 +214,7 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no, carriage_no)
     formatted_fault = [{
         '车号': item['dvc_train_no'],
         '车厢号': item['dvc_carriage_no'],
-        '故障部件': item['param_name'],
+        '故障部件': item['fault_name'],
         '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
         '操作': {'href': f'/{prefix}/fault?train_no={str(item["dvc_train_no"])}&carriage_no={str(item["dvc_carriage_no"])}&fault_type=故障', 'target': '_self'}
     } for item in fault_data]
@@ -332,9 +359,9 @@ def update_carriage_info_tables(n_intervals, url_params, n_clicks, train_no):
             # 提取需要的字段并格式化为标签
             formatted_data = [{
                 '运行模式': {'tag': mode_text, 'color': mode_color},
-                '目标温度': {'tag': f"{item['目标温度']:.1f}°C", 'color': 'cyan'},
-                '新风温度': {'tag': f"{item['新风温度']:.1f}°C", 'color': 'cyan'},
-                '回风温度': {'tag': f"{item['回风温度']:.1f}°C", 'color': 'cyan'}
+                '目标温度': {'tag': f"{item['目标温度']:.1f}°C" if item['目标温度'] is not None else "无数据", 'color': 'cyan'},
+                '新风温度': {'tag': f"{item['新风温度']:.1f}°C" if item['新风温度'] is not None else "无数据", 'color': 'cyan'},
+                '回风温度': {'tag': f"{item['回风温度']:.1f}°C" if item['回风温度'] is not None else "无数据", 'color': 'cyan'}
             }]
             table_data.append(formatted_data)
         else:
@@ -471,12 +498,12 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
         'humidity': {'tag': f"{param_data.get('车厢湿度_2', 0):.1f}%", 'color': 'cyan'}
     }]
     # 计算各参数的百分比值（除以100并保留三位小数）
-    unit1_supply_temp = round(param_data.get('送风温度_u1', 0) / 100, 3)
-    unit1_humidity = round(param_data.get('车厢温度_1', 0) / 100, 3)  # 注意：用户要求将车厢温度_1赋值给湿度
-    unit1_car_temp = round(param_data.get('车厢温度_1', 0) / 100, 3)
-    unit2_supply_temp = round(param_data.get('送风温度_u2', 0) / 100, 3)
-    unit2_humidity = round(param_data.get('车厢湿度_2', 0) / 100, 3)
-    unit2_car_temp = round(param_data.get('车厢温度_2', 0) / 100, 3)
+    unit1_supply_temp = float(f"{param_data.get('送风温度_u1', 0):.1f}")
+    unit1_humidity = float(f"{param_data.get('车厢湿度_1', 0):.1f}")
+    unit1_car_temp = float(f"{param_data.get('车厢温度_1', 0):.1f}")
+    unit2_supply_temp = float(f"{param_data.get('送风温度_u2', 0):.1f}")
+    unit2_humidity = float(f"{param_data.get('车厢湿度_2', 0):.1f}")
+    unit2_car_temp = float(f"{param_data.get('车厢温度_2', 0):.1f}")
 
     # 获取各机组电流数据
     unit1_current1_data = get_carriage_param_current_data(train_no, carriage_no, 'U11')

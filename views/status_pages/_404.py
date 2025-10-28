@@ -10,7 +10,7 @@ def render():
         fac.AntdResult(
             # 自定义状态图片
             icon=html.Img(
-                src="/assets/imgs/status/404.svg",
+                src="/sz16phmHVAC2/assets/imgs/status/404.svg",
                 style=style(height="50vh", pointerEvents="none"),
             ),
             title=fac.AntdText("当前页面不存在", style=style(fontSize=20)),

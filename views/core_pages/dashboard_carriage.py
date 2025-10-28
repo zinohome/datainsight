@@ -63,7 +63,7 @@ def render():
             direction="vertical",
             style=style(width="100%",
                         # 背景图片配置（替换为你的图片路径）
-                        backgroundImage="url('/assets/imgs/dashboard-bg.png')",
+                        backgroundImage="url('/sz16phmHVAC2/assets/imgs/dashboard-bg.png')",
                         backgroundSize="cover",  # 图片覆盖容器
                         backgroundRepeat="no-repeat",  # 不重复
                         backgroundPosition="center",  # 居中显示

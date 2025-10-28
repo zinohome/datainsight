@@ -141,7 +141,7 @@ def render(themetoken):
                                    "#13c2c2", "#7cb305", "#ff7a45",
                                    "#2f54eb", "#f5222d", "#fa8c16"],
                         ),
-                        text='数据加载中',
+                        text='',
                         ),
                     ),
                     span=24,

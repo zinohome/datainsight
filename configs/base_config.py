@@ -23,9 +23,9 @@ class BaseConfig:
 
     # 项目前缀
     #project_prefix: str = 'macda/dashboard'
-    project_prefix: str = 'macdadash'
+    project_prefix: str = 'sz16phmHVAC2'
     # setup_offline_detect
-    setup_offline_detect: bool = True
+    setup_offline_detect: bool = False
 
     # 数据库连接配置参数
     db_dbname: str = 'postgres'
@@ -42,10 +42,10 @@ class BaseConfig:
     # 日志配置参数
     app_log_filename: str = 'app.log'
     app_log_level: str = 'DEBUG'
-    app_peewee_debug_log: bool = False
+    app_peewee_debug_log: bool = True
 
     # 数据刷新时间配置
-    line_update_data_interval: int = 5000
+    line_update_data_interval: int = 15000
     fault_update_data_interval: int = 10000
 
     #下拉选择框配置
@@ -57,12 +57,6 @@ class BaseConfig:
         {"label": "1637车", "value": "1637"},
         {"label": "1638车", "value": "1638"},
         {"label": "1639车", "value": "1639"},
-        {"label": "1640车", "value": "1640"},
-        {"label": "1641车", "value": "1641"},
-        {"label": "1642车", "value": "1642"},
-        {"label": "1643车", "value": "1643"},
-        {"label": "1644车", "value": "1644"},
-        {"label": "12101车", "value": "12101"},
     ]
     carriage_select_options: List[dict] = [
         {"label": "1车厢", "value": "1"},
@@ -77,23 +71,28 @@ class BaseConfig:
     fault_predict_time_limit_in_24hrs: bool = False
 
     # 部件耗用率选择
-    #health_bar_data_rnd = ['1633', '1634', '1635', '1636', '1637', '1638', '1639', '1640', '1641', '1642', '1643', '1644', '12101']
-    health_bar_data_rnd: List[str] = ['12101']
+    health_bar_data_rnd = ['1633', '1634', '1635', '1636', '1637', '1638', '1639']
+    # health_bar_data_rnd: List[str] = ['12101']
 
     # 外部连接配置
     # 外部链接打开方式 ['_blank', '_self', '_parent', '_top']
-    external_link_target: str = '_blank'
+    external_link_target: str = '_parent'
     # 首页-“一期空调状态跳转地址”
-    external_main_status_url: str = 'https://www.baidu.com'
+    external_main_status_url: str = 'http://192.168.1.21/sz16phmhvac/index.html'
     # 首页-“一期故障跳转地址”
-    external_main_fault_url: str = 'https://www.baidu.com'
+    external_main_fault_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/list'
     # 首页-“一期预警跳转地址”
-    external_main_predict_url: str = 'https://www.baidu.com'
+    external_main_predict_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/list'
     # 首页-“一期寿命跳转地址”
-    external_main_health_url: str = 'https://www.baidu.com'
+    external_main_health_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/LifePredictionList'
     # 设备参数页面-“一期运行参数跳转地址”
-    external_param_url: str = 'https://www.baidu.com'
+    external_param_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/Keychar'
     # 设备参数页面-“一期故障&预警跳转地址”
-    external_fault_url: str = 'https://www.baidu.com'
-    # 设备参数页面-“一期空调寿命跳转地址”
-    external_health_url: str = 'https://www.baidu.com'
+    external_fault_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/list'
+    # 设备参数页面-"一期空调寿命跳转地址"
+    external_health_url: str = 'http://192.168.1.21/sz16phmhvac/index.html#/LifePredictionList'
+    
+    # 车厢字段选择配置
+    # True: 使用 msg_calc_dvc_no 字段（车厢）
+    # False: 使用 dvc_carriage_no 字段（车厢号）
+    use_carriage_field: bool = False
