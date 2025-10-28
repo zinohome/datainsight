@@ -43,7 +43,7 @@ def render():
                                 style=style(
                                     padding=15,
                                     width="100%",
-                                    overflowX="auto",
+                                    overflow="hidden",  # 改为hidden，避免出现滚动条
                                     marginLeft='50px',
                                     backgroundColor=themetoken["colorBgContainer"],
                                     height="calc(100vh - 30px)",  # 减去内边距高度
@@ -54,9 +54,9 @@ def render():
                         ],
                          style=style(
                              display="flex",
-                             minHeight="100vh",
+                             height="100vh",  # 改为固定高度，避免内容超出
                              boxSizing="border-box",
-                             overflowY="hidden",
+                             overflow="hidden",  # 完全隐藏滚动条
                          ),
                          ),
             ],
