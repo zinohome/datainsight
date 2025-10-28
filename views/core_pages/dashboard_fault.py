@@ -53,9 +53,9 @@ def render():
                         ],
                          style=style(
                              display="flex",
-                             minHeight="100vh",
+                             height="100vh",  # 改为固定高度，避免内容超出
                              boxSizing="border-box",
-                             overflowY="hidden",
+                             overflow="hidden",  # 完全隐藏滚动条
                          ),
                          ),
             ],
