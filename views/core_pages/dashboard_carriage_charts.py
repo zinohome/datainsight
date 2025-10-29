@@ -233,7 +233,7 @@ def render(themetoken):
                                                         [
                                                             fac.AntdCol(
                                                                 html.Img(
-                                                                    src="/sz16phmHVAC2/assets/imgs/circle_svg_unit1.svg",
+                                                                    src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit1.svg",
                                                                     style={"width": "100px", "height": "100px", "objectFit": "contain"}
                                                                 ),
                                                                 style={"textAlign": "right"},
@@ -295,7 +295,7 @@ def render(themetoken):
                                                         [
                                                             fac.AntdCol(
                                                                 html.Img(
-                                                                    src="/sz16phmHVAC2/assets/imgs/circle_svg_unit2.svg",
+                                                                    src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit2.svg",
                                                                     style={"width": "100px", "height": "100px", "objectFit": "contain"}
                                                                 ),
                                                                 style={"textAlign": "right"},

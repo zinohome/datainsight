@@ -1,6 +1,7 @@
 from dash import html
 import feffery_antd_components as fac
 from feffery_dash_utils.style_utils import style
+from configs import BaseConfig
 
 
 def render(e: str = None):
@@ -13,7 +14,7 @@ def render(e: str = None):
         fac.AntdResult(
             # 自定义状态图片
             icon=html.Img(
-                src="/sz16phmHVAC2/assets/imgs/status/500.svg",
+                src=f"/{BaseConfig.project_prefix}/assets/imgs/status/500.svg",
                 style=style(height="50vh", pointerEvents="none"),
             ),
             title=fac.AntdText("系统内部错误", style=style(fontSize=20)),

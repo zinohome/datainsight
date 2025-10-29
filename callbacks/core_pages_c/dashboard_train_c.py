@@ -19,6 +19,8 @@ from orm.chart_view_train_opstatus import ChartViewTrainOpstatus
 from orm.chart_line_fault_type import ChartLineFaultType
 from orm.chart_line_fault_param_type import ChartLineFaultParamType
 from orm.chart_line_health_status_count import ChartLineHealthStatusCount
+# 导入共享的动态模型
+from utils.dynamic_models import get_dynamic_health_model, get_dynamic_fault_model
 from dash import dcc
 from views.core_pages.train_chart_link import create_train_chart_link
 from configs.layout_config import LayoutConfig
@@ -48,103 +50,6 @@ def update_url_on_query(nClicks, train_no):
     log.debug(f"[update_url_on_query] 更新URL参数: {search}")
     return search
 
-def get_dynamic_fault_model():
-    """
-    根据配置动态创建故障视图ORM模型
-    :return: 动态创建的ORM模型类
-    """
-    from peewee import Model, CharField, DateTimeField, IntegerField, TextField
-    from orm.db import db
-    
-    if BaseConfig.use_carriage_field:
-        # 使用车厢字段的模型
-        class DynamicChartViewFaultTimed(Model):
-            """动态故障视图模型 - 使用车厢字段"""
-            msg_calc_dvc_no = CharField(max_length=50, verbose_name='车厢')
-            dvc_train_no = CharField(max_length=50, verbose_name='车号')
-            fault_name = CharField(max_length=200, verbose_name='故障名称')
-            start_time = DateTimeField(verbose_name='开始时间')
-            end_time = DateTimeField(verbose_name='结束时间')
-            update_time = DateTimeField(verbose_name='更新时间')
-            status = CharField(max_length=20, verbose_name='状态')
-            fault_level = IntegerField(verbose_name='故障等级')
-            fault_type = CharField(max_length=50, verbose_name='类型')
-            repair_suggestion = TextField(verbose_name='维修建议')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_view_fault_timed'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-start_time']
-    else:
-        # 使用车厢号字段的模型
-        class DynamicChartViewFaultTimed(Model):
-            """动态故障视图模型 - 使用车厢号字段"""
-            dvc_train_no = CharField(max_length=50, verbose_name='车号')
-            dvc_carriage_no = IntegerField(verbose_name='车厢号')
-            fault_name = CharField(max_length=200, verbose_name='故障名称')
-            start_time = DateTimeField(verbose_name='开始时间')
-            end_time = DateTimeField(verbose_name='结束时间')
-            update_time = DateTimeField(verbose_name='更新时间')
-            status = CharField(max_length=20, verbose_name='状态')
-            fault_level = IntegerField(verbose_name='故障等级')
-            fault_type = CharField(max_length=50, verbose_name='类型')
-            repair_suggestion = TextField(verbose_name='维修建议')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_view_fault_timed'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-start_time']
-    
-    return DynamicChartViewFaultTimed
-
-def get_dynamic_health_model():
-    """
-    根据配置动态创建健康设备ORM模型
-    :return: 动态创建的ORM模型类
-    """
-    from peewee import Model, CharField, IntegerField, FloatField
-    from orm.db import db
-    
-    if BaseConfig.use_carriage_field:
-        # 使用车厢字段的模型
-        class DynamicChartHealthEquipment(Model):
-            """动态健康设备模型 - 使用车厢字段"""
-            车厢 = CharField(max_length=50, verbose_name='车厢')
-            车号 = CharField(max_length=50, verbose_name='车号')
-            部件 = CharField(max_length=200, verbose_name='部件')
-            耗用率 = FloatField(verbose_name='耗用率')
-            额定寿命 = FloatField(verbose_name='额定寿命')
-            已耗 = FloatField(verbose_name='已耗')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_health_equipment'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-耗用率']
-    else:
-        # 使用车厢号字段的模型
-        class DynamicChartHealthEquipment(Model):
-            """动态健康设备模型 - 使用车厢号字段"""
-            车号 = CharField(max_length=50, verbose_name='车号')
-            车厢号 = IntegerField(verbose_name='车厢号')
-            部件 = CharField(max_length=200, verbose_name='部件')
-            耗用率 = FloatField(verbose_name='耗用率')
-            额定寿命 = FloatField(verbose_name='额定寿命')
-            已耗 = FloatField(verbose_name='已耗')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_health_equipment'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-耗用率']
-    
-    return DynamicChartHealthEquipment
 # 解析URL参数回调
 @callback(
     Output('t_url-params-store', 'data'),
@@ -486,20 +391,14 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
         return (
             [],  # 预警表格数据
             [],  # 故障表格数据
-            [],  # 故障词云数据
-            [],  # 预警词云数据
             [],  # 健康表格数据
-            [],  # 健康柱状图数据
             0,   # 预警数量
             0,   # 告警数量
             0,   # 总异常数量
             0,   # 健康期空调数量
             0,   # 亚健康期空调数量
             0,   # 故障期空调数量
-            [],  # 正常运营圆环图annotations
-            [],  # 加强跟踪圆环图annotations
-            [],  # 计划维修圆环图annotations
-            []   # 立即维修圆环图annotations
+            []   # 故障部件统计
         )
 
     all_data = get_all_fault_data(selected_train_no)

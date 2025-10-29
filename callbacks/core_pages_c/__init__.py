@@ -113,7 +113,7 @@ def core_router(
     )
 
     # 以首页做简单示例
-    if pathname == "/":
+    if pathname == "/" or pathname == f"/{prefix}/":
         # 更新页面返回内容
         page_content = index.render()
 

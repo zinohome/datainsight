@@ -15,6 +15,7 @@ from feffery_dash_utils.template_utils.dashboard_components import (
 from components import dashboard_side_menu
 # 新增导入LayoutConfig
 from configs.layout_config import LayoutConfig
+from configs import BaseConfig
 import callbacks.core_pages_c.dashboard_carriage_c
 from views.core_pages import dashboard_carriage_charts
 
@@ -63,7 +64,7 @@ def render():
             direction="vertical",
             style=style(width="100%",
                         # 背景图片配置（替换为你的图片路径）
-                        backgroundImage="url('/sz16phmHVAC2/assets/imgs/dashboard-bg.png')",
+                        backgroundImage=f"url('/{BaseConfig.project_prefix}/assets/imgs/dashboard-bg.png')",
                         backgroundSize="cover",  # 图片覆盖容器
                         backgroundRepeat="no-repeat",  # 不重复
                         backgroundPosition="center",  # 居中显示

@@ -112,7 +112,7 @@ def render(current_pathname: str = None):
                                         [
                                             # logo
                                             html.Img(
-                                                src="/sz16phmHVAC2/assets/imgs/logo.svg",
+                                                src=f"/{BaseConfig.project_prefix}/assets/imgs/logo.svg",
                                                 height=32,
                                                 style=style(display="block"),
                                             ),

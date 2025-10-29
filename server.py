@@ -18,27 +18,35 @@ if BaseConfig.app_peewee_debug_log:
     logging.basicConfig()
     logging.getLogger('peewee').setLevel(logging.DEBUG)
 
+prefix = BaseConfig.project_prefix
+
 app = dash.Dash(
     __name__,
     title=BaseConfig.app_title,
     suppress_callback_exceptions=True,
     compress=True,  # 隐式依赖flask-compress
     update_title=None,
-    requests_pathname_prefix='/sz16phmHVAC2/',  # 末尾一定要有 /
-    routes_pathname_prefix='/sz16phmHVAC2/',
-    assets_url_path='sz16phmHVAC2/assets',
+    requests_pathname_prefix=f'/{prefix}/',  # 末尾一定要有 /
+    routes_pathname_prefix=f'/{prefix}/',
+    assets_url_path=f'{prefix}/assets',
     assets_folder='assets',                     # ← 你的硬盘目录（默认就是 assets）
     serve_locally=True,                         # ← 关键2：必须本地服务
 )
 
 server = app.server
 
+# 添加根路径和根路径（无末尾/）的重定向规则
+@app.server.route('/')
+def redirect_root():
+    """将根路径重定向到应用首页"""
+    return redirect(f'/{prefix}/', code=301)
+
 @app.server.route('/assets/<path:filename>')
 def redirect_old_assets(filename):
-    return redirect(f'/sz16phmHVAC2/assets/{filename}', code=301)
+    return redirect(f'/{prefix}/assets/{filename}', code=301)
 
-# ② 把 /sz16phmHVAC2/assets 真正挂到硬盘 assets/
-@app.server.route('/sz16phmHVAC2/assets/<path:filename>')
+# ② 把 /{prefix}/assets 真正挂到硬盘 assets/
+@app.server.route(f'/{prefix}/assets/<path:filename>')
 def serve_assets(filename):
     return send_from_directory(
         os.path.join(app.server.root_path, 'assets'),

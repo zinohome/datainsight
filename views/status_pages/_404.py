@@ -1,6 +1,7 @@
 from dash import html
 import feffery_antd_components as fac
 from feffery_dash_utils.style_utils import style
+from configs import BaseConfig
 
 
 def render():
@@ -10,7 +11,7 @@ def render():
         fac.AntdResult(
             # 自定义状态图片
             icon=html.Img(
-                src="/sz16phmHVAC2/assets/imgs/status/404.svg",
+                src=f"/{BaseConfig.project_prefix}/assets/imgs/status/404.svg",
                 style=style(height="50vh", pointerEvents="none"),
             ),
             title=fac.AntdText("当前页面不存在", style=style(fontSize=20)),

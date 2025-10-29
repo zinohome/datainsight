@@ -98,6 +98,7 @@ class RouterConfig:
     # 有效页面pathname地址 -> 页面标题映射字典
     valid_pathnames: dict = {
         "/": "首页",
+        f"/{prefix}/": "首页",  # 添加带前缀的首页路径
         index_pathname: "首页",
         # 数据大屏路由映射
         f"/{prefix}": "数据大屏",

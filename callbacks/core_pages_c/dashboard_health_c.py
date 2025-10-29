@@ -13,51 +13,8 @@ from orm.d_chart_health_clean import DChartHealthClean
 from urllib.parse import urlparse, parse_qs
 import pandas as pd
 from io import BytesIO
-
-def get_dynamic_health_model():
-    """
-    根据配置动态创建健康设备ORM模型
-    :return: 动态创建的ORM模型类
-    """
-    from peewee import Model, CharField, IntegerField, FloatField
-    from orm.db import db
-    
-    if BaseConfig.use_carriage_field:
-        # 使用车厢字段的模型（当数据库中存在车厢字段时）
-        class DynamicChartHealthEquipment(Model):
-            """动态健康设备模型 - 使用车厢字段"""
-            车厢 = CharField(max_length=50, verbose_name='车厢')
-            车号 = CharField(max_length=50, verbose_name='车号')
-            部件 = CharField(max_length=200, verbose_name='部件')
-            耗用率 = FloatField(verbose_name='耗用率')
-            额定寿命 = FloatField(verbose_name='额定寿命')
-            已耗 = FloatField(verbose_name='已耗')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_health_equipment'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-耗用率']
-    else:
-        # 使用车厢号字段的模型（当数据库中存在车厢号字段时）
-        class DynamicChartHealthEquipment(Model):
-            """动态健康设备模型 - 使用车厢号字段"""
-            车号 = CharField(max_length=50, verbose_name='车号')
-            车厢号 = IntegerField(verbose_name='车厢号')
-            部件 = CharField(max_length=200, verbose_name='部件')
-            耗用率 = FloatField(verbose_name='耗用率')
-            额定寿命 = FloatField(verbose_name='额定寿命')
-            已耗 = FloatField(verbose_name='已耗')
-
-            class Meta:
-                database = db
-                table_name = 'c_chart_health_equipment'
-                primary_key = False
-                schema = 'public'
-                ordering = ['-耗用率']
-    
-    return DynamicChartHealthEquipment
+# 导入共享的动态模型
+from utils.dynamic_models import get_dynamic_health_model
 
 
 # 查询按钮点击时更新URL参数
@@ -112,7 +69,14 @@ def update_url_params(search):
             params = parse_qs(search.lstrip('?'))
             parsed_train = params.get('train_no', [''])[0]
             parsed_carriage = params.get('carriage_no', [''])[0]
-            parsed_component = params.get('component_type', [''])[0]
+            # 处理多选部件参数
+            component_param = params.get('component_type', [''])[0]
+            if component_param and ',' in component_param:
+                # 如果是逗号分隔的字符串，转换为数组
+                parsed_component = component_param.split(',')
+            else:
+                # 否则保持原样
+                parsed_component = component_param
         except Exception as e:
             log.error(f"[update_url_params] 解析URL参数错误: {e}")
 
