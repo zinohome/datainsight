@@ -1,5 +1,19 @@
 /* 核心页面样式 */
 
+/* 防双击CSS样式 */
+a, button, .clickable, .ant-menu-item {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* 添加点击反馈 */
+a:active, button:active, .ant-menu-item:active {
+    opacity: 0.7;
+    transition: opacity 0.1s;
+}
+
 /* 侧边菜单栏相关样式自定义 */
 
 #core-side-menu .ant-menu-item-selected {

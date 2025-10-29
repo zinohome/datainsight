@@ -1,8 +1,12 @@
 import dash
 from dash.dependencies import Input, Output, State, MATCH
 from dash import no_update, dcc
+import time
 
 from configs import BaseConfig
+
+# 全局变量存储上次回调时间，用于防抖
+last_menu_click_time = {}
 
 def filter_params_for_page(page_name, search_params):
     """根据页面过滤相关参数 - 客户要求携带所有参数"""
@@ -103,6 +107,18 @@ def register_dashboard_menu_callbacks(app):
         if nClicks is None:
             return no_update
         
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'line_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_line_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_line_menu_click] 防抖：允许跳转")
+        
         target_path = f'/{prefix}/line'
         if current_pathname != target_path:
             # line页面不需要参数，直接跳转
@@ -120,6 +136,18 @@ def register_dashboard_menu_callbacks(app):
     def handle_train_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
+        
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'train_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_train_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_train_menu_click] 防抖：允许跳转")
         
         target_path = f'/{prefix}/train'
         if current_pathname != target_path:
@@ -141,6 +169,18 @@ def register_dashboard_menu_callbacks(app):
         if nClicks is None:
             return no_update
         
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'carriage_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_carriage_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_carriage_menu_click] 防抖：允许跳转")
+        
         target_path = f'/{prefix}/carriage'
         if current_pathname != target_path:
             # 过滤并保持相关参数
@@ -160,6 +200,18 @@ def register_dashboard_menu_callbacks(app):
     def handle_param_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
+        
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'param_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_param_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_param_menu_click] 防抖：允许跳转")
         
         target_path = f'/{prefix}/param'
         if current_pathname != target_path:
@@ -181,6 +233,18 @@ def register_dashboard_menu_callbacks(app):
         if nClicks is None:
             return no_update
         
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'fault_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_fault_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_fault_menu_click] 防抖：允许跳转")
+        
         target_path = f'/{prefix}/fault'
         if current_pathname != target_path:
             # 过滤并保持相关参数
@@ -200,6 +264,18 @@ def register_dashboard_menu_callbacks(app):
     def handle_health_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
+        
+        # 防抖逻辑：300ms内只允许一次跳转
+        current_time = time.time()
+        callback_id = 'health_menu_click'
+        
+        if callback_id in last_menu_click_time:
+            if current_time - last_menu_click_time[callback_id] < 0.3:
+                print(f"[handle_health_menu_click] 防抖：跳过跳转")
+                return no_update
+        
+        last_menu_click_time[callback_id] = current_time
+        print(f"[handle_health_menu_click] 防抖：允许跳转")
         
         target_path = f'/{prefix}/health'
         if current_pathname != target_path:

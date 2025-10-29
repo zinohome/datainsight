@@ -1,8 +1,12 @@
 from dash import callback, Output, Input, State, no_update
 from configs import BaseConfig
 from utils.log import log
+import time
 
 prefix = BaseConfig.project_prefix
+
+# 全局变量存储上次回调时间，用于防抖
+last_callback_time = {}
 
 def filter_params_for_page(page_name, search_params):
     """根据页面过滤相关参数 - 客户要求携带所有参数"""
@@ -53,6 +57,26 @@ def register_dashboard_side_menu_callbacks(app):
     def update_menu_items_with_params(search_params):
         """根据URL参数更新菜单项的href属性"""
         log.debug(f"[update_menu_items_with_params] 更新菜单项: {search_params}")
+        
+        # 防抖逻辑：300ms内只允许一次更新
+        current_time = time.time()
+        callback_id = 'menu_items_update'
+        
+        if callback_id in last_callback_time:
+            if current_time - last_callback_time[callback_id] < 0.3:
+                log.debug(f"[update_menu_items_with_params] 防抖：跳过更新")
+                return no_update
+        
+        last_callback_time[callback_id] = current_time
+        log.debug(f"[update_menu_items_with_params] 防抖：允许更新")
+        
+        # 如果search_params为空，尝试保持之前的参数
+        if not search_params and hasattr(update_menu_items_with_params, 'last_params'):
+            search_params = update_menu_items_with_params.last_params
+            log.debug(f"[update_menu_items_with_params] 使用上次参数: {search_params}")
+        
+        # 保存当前参数
+        update_menu_items_with_params.last_params = search_params
         
         dash_menuItem_style = {
             "padding": "16px 0",
