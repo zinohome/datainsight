@@ -57,6 +57,7 @@ class BaseConfig:
         {"label": "1637车", "value": "1637"},
         {"label": "1638车", "value": "1638"},
         {"label": "1639车", "value": "1639"},
+        {"label": "12101车", "value": "12101"},
     ]
     carriage_select_options: List[dict] = [
         {"label": "1车厢", "value": "1"},

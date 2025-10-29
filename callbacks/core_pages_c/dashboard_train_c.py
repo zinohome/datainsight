@@ -22,7 +22,127 @@ from views.core_pages.train_chart_link import create_train_chart_link
 from configs.layout_config import LayoutConfig
 
 
-prefix = BaseConfig.project_prefix
+# 查询按钮点击时更新URL参数
+@callback(
+    Output('url', 'search', allow_duplicate=True),
+    Input('t_query_button', 'nClicks'),
+    [State('t_train_no', 'value')],
+    prevent_initial_call=True
+)
+def update_url_on_query(nClicks, train_no):
+    """查询按钮点击时更新URL参数"""
+    if nClicks is None or nClicks == 0:
+        return no_update
+    
+    log.debug(f"[update_url_on_query] 查询按钮点击: train_no={train_no}")
+    
+    # 构建URL参数
+    params = []
+    
+    if train_no:
+        params.append(f"train_no={train_no}")
+    
+    search = '?' + '&'.join(params) if params else ''
+    log.debug(f"[update_url_on_query] 更新URL参数: {search}")
+    return search
+
+def get_dynamic_fault_model():
+    """
+    根据配置动态创建故障视图ORM模型
+    :return: 动态创建的ORM模型类
+    """
+    from peewee import Model, CharField, DateTimeField, IntegerField, TextField
+    from orm.db import db
+    
+    if BaseConfig.use_carriage_field:
+        # 使用车厢字段的模型
+        class DynamicChartViewFaultTimed(Model):
+            """动态故障视图模型 - 使用车厢字段"""
+            msg_calc_dvc_no = CharField(max_length=50, verbose_name='车厢')
+            dvc_train_no = CharField(max_length=50, verbose_name='车号')
+            fault_name = CharField(max_length=200, verbose_name='故障名称')
+            start_time = DateTimeField(verbose_name='开始时间')
+            end_time = DateTimeField(verbose_name='结束时间')
+            update_time = DateTimeField(verbose_name='更新时间')
+            status = CharField(max_length=20, verbose_name='状态')
+            fault_level = IntegerField(verbose_name='故障等级')
+            fault_type = CharField(max_length=50, verbose_name='类型')
+            repair_suggestion = TextField(verbose_name='维修建议')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_view_fault_timed'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-start_time']
+    else:
+        # 使用车厢号字段的模型
+        class DynamicChartViewFaultTimed(Model):
+            """动态故障视图模型 - 使用车厢号字段"""
+            dvc_train_no = CharField(max_length=50, verbose_name='车号')
+            dvc_carriage_no = IntegerField(verbose_name='车厢号')
+            fault_name = CharField(max_length=200, verbose_name='故障名称')
+            start_time = DateTimeField(verbose_name='开始时间')
+            end_time = DateTimeField(verbose_name='结束时间')
+            update_time = DateTimeField(verbose_name='更新时间')
+            status = CharField(max_length=20, verbose_name='状态')
+            fault_level = IntegerField(verbose_name='故障等级')
+            fault_type = CharField(max_length=50, verbose_name='类型')
+            repair_suggestion = TextField(verbose_name='维修建议')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_view_fault_timed'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-start_time']
+    
+    return DynamicChartViewFaultTimed
+
+def get_dynamic_health_model():
+    """
+    根据配置动态创建健康设备ORM模型
+    :return: 动态创建的ORM模型类
+    """
+    from peewee import Model, CharField, IntegerField, FloatField
+    from orm.db import db
+    
+    if BaseConfig.use_carriage_field:
+        # 使用车厢字段的模型
+        class DynamicChartHealthEquipment(Model):
+            """动态健康设备模型 - 使用车厢字段"""
+            车厢 = CharField(max_length=50, verbose_name='车厢')
+            车号 = CharField(max_length=50, verbose_name='车号')
+            部件 = CharField(max_length=200, verbose_name='部件')
+            耗用率 = FloatField(verbose_name='耗用率')
+            额定寿命 = FloatField(verbose_name='额定寿命')
+            已耗 = FloatField(verbose_name='已耗')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_health_equipment'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-耗用率']
+    else:
+        # 使用车厢号字段的模型
+        class DynamicChartHealthEquipment(Model):
+            """动态健康设备模型 - 使用车厢号字段"""
+            车号 = CharField(max_length=50, verbose_name='车号')
+            车厢号 = IntegerField(verbose_name='车厢号')
+            部件 = CharField(max_length=200, verbose_name='部件')
+            耗用率 = FloatField(verbose_name='耗用率')
+            额定寿命 = FloatField(verbose_name='额定寿命')
+            已耗 = FloatField(verbose_name='已耗')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_health_equipment'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-耗用率']
+    
+    return DynamicChartHealthEquipment
 # 解析URL参数回调
 @callback(
     Output('t_url-params-store', 'data'),
@@ -195,24 +315,37 @@ def get_health_data(train_no=None):
     # 查询健康数据
     try:
         with db.atomic():  # 添加上下文管理器
-            health_query = ChartHealthEquipment.select().order_by(
-                ChartHealthEquipment.车号,
-                ChartHealthEquipment.车厢号,
-                ChartHealthEquipment.耗用率.desc()
+            # 使用动态模型
+            DynamicHealthModel = get_dynamic_health_model()
+            health_query = DynamicHealthModel.select().order_by(
+                DynamicHealthModel.车号,
+                DynamicHealthModel.车厢号 if hasattr(DynamicHealthModel, '车厢号') else DynamicHealthModel.车厢,
+                DynamicHealthModel.耗用率.desc()
             )
 
             # 如果提供了train_no，添加筛选条件
             if train_no:
-                health_query = health_query.where(ChartHealthEquipment.车号 == train_no)
+                health_query = health_query.where(DynamicHealthModel.车号 == train_no)
 
-            # 立即加载所有数据
-            formatted_health = [{
-                '车号': item.车号,
-                '车厢号': item.车厢号,
-                '部件': item.部件,
-                '耗用率': item.耗用率,
-                '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
-            } for item in health_query]
+            # 根据配置选择车厢字段
+            if BaseConfig.use_carriage_field:
+                # 使用车厢字段
+                formatted_health = [{
+                    '车号': item.车号,
+                    '车厢号': item.车厢,  # 使用车厢字段作为车厢号
+                    '部件': item.部件,
+                    '耗用率': item.耗用率,
+                    '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢)}', 'target': '_self'}
+                } for item in health_query]
+            else:
+                # 使用车厢号字段
+                formatted_health = [{
+                    '车号': item.车号,
+                    '车厢号': item.车厢号,
+                    '部件': item.部件,
+                    '耗用率': item.耗用率,
+                    '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
+                } for item in health_query]
 
         # 构建t_h_health_bar数据
         bar_data = []
@@ -255,19 +388,20 @@ def get_health_data(train_no=None):
 
 def get_all_fault_data(train_no=None):
     # 构建查询，获取所有故障类型的数据
-    # query = Chart_view_fault_timed.select()
+    # 使用动态模型
+    DynamicFaultModel = get_dynamic_fault_model()
     # 构建查询，获取24小时内所有故障类型的数据
     # 计算24小时前的时间点
     twenty_four_hours_ago = datetime.now(pytz.timezone('Asia/Shanghai')) - timedelta(hours=24)
-    # query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.update_time >= twenty_four_hours_ago) & 
-    #                                               (Chart_view_fault_timed.status == '持续'))
-    query = Chart_view_fault_timed.select().where((Chart_view_fault_timed.status == '持续'))
+    # query = DynamicFaultModel.select().where((DynamicFaultModel.update_time >= twenty_four_hours_ago) & 
+    #                                               (DynamicFaultModel.status == '持续'))
+    query = DynamicFaultModel.select().where((DynamicFaultModel.status == '持续'))
     # 按开始时间降序排序
-    query = query.order_by(Chart_view_fault_timed.start_time.desc())
+    query = query.order_by(DynamicFaultModel.start_time.desc())
 
     # 如果提供了train_no，添加筛选条件
     if train_no:
-        query = query.where(Chart_view_fault_timed.dvc_train_no == train_no)
+        query = query.where(DynamicFaultModel.dvc_train_no == train_no)
 
     # 执行查询并获取数据
     try:
@@ -362,22 +496,42 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
     fault_data = [item for item in all_data if item['fault_type'] == '故障']
 
     # 格式化预警数据
-    formatted_warning = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '预警部件': item['fault_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
-    } for item in warning_data]
+    if BaseConfig.use_carriage_field:
+        # 使用车厢字段
+        formatted_warning = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['msg_calc_dvc_no'],  # 使用车厢字段作为车厢号
+            '预警部件': item['fault_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+            '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['msg_calc_dvc_no'])+'&fault_type=预警', 'target': '_self'}
+        } for item in warning_data]
 
-    # 格式化故障数据
-    formatted_fault = [{
-        '车号': item['dvc_train_no'],
-        '车厢号': item['dvc_carriage_no'],
-        '故障部件': item['fault_name'],
-        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
-    } for item in fault_data]
+        # 格式化故障数据
+        formatted_fault = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['msg_calc_dvc_no'],  # 使用车厢字段作为车厢号
+            '故障部件': item['fault_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+            '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['msg_calc_dvc_no'])+'&fault_type=故障', 'target': '_self'}
+        } for item in fault_data]
+    else:
+        # 使用车厢号字段
+        formatted_warning = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['dvc_carriage_no'],
+            '预警部件': item['fault_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+            '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
+        } for item in warning_data]
+
+        # 格式化故障数据
+        formatted_fault = [{
+            '车号': item['dvc_train_no'],
+            '车厢号': item['dvc_carriage_no'],
+            '故障部件': item['fault_name'],
+            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+            '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
+        } for item in fault_data]
 
     # 统计故障部件词频用于词云
     if fault_data:

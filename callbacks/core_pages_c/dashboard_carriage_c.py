@@ -20,7 +20,33 @@ from orm.chart_carriage_param import ChartCarriageParam
 from orm.chart_carriage_param_current import ChartCarriageParamCurrent
 
 
-prefix = BaseConfig.project_prefix
+# 查询按钮点击时更新URL参数
+@callback(
+    Output('url', 'search', allow_duplicate=True),
+    Input('c_query_button', 'nClicks'),
+    [State('c_train_no', 'value'),
+     State('c_carriage_no', 'value')],
+    prevent_initial_call=True
+)
+def update_url_on_query(nClicks, train_no, carriage_no):
+    """查询按钮点击时更新URL参数"""
+    if nClicks is None or nClicks == 0:
+        return no_update
+    
+    log.debug(f"[update_url_on_query] 查询按钮点击: train_no={train_no}, carriage_no={carriage_no}")
+    
+    # 构建URL参数
+    params = []
+    
+    if train_no:
+        params.append(f"train_no={train_no}")
+    
+    if carriage_no:
+        params.append(f"carriage_no={carriage_no}")
+    
+    search = '?' + '&'.join(params) if params else ''
+    log.debug(f"[update_url_on_query] 更新URL参数: {search}")
+    return search
 # 解析URL参数回调
 @callback(
     Output('c_url-params-store', 'data'),

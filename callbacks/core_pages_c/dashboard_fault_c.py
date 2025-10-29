@@ -13,7 +13,42 @@ from urllib.parse import urlparse, parse_qs
 import pandas as pd
 from io import BytesIO
 
-dcc.Store(id='fault-table-refresh-trigger')
+# 查询按钮点击时更新URL参数
+@callback(
+    Output('url', 'search', allow_duplicate=True),
+    Input('f_query_button', 'nClicks'),
+    [State('f_train_no', 'value'),
+     State('f_carriage_no', 'value'),
+     State('f_fault_type', 'value'),
+     State('f_start_time_range', 'value')],
+    prevent_initial_call=True
+)
+def update_url_on_query(nClicks, train_no, carriage_no, fault_type, start_time_range):
+    """查询按钮点击时更新URL参数"""
+    if nClicks is None or nClicks == 0:
+        return no_update
+    
+    log.debug(f"[update_url_on_query] 查询按钮点击: train_no={train_no}, carriage_no={carriage_no}, fault_type={fault_type}, start_time_range={start_time_range}")
+    
+    # 构建URL参数
+    params = []
+    
+    if train_no:
+        params.append(f"train_no={train_no}")
+    
+    if carriage_no:
+        params.append(f"carriage_no={carriage_no}")
+    
+    if fault_type:
+        params.append(f"fault_type={fault_type}")
+    
+    if start_time_range and len(start_time_range) == 2:
+        params.append(f"start_time={start_time_range[0]}")
+        params.append(f"end_time={start_time_range[1]}")
+    
+    search = '?' + '&'.join(params) if params else ''
+    log.debug(f"[update_url_on_query] 更新URL参数: {search}")
+    return search
 
 @callback(
     Output('f_url-params-store', 'data'),

@@ -42,8 +42,9 @@ def render(themetoken):
                         children=fac.AntdSpace(
                             [
                                 # 地铁列车图 - 六节车厢（图片拼接版）
-                                html.Div(id='train-chart-link-container', children=create_train_chart_link(themetoken, 'carriage'))
+                                #html.Div(id='train-chart-link-container', children=create_train_chart_link(themetoken, 'carriage'))
                                 #create_train_chart(themetoken)
+                                html.Div(id='train-chart-link-container', children=create_train_chart(themetoken))
                             ],
                             style={"width": "100%", "display": "flex", "justifyContent": "center",
                                    "alignItems": "center", "padding": "5px"}

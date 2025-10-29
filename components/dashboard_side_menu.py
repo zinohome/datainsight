@@ -10,50 +10,47 @@ def render():
     """渲染数据大屏专用侧边导航栏"""
     prefix = BaseConfig.project_prefix
     themetoken = LayoutConfig.dashboard_theme
+    
+    # 定义菜单数据
     menu_data = [
         {
             "title": "线路",
             "key": f"/{prefix}/line",
-            "href": f"/{prefix}/line",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/line-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/line-icon-active.svg",
         },
         {
             "title": "列车",
             "key": f"/{prefix}/train",
-            "href": f"/{prefix}/train",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/train-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/train-icon-active.svg",
         },
         {
             "title": "车厢",
             "key": f"/{prefix}/carriage",
-            "href": f"/{prefix}/carriage",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/carriage-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/carriage-icon-active.svg",
         },
         {
             "title": "参数",
             "key": f"/{prefix}/param",
-            "href": f"/{prefix}/param",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/param-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/param-icon-active.svg",
         },
         {
             "title": "故障",
             "key": f"/{prefix}/fault",
-            "href": f"/{prefix}/fault",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/fault-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/fault-icon-active.svg",
         },
         {
             "title": "寿命",
             "key": f"/{prefix}/health",
-            "href": f"/{prefix}/health",
             "icon_src": "/sz16phmHVAC2/assets/imgs/new-icon/health-icon.svg",
             "icon_src_active": "/sz16phmHVAC2/assets/imgs/new-icon/health-icon-active.svg",
         },
-        ]
+    ]
+    
     # 定义自定义的菜单项标题
     custom_menu_item_titles = {
         item["key"]: html.Div(
@@ -82,13 +79,13 @@ def render():
                     "borderBottom": "1px solid #e8e8e8"
     }
 
+    # 动态生成菜单项，包含URL参数保持功能
     dash_menuItems = [
         {
             "component": "Item",
             "props": {
                 "title": "线路",
                 "key": f"/{prefix}/line",
-                # "icon": "antd-ordered-list",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-line",
                 "href": f"/{prefix}/line",
@@ -99,7 +96,6 @@ def render():
             "props": {
                 "title": "列车",
                 "key": f"/{prefix}/train",
-                # "icon": "antd-alert",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-train",
                 "href": f"/{prefix}/train",
@@ -110,7 +106,6 @@ def render():
             "props": {
                 "title": "车厢",
                 "key": f"/{prefix}/carriage",
-                # "icon": "antd-sliders",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-carriage",
                 "href": f"/{prefix}/carriage",
@@ -121,7 +116,6 @@ def render():
             "props": {
                 "title": "参数",
                 "key": f"/{prefix}/param",
-                # "icon": "antd-line-chart",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-param",
                 "href": f"/{prefix}/param",
@@ -132,7 +126,6 @@ def render():
             "props": {
                 "title": "故障",
                 "key": f"/{prefix}/fault",
-                # "icon": "antd-disconnect",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-fault",
                 "href": f"/{prefix}/fault",
@@ -143,7 +136,6 @@ def render():
             "props": {
                 "title": "寿命",
                 "key": f"/{prefix}/health",
-                # "icon": "antd-hourglass",
                 "style": dash_menuItem_style,
                 "id": "dashboard-menu-item-health",
                 "href": f"/{prefix}/health",
@@ -154,6 +146,7 @@ def render():
     return html.Div([
         dcc.Location(id='url', refresh=False),
         dcc.Store(id='current-key-store', data=f'/{prefix}/line'),  # 存储 currentKey
+        dcc.Store(id='menu-url-params-store', data=''),  # 存储URL参数
         fac.AntdAffix(
             fuc.FefferyDiv(
                 [

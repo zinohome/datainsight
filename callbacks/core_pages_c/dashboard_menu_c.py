@@ -4,6 +4,34 @@ from dash import no_update, dcc
 
 from configs import BaseConfig
 
+def filter_params_for_page(page_name, search_params):
+    """根据页面过滤相关参数 - 客户要求携带所有参数"""
+    if not search_params:
+        return {}
+    
+    # 解析search参数
+    from urllib.parse import parse_qs
+    params = parse_qs(search_params.lstrip('?'))
+    
+    # 展平参数（parse_qs返回列表）
+    flat_params = {k: v[0] if v else '' for k, v in params.items()}
+    
+    # 客户要求：所有页面都携带完整参数，不过滤
+    # 只过滤空值
+    return {k: v for k, v in flat_params.items() if v}
+
+def build_search_string(params):
+    """构建search字符串"""
+    if not params:
+        return ''
+    
+    # 过滤空值
+    filtered_params = {k: v for k, v in params.items() if v}
+    if not filtered_params:
+        return ''
+    
+    return '?' + '&'.join([f"{k}={v}" for k, v in filtered_params.items()])
+
 prefix = BaseConfig.project_prefix
 menu_data = [
     {
@@ -68,14 +96,16 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-line', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_line_menu_click(nClicks, current_pathname):
+    def handle_line_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
         
         target_path = f'/{prefix}/line'
         if current_pathname != target_path:
+            # line页面不需要参数，直接跳转
             return target_path
         return no_update
     
@@ -84,15 +114,19 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-train', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_train_menu_click(nClicks, current_pathname):
+    def handle_train_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
         
         target_path = f'/{prefix}/train'
         if current_pathname != target_path:
-            return target_path
+            # 过滤并保持相关参数
+            filtered_params = filter_params_for_page('train', current_search)
+            search_string = build_search_string(filtered_params)
+            return target_path + search_string
         return no_update
     
     # 车厢菜单回调
@@ -100,15 +134,19 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-carriage', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_carriage_menu_click(nClicks, current_pathname):
+    def handle_carriage_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
         
         target_path = f'/{prefix}/carriage'
         if current_pathname != target_path:
-            return target_path
+            # 过滤并保持相关参数
+            filtered_params = filter_params_for_page('carriage', current_search)
+            search_string = build_search_string(filtered_params)
+            return target_path + search_string
         return no_update
     
     # 参数菜单回调
@@ -116,15 +154,19 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-param', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_param_menu_click(nClicks, current_pathname):
+    def handle_param_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
         
         target_path = f'/{prefix}/param'
         if current_pathname != target_path:
-            return target_path
+            # 过滤并保持相关参数
+            filtered_params = filter_params_for_page('param', current_search)
+            search_string = build_search_string(filtered_params)
+            return target_path + search_string
         return no_update
 
     # 故障菜单回调
@@ -132,15 +174,19 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-fault', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_fault_menu_click(nClicks, current_pathname):
+    def handle_fault_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
-
+        
         target_path = f'/{prefix}/fault'
         if current_pathname != target_path:
-            return target_path
+            # 过滤并保持相关参数
+            filtered_params = filter_params_for_page('fault', current_search)
+            search_string = build_search_string(filtered_params)
+            return target_path + search_string
         return no_update
 
     # 寿命菜单回调
@@ -148,15 +194,19 @@ def register_dashboard_menu_callbacks(app):
         Output('root-url', 'pathname', allow_duplicate=True),
         Input('dashboard-menu-item-health', 'nClicks'),
         State('root-url', 'pathname'),
+        State('root-url', 'search'),
         prevent_initial_call=True
     )
-    def handle_fault_menu_click(nClicks, current_pathname):
+    def handle_health_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
-
+        
         target_path = f'/{prefix}/health'
         if current_pathname != target_path:
-            return target_path
+            # 过滤并保持相关参数
+            filtered_params = filter_params_for_page('health', current_search)
+            search_string = build_search_string(filtered_params)
+            return target_path + search_string
         return no_update
     
     # 注册菜单状态同步回调

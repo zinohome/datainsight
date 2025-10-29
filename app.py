@@ -15,6 +15,7 @@ from views.status_pages import _404, _500  # 各状态页面
 from views import core_pages
 from utils.log import log
 from callbacks.core_pages_c.dashboard_menu_c import register_dashboard_menu_callbacks
+from callbacks.core_pages_c.dashboard_side_menu_c import register_dashboard_side_menu_callbacks
 
 # 检查Python版本
 check_python_version(min_version="3.8", max_version="3.13")
@@ -108,6 +109,7 @@ def root_router(pathname, trigger):
 
 # 注册仪表盘菜单回调
 register_dashboard_menu_callbacks(app)
+register_dashboard_side_menu_callbacks(app)
 
 if __name__ == "__main__":
     # 非正式环境下开发调试预览用

@@ -15,7 +15,42 @@ import pandas as pd
 from io import BytesIO
 
 
-prefix = BaseConfig.project_prefix
+# 查询按钮点击时更新URL参数
+@callback(
+    Output('url', 'search', allow_duplicate=True),
+    Input('h_query_button', 'nClicks'),
+    [State('h_train_no', 'value'),
+     State('h_carriage_no', 'value'),
+     State('h_health_comp', 'value')],
+    prevent_initial_call=True
+)
+def update_url_on_query(nClicks, train_no, carriage_no, component_type):
+    """查询按钮点击时更新URL参数"""
+    if nClicks is None or nClicks == 0:
+        return no_update
+    
+    log.debug(f"[update_url_on_query] 查询按钮点击: train_no={train_no}, carriage_no={carriage_no}, component_type={component_type}")
+    
+    # 构建URL参数
+    params = []
+    
+    if train_no:
+        params.append(f"train_no={train_no}")
+    
+    if carriage_no:
+        params.append(f"carriage_no={carriage_no}")
+    
+    if component_type:
+        # 处理列表类型的组件类型
+        if isinstance(component_type, list):
+            component_str = ','.join(component_type)
+        else:
+            component_str = str(component_type)
+        params.append(f"component_type={component_str}")
+    
+    search = '?' + '&'.join(params) if params else ''
+    log.debug(f"[update_url_on_query] 更新URL参数: {search}")
+    return search
 @callback(
     Output('h_url-params-store', 'data'),
     Input('url', 'search'),

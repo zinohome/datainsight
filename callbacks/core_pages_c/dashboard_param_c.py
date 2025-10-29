@@ -16,7 +16,52 @@ from dash import dcc
 import pytz
 
 
-prefix = BaseConfig.project_prefix
+# 查询按钮点击时更新URL参数
+@callback(
+    Output('url', 'search', allow_duplicate=True),
+    Input('p_query_button', 'nClicks'),
+    [State('p_train_no', 'value'),
+     State('p_carriage_no', 'value'),
+     State('p_component', 'value'),
+     State('p_start_time_range', 'value')],
+    prevent_initial_call=True
+)
+def update_url_on_query(nClicks, train_no, carriage_no, component, start_time_range):
+    """查询按钮点击时更新URL参数"""
+    if nClicks is None or nClicks == 0:
+        return no_update
+    
+    log.debug(f"[update_url_on_query] 查询按钮点击: train_no={train_no}, carriage_no={carriage_no}, component={component}, start_time_range={start_time_range}")
+    
+    # 构建URL参数
+    params = []
+    
+    if train_no:
+        params.append(f"train_no={train_no}")
+    
+    if carriage_no:
+        # 处理列表类型的车厢号
+        if isinstance(carriage_no, list):
+            carriage_str = ','.join(map(str, carriage_no))
+        else:
+            carriage_str = str(carriage_no)
+        params.append(f"carriage_no={carriage_str}")
+    
+    if component:
+        # 处理列表类型的组件
+        if isinstance(component, list):
+            component_str = ','.join(component)
+        else:
+            component_str = str(component)
+        params.append(f"component={component_str}")
+    
+    if start_time_range and len(start_time_range) == 2:
+        params.append(f"start_time={start_time_range[0]}")
+        params.append(f"end_time={start_time_range[1]}")
+    
+    search = '?' + '&'.join(params) if params else ''
+    log.debug(f"[update_url_on_query] 更新URL参数: {search}")
+    return search
 # 解析URL参数回调
 @callback(
     Output('p_url-params-store', 'data'),
