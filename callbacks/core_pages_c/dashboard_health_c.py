@@ -14,6 +14,51 @@ from urllib.parse import urlparse, parse_qs
 import pandas as pd
 from io import BytesIO
 
+def get_dynamic_health_model():
+    """
+    根据配置动态创建健康设备ORM模型
+    :return: 动态创建的ORM模型类
+    """
+    from peewee import Model, CharField, IntegerField, FloatField
+    from orm.db import db
+    
+    if BaseConfig.use_carriage_field:
+        # 使用车厢字段的模型（当数据库中存在车厢字段时）
+        class DynamicChartHealthEquipment(Model):
+            """动态健康设备模型 - 使用车厢字段"""
+            车厢 = CharField(max_length=50, verbose_name='车厢')
+            车号 = CharField(max_length=50, verbose_name='车号')
+            部件 = CharField(max_length=200, verbose_name='部件')
+            耗用率 = FloatField(verbose_name='耗用率')
+            额定寿命 = FloatField(verbose_name='额定寿命')
+            已耗 = FloatField(verbose_name='已耗')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_health_equipment'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-耗用率']
+    else:
+        # 使用车厢号字段的模型（当数据库中存在车厢号字段时）
+        class DynamicChartHealthEquipment(Model):
+            """动态健康设备模型 - 使用车厢号字段"""
+            车号 = CharField(max_length=50, verbose_name='车号')
+            车厢号 = IntegerField(verbose_name='车厢号')
+            部件 = CharField(max_length=200, verbose_name='部件')
+            耗用率 = FloatField(verbose_name='耗用率')
+            额定寿命 = FloatField(verbose_name='额定寿命')
+            已耗 = FloatField(verbose_name='已耗')
+
+            class Meta:
+                database = db
+                table_name = 'c_chart_health_equipment'
+                primary_key = False
+                schema = 'public'
+                ordering = ['-耗用率']
+    
+    return DynamicChartHealthEquipment
+
 
 # 查询按钮点击时更新URL参数
 @callback(
@@ -128,17 +173,22 @@ def health_table_callback(url_params, nClicks, pagination, train_no, carriage_no
         query_train_no, query_carriage_no, query_component_type
     )
 
-    # 构建查询
-    query = ChartHealthEquipment.select()
+    # 构建查询 - 使用动态模型
+    DynamicHealthModel = get_dynamic_health_model()
+    query = DynamicHealthModel.select()
     if query_train_no:
-        query = query.where(ChartHealthEquipment.车号 == query_train_no)
+        query = query.where(DynamicHealthModel.车号 == query_train_no)
     if query_carriage_no:
-        query = query.where(ChartHealthEquipment.车厢号 == query_carriage_no)
+        # 根据配置选择正确的车厢字段
+        if BaseConfig.use_carriage_field:
+            query = query.where(DynamicHealthModel.车厢 == query_carriage_no)
+        else:
+            query = query.where(DynamicHealthModel.车厢号 == query_carriage_no)
     if query_component_type:
         if isinstance(query_component_type, list):
-            query = query.where(ChartHealthEquipment.部件.in_(query_component_type))
+            query = query.where(DynamicHealthModel.部件.in_(query_component_type))
         else:
-            query = query.where(ChartHealthEquipment.部件 == query_component_type)
+            query = query.where(DynamicHealthModel.部件 == query_component_type)
 
 
     # 分页处理
@@ -150,30 +200,48 @@ def health_table_callback(url_params, nClicks, pagination, train_no, carriage_no
     # 执行查询并获取数据
     try:
         with db.atomic():
-            data = list(query.order_by(ChartHealthEquipment.耗用率.desc()).offset(
+            data = list(query.order_by(DynamicHealthModel.耗用率.desc()).offset(
                 (pagination['current'] - 1) * pagination['pageSize']
             ).limit(pagination['pageSize']).dicts())
 
-        # 格式化数据
-        formatted_data = [{
-            '车号': item['车号'],
-            '车厢号': item['车厢号'],
-            '部件': item['部件'],
-            '耗用率': f"{item['耗用率']:.2%}",
-            '额定寿命[小时/次]': item['额定寿命'],
-            '已耗[秒/次]': item['已耗'],
-            '操作':{
-                        'content': f'清零',
-                        'type': 'dashed',
-                        'danger': True,
-                        'custom': 'balabalabalabala',
-                    },
-        } for item in data]
+        # 格式化数据 - 根据配置选择车厢字段
+        if BaseConfig.use_carriage_field:
+            # 使用车厢字段
+            formatted_data = [{
+                '车号': item['车号'],
+                '车厢号': item['车厢'],  # 使用车厢字段作为车厢号
+                '部件': item['部件'],
+                '耗用率': f"{item['耗用率']:.2%}",
+                '额定寿命[小时/次]': item['额定寿命'],
+                '已耗[秒/次]': item['已耗'],
+                '操作':{
+                            'content': f'清零',
+                            'type': 'dashed',
+                            'danger': True,
+                            'custom': 'balabalabalabala',
+                        },
+            } for item in data]
+        else:
+            # 使用车厢号字段
+            formatted_data = [{
+                '车号': item['车号'],
+                '车厢号': item['车厢号'],
+                '部件': item['部件'],
+                '耗用率': f"{item['耗用率']:.2%}",
+                '额定寿命[小时/次]': item['额定寿命'],
+                '已耗[秒/次]': item['已耗'],
+                '操作':{
+                            'content': f'清零',
+                            'type': 'dashed',
+                            'danger': True,
+                            'custom': 'balabalabalabala',
+                        },
+            } for item in data]
         log.debug(f"[health_table_callback] 查询完成，返回 {len(formatted_data)}/{total} 条记录")
         return formatted_data, {'total': total, 'current': pagination['current'], 'pageSize': pagination['pageSize'],'showSizeChanger': pagination['showSizeChanger'],'pageSizeOptions': pagination['pageSizeOptions']}
     except Exception as e:
         log.error(f"[health_table_callback] 查询错误: {e}")
-        return []
+        return [], {'total': 0, 'current': 1, 'pageSize': 10, 'showSizeChanger': True, 'pageSizeOptions': [10, 20, 50, 100], 'showQuickJumper': True}
     finally:
         # 强制将当前连接放回连接池（绕过自动管理逻辑）
         try:
@@ -365,32 +433,49 @@ def clean_table_callback(url_params, nClicks, pagination, nClicksButton, train_n
     prevent_initial_call=True
 )
 def export_health_data_to_excel(nClicks, train_no, carriage_no, component_type):
-    # 构建查询
-    query = ChartHealthEquipment.select()
+    # 构建查询 - 使用动态模型
+    DynamicHealthModel = get_dynamic_health_model()
+    query = DynamicHealthModel.select()
     if train_no:
-        query = query.where(ChartHealthEquipment.车号 == train_no)
+        query = query.where(DynamicHealthModel.车号 == train_no)
     if carriage_no:
-        query = query.where(ChartHealthEquipment.车厢号 == carriage_no)
+        # 根据配置选择正确的车厢字段
+        if BaseConfig.use_carriage_field:
+            query = query.where(DynamicHealthModel.车厢 == carriage_no)
+        else:
+            query = query.where(DynamicHealthModel.车厢号 == carriage_no)
     if component_type:
         if isinstance(component_type, list):
-            query = query.where(ChartHealthEquipment.部件.in_(component_type))
+            query = query.where(DynamicHealthModel.部件.in_(component_type))
         else:
-            query = query.where(ChartHealthEquipment.部件 == component_type)
+            query = query.where(DynamicHealthModel.部件 == component_type)
 
     # 获取所有数据
     try:
         with db.atomic():
-            data = list(query.order_by(ChartHealthEquipment.耗用率.desc()).dicts())
+            data = list(query.order_by(DynamicHealthModel.耗用率.desc()).dicts())
 
-        # 格式化数据
-        formatted_data = [{
-            '车号': item['车号'],
-            '车厢号': item['车厢号'],
-            '部件': item['部件'],
-            '耗用率': f"{item['耗用率']:.2%}",
-            '额定寿命[小时/次]': item['额定寿命'],
-            '已耗[秒/次]': item['已耗']
-        } for item in data]
+        # 格式化数据 - 根据配置选择车厢字段
+        if BaseConfig.use_carriage_field:
+            # 使用车厢字段
+            formatted_data = [{
+                '车号': item['车号'],
+                '车厢号': item['车厢'],  # 使用车厢字段作为车厢号
+                '部件': item['部件'],
+                '耗用率': f"{item['耗用率']:.2%}",
+                '额定寿命[小时/次]': item['额定寿命'],
+                '已耗[秒/次]': item['已耗']
+            } for item in data]
+        else:
+            # 使用车厢号字段
+            formatted_data = [{
+                '车号': item['车号'],
+                '车厢号': item['车厢号'],
+                '部件': item['部件'],
+                '耗用率': f"{item['耗用率']:.2%}",
+                '额定寿命[小时/次]': item['额定寿命'],
+                '已耗[秒/次]': item['已耗']
+            } for item in data]
 
         # 创建Excel文件
         df = pd.DataFrame(formatted_data)

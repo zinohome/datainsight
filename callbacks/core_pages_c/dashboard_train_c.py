@@ -5,9 +5,11 @@ import time
 from datetime import datetime, timedelta
 import pytz
 
-from dash import callback, Output, Input, State, callback_context
+from dash import callback, Output, Input, State, callback_context, no_update
 from configs import BaseConfig
 from orm.db import db, log_pool_status, _sentinel
+
+prefix = BaseConfig.project_prefix
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 import pandas as pd
 from collections import Counter
@@ -317,10 +319,21 @@ def get_health_data(train_no=None):
         with db.atomic():  # 添加上下文管理器
             # 使用动态模型
             DynamicHealthModel = get_dynamic_health_model()
-            health_query = DynamicHealthModel.select().order_by(
-                DynamicHealthModel.车号,
-                DynamicHealthModel.车厢号 if hasattr(DynamicHealthModel, '车厢号') else DynamicHealthModel.车厢,
-                DynamicHealthModel.耗用率.desc()
+            
+            # 根据配置选择正确的排序字段
+            if BaseConfig.use_carriage_field:
+                # 使用车厢字段排序
+                health_query = DynamicHealthModel.select().order_by(
+                    DynamicHealthModel.车号,
+                    DynamicHealthModel.车厢,
+                    DynamicHealthModel.耗用率.desc()
+                )
+            else:
+                # 使用车厢号字段排序
+                health_query = DynamicHealthModel.select().order_by(
+                    DynamicHealthModel.车号,
+                    DynamicHealthModel.车厢号,
+                    DynamicHealthModel.耗用率.desc()
             )
 
             # 如果提供了train_no，添加筛选条件
@@ -524,14 +537,14 @@ def update_both_tables(n_intervals, url_params, n_clicks, train_no):
             '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=预警', 'target': '_self'}
         } for item in warning_data]
 
-        # 格式化故障数据
-        formatted_fault = [{
-            '车号': item['dvc_train_no'],
-            '车厢号': item['dvc_carriage_no'],
-            '故障部件': item['fault_name'],
-            '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
-            '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
-        } for item in fault_data]
+    # 格式化故障数据
+    formatted_fault = [{
+        '车号': item['dvc_train_no'],
+        '车厢号': item['dvc_carriage_no'],
+        '故障部件': item['fault_name'],
+        '开始时间': item['start_time'].strftime('%Y-%m-%d %H:%M:%S') if item['start_time'] else '',
+        '操作': {'href': f'/{prefix}/fault?train_no=' + str(item['dvc_train_no'])+'&carriage_no='+str(item['dvc_carriage_no'])+'&fault_type=故障', 'target': '_self'}
+    } for item in fault_data]
 
     # 统计故障部件词频用于词云
     if fault_data:
