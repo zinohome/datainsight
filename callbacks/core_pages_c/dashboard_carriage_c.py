@@ -382,9 +382,63 @@ def create_svg_content(param_data, unit_suffix, key_suffix=None):
     unit_suffix: 'u1' 或 'u2'，用于区分机组一和机组二
     """
     try:
-        # 读取 SVG 文件内容
-        with open('assets/imgs/newAC.svg', 'r', encoding='utf-8') as f:
+        # 读取 SVG 文件内容（改用更合适尺寸的 newAC_small.svg）
+        with open('assets/imgs/newAC_small.svg', 'r', encoding='utf-8') as f:
             svg_content = f.read()
+
+        # 确保关键 id 存在（兼容无 id 的小尺寸源文件）
+        try:
+            import re as _re_id
+            # 根 svg id：若已有其他 id，直接替换为 ac-unit-svg；若没有 id，则注入
+            if 'id="ac-unit-svg"' not in svg_content:
+                if _re_id.search(r'<svg[^>]*\sid="[^"]*"', svg_content):
+                    svg_content = _re_id.sub(r'(<svg[^>]*\s)id="[^"]*"', r'\1id="ac-unit-svg"', svg_content, count=1)
+                else:
+                    svg_content = _re_id.sub(r'(<svg[^>]*)(>)', r'\1 id="ac-unit-svg"\2', svg_content, count=1)
+
+            # tspan data-value -> id 映射
+            dv_to_id = {
+                'fan1-temp': 'fan1-temp-value',
+                'fan2-temp': 'fan2-temp-value',
+                'sys1-low-pressure': 'sys1-low-pressure-value',
+                'sys1-high-pressure': 'sys1-high-pressure-value',
+                'sys2-high-pressure': 'sys2-high-pressure-value',
+                'sys2-low-pressure': 'sys2-low-pressure-value',
+                'fresh-air-temp': 'fresh-air-temp-value',
+                'return-air-temp': 'return-air-temp-value',
+                'co2-level': 'co2-level-value',
+                'humidity-level': 'humidity-level-value',
+            }
+            for dv, _id in dv_to_id.items():
+                # 给对应 tspan 添加缺失的 id（若已有 id 则不处理）
+                pattern = rf'(<tspan[^>]*data-value="{_re_id.escape(dv)}"(?![^>]*\sid=)[^>]*)(>)'
+                svg_content = _re_id.sub(rf'\1 id="{_id}"\2', svg_content, count=1)
+
+            # 按你的要求：将小图中湿度的 data-value 从 humidity 改为 humidity-level
+            svg_content = _re_id.sub(r'data-value="humidity"', 'data-value="humidity-level"', svg_content)
+
+            # 补齐外层 text 的 *-text id，规则：定位包含对应 data-value 的 <text> 节点
+            dv_to_text_id = {
+                'fan1-temp': 'fan1-temp-text',
+                'fan2-temp': 'fan2-temp-text',
+                'sys1-low-pressure': 'sys1-low-pressure-text',
+                'sys1-high-pressure': 'sys1-high-pressure-text',
+                'sys2-high-pressure': 'sys2-high-pressure-text',
+                'sys2-low-pressure': 'sys2-low-pressure-text',
+                'fresh-air-temp': 'fresh-air-temp-text',
+                'return-air-temp': 'return-air-temp-text',
+                'co2-level': 'co2-level-text',
+                'humidity-level': 'humidity-level-text',
+            }
+            for dv, txt_id in dv_to_text_id.items():
+                # 情况1：已有 id，则改为标准 id（只改含该 data-value 的那个 <text>）
+                pattern_has_id = rf'(<text[^>]*\sid=")([^">]*)("[^>]*>)([\s\S]*?data-value="{_re_id.escape(dv)}"[\s\S]*?</text>)'
+                svg_content = _re_id.sub(rf'\1{txt_id}\3\4', svg_content, count=1)
+                # 情况2：没有 id，则插入 id
+                pattern_no_id = rf'(<text(?![^>]*\sid=)[^>]*)(>)(?=[\s\S]*?data-value="{_re_id.escape(dv)}")'
+                svg_content = _re_id.sub(rf'\1 id="{txt_id}"\2', svg_content, count=1)
+        except Exception:
+            pass
         
         # 为不同机组创建不同的 ID
         if unit_suffix == 'u1':
@@ -444,7 +498,12 @@ def create_svg_content(param_data, unit_suffix, key_suffix=None):
                 '  }\n'
                 '  function kick(){\n'
                 '    var nodes=document.querySelectorAll("animate,animateTransform");\n'
-                '    for(var i=0;i<nodes.length;i++){try{if(nodes[i].beginElement){nodes[i].beginElement();}}catch(e){}}\n'
+                '    for(var i=0;i<nodes.length;i++){\n'
+                '      var el=nodes[i];\n'
+                '      var host=el.closest("[data-running-status]");\n'
+                '      if(!host || host.getAttribute("data-running-status")!=="on"){continue;}\n'
+                '      try{ if(el.beginElement){el.beginElement();} }catch(e){}\n'
+                '    }\n'
                 '    try{document.documentElement.setCurrentTime(0);}catch(e){}\n'
                 '  }\n'
                 '  function waitAndKick(n){ if(visible()||n<=0){kick();} else { requestAnimationFrame(function(){waitAndKick(n-1);}); } }\n'
@@ -512,13 +571,39 @@ def create_svg_content(param_data, unit_suffix, key_suffix=None):
             
             # 始终显示动画和文字（不管数据是否为0）
             svg_content = svg_content.replace('data-running-status="off"', 'data-running-status="on"')
-            svg_content = svg_content.replace('visibility: hidden', 'visibility: visible')
+            # 可见性：统一把隐藏改为可见（属性形式与内联style形式）
+            try:
+                import re as _re_vis_all
+                svg_content = _re_vis_all.sub(r'visibility\s*:\s*hidden', 'visibility: visible', svg_content)
+                svg_content = _re_vis_all.sub(r'visibility\s*=\s*"hidden"', 'visibility="visible"', svg_content)
+            except Exception:
+                svg_content = svg_content.replace('visibility: hidden', 'visibility: visible').replace('visibility="hidden"', 'visibility="visible"')
+            # 为箭头路径补充运行标记，允许脚本点火
+            try:
+                import re as _re_arrow_on
+                svg_content = _re_arrow_on.sub(r'(<path[^>]*id="path89[^"]*"(?![^>]*data-running-status)[^>]*)(>)', r'\1 data-running-status="on"\2', svg_content)
+            except Exception:
+                pass
             # 触发所有动画开始
             svg_content = svg_content.replace('begin="indefinite"', 'begin="0s"')
         else:
             # 无数据时停止动画和隐藏
             svg_content = svg_content.replace('data-running-status="on"', 'data-running-status="off"')
-            svg_content = svg_content.replace('visibility: visible', 'visibility: hidden')
+            try:
+                import re as _re_vis2
+                svg_content = _re_vis2.sub(r'visibility\s*:\s*visible', 'visibility: hidden', svg_content)
+                svg_content = _re_vis2.sub(r'visibility\s*=\s*"visible"', 'visibility="hidden"', svg_content)
+            except Exception:
+                svg_content = svg_content.replace('visibility: visible', 'visibility: hidden').replace('visibility="visible"', 'visibility="hidden"')
+            # 箭头路径标记为 off，脚本将不会点火
+            try:
+                import re as _re_arrow_off
+                svg_content = _re_arrow_off.sub(r'(<path[^>]*id="path89[^"]*"[^>]*data-running-status=)"on"', r'\1"off"', svg_content)
+                svg_content = _re_arrow_off.sub(r'(<path[^>]*id="path89[^"]*"(?![^>]*data-running-status)[^>]*)(>)', r'\1 data-running-status="off"\2', svg_content)
+            except Exception:
+                pass
+            # 恢复动画begin为indefinite，避免被脚本误触发
+            svg_content = svg_content.replace('begin="0s"', 'begin="indefinite"')
         
         # 优化SVG：贴齐左上角，尽量填充容器，减少内边距留白
         import re, base64

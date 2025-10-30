@@ -256,7 +256,7 @@ def render(themetoken):
                                                                                         html.Div(
                                                                                             id='c_unit1-svg-container',
                                                                                             style={
-                                                                                                "height": "360px",
+                                                                                                "height": "240px",
                                                                                                 "width": "100%",
                                                                                                 "overflow": "hidden",
                                                                                                 "marginTop": "-6px",
@@ -302,7 +302,7 @@ def render(themetoken):
                                                                                         html.Div(
                                                                                             id='c_unit2-svg-container',
                                                                                             style={
-                                                                                                "height": "360px",
+                                                                                                "height": "240px",
                                                                                                 "width": "100%",
                                                                                                 "overflow": "hidden",
                                                                                                 "marginTop": "-6px",
