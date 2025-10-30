@@ -108,3 +108,18 @@ class BaseConfig:
     # True: 使用 msg_calc_dvc_no 字段（车厢）
     # False: 使用 dvc_carriage_no 字段（车厢号）
     use_carriage_field: bool = False
+
+    # ==== CO2 指示器配置 ====
+    # 阈值（从低到高）
+    co2_thresholds: List[int] = [100, 1000, 1500, 2000, 2500, 3000]
+    # 颜色方案
+    co2_colors: dict = {
+        'inactive': '#1f3a6b',  # 未达阈值
+        'low': '#31e6ff',       # < 1000
+        'mid': '#3aa0ff',       # 1000-2000
+        'warn': '#faad14',      # 2000-3000
+        'high': '#f5222d'       # > 3000
+    }
+    # 调试开关：设置为数值则覆盖实时值，None 不生效
+    co2_debug_u1 = None
+    co2_debug_u2 = None

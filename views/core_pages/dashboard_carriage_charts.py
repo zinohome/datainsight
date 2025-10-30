@@ -241,6 +241,7 @@ def render(themetoken):
                                                             fac.AntdCol(
                                                                 fac.AntdTabs(
                                                                     id='c_unit-tabs',
+                                                                    defaultActiveKey='unit1',
                                                                     tabPosition='left',
                                                                     destroyInactiveTabPane=False,
                                                                     tabPaneAnimated=False,
@@ -266,13 +267,14 @@ def render(themetoken):
                                                                                         span=20
                                                                                     ),
                                                                                     fac.AntdCol(
-                                                                                        html.Img(
-                                                                                            src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit1.svg",
+                                                                                        html.Div(
+                                                                                            id='c_unit1-co2-indicator',
                                                                                             style={
-                                                                                                "width": "80px",
-                                                                                                "height": "80px",
-                                                                                                "objectFit": "contain",
-                                                                                                "display": "block"
+                                                                                                "width": "120px",
+                                                                                                "height": "100%",
+                                                                                                "display": "flex",
+                                                                                                "alignItems": "center",
+                                                                                                "justifyContent": "flex-end"
                                                                                             }
                                                                                         ),
                                                                                         style={
@@ -311,13 +313,14 @@ def render(themetoken):
                                                                                         span=20
                                                                                     ),
                                                                                     fac.AntdCol(
-                                                                                        html.Img(
-                                                                                            src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit2.svg",
+                                                                                        html.Div(
+                                                                                            id='c_unit2-co2-indicator',
                                                                                             style={
-                                                                                                "width": "80px",
-                                                                                                "height": "80px",
-                                                                                                "objectFit": "contain",
-                                                                                                "display": "block"
+                                                                                                "width": "120px",
+                                                                                                "height": "100%",
+                                                                                                "display": "flex",
+                                                                                                "alignItems": "center",
+                                                                                                "justifyContent": "flex-end"
                                                                                             }
                                                                                         ),
                                                                                         style={

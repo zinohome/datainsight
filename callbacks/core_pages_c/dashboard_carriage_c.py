@@ -25,6 +25,74 @@ from orm.chart_carriage_param import ChartCarriageParam
 from orm.chart_carriage_param_current import ChartCarriageParamCurrent
 
 
+# 生成CO2条形指示器的SVG
+def render_co2_indicator_svg(co2_value: float, unit_suffix: str, thresholds=None) -> html.ObjectEl:
+    try:
+        import base64 as _b64
+        thresholds = thresholds or getattr(BaseConfig, 'co2_thresholds', [500, 1000, 1500, 2000, 2500, 3000])
+        palette = getattr(BaseConfig, 'co2_colors', {})
+        inactive_color = palette.get('inactive', '#1f3a6b')
+        if co2_value < 1000:
+            active_color = palette.get('low', '#31e6ff')
+        elif co2_value < 2000:
+            active_color = palette.get('mid', '#3aa0ff')
+        elif co2_value < 3000:
+            active_color = palette.get('warn', '#faad14')
+        else:
+            active_color = palette.get('high', '#f5222d')
+        label_color = '#ffffff'
+
+        n = len(thresholds)
+        max_width = 92
+        min_width = 18
+        bar_height = 10
+        gap = 6
+        left_margin = 64
+        top = 0
+        rects = []
+        for i, t in enumerate(thresholds):
+            # 视觉从下到上：低阈值在下，高阈值在上
+            y = top + (n - 1 - i) * (bar_height + gap)
+            # 条长度从下到上逐渐变长
+            width = int(min_width + (max_width - min_width) * (i + 1) / n)
+            color = active_color if co2_value >= t else inactive_color
+            rects.append(
+                f'<rect x="{left_margin}" y="{y}" width="{width}" height="{bar_height}" rx="2" fill="{color}" />'
+            )
+
+        # 刻度文字从下到上：1000/2000/3000
+        labels = []
+        for t in (1000, 2000, 3000):
+            if t in thresholds:
+                i = thresholds.index(t)
+                y = top + (n - 1 - i) * (bar_height + gap) + bar_height - 2
+                labels.append(f'<text x="{left_margin-6}" y="{y}" text-anchor="end" fill="{label_color}" font-size="12px">{t}ppm</text>')
+        bottom_y = top + n * (bar_height + gap) + 18
+        labels.append(f'<text x="0" y="{bottom_y}" fill="{label_color}" font-size="12px">CO₂浓度 {int(co2_value)}ppm</text>')
+
+        svg = (
+            f'<svg width="140" height="{bottom_y+4}" viewBox="0 0 140 {bottom_y+4}" preserveAspectRatio="xMinYMin meet" '
+            f'xmlns="http://www.w3.org/2000/svg">' + ''.join(rects) + ''.join(labels) + '</svg>'
+        )
+        b64 = _b64.b64encode(svg.encode('utf-8')).decode('utf-8')
+        return html.ObjectEl(
+            data=f'data:image/svg+xml;base64,{b64}',
+            type='image/svg+xml',
+            key=f'co2-{unit_suffix}-{int(time.time()*1000)}',
+            style={
+                'width': '120px',
+                'height': 'calc(100% - 40px)',
+                'marginTop': '30px',
+                'marginRight': '30px',
+                'display': 'block',
+                'border': 'none',
+                'overflow': 'hidden'
+            }
+        )
+    except Exception as e:
+        log.error(f"[render_co2_indicator_svg] 生成失败: {e}")
+        return html.Div("CO2指示器加载失败")
+
 # 查询按钮点击时更新URL参数
 @callback(
     Output('url', 'search', allow_duplicate=True),
@@ -308,7 +376,7 @@ def get_carriage_base_data(train_no=None):
 
 
 # 获取车厢参数数据的函数
-def create_svg_content(param_data, unit_suffix):
+def create_svg_content(param_data, unit_suffix, key_suffix=None):
     """
     根据参数数据创建 SVG 内容
     unit_suffix: 'u1' 或 'u2'，用于区分机组一和机组二
@@ -369,12 +437,20 @@ def create_svg_content(param_data, unit_suffix):
             import re as _re
             _inject_script = (
                 '<script><![CDATA[(function(){\n'
-                '  function restart(){\n'
+                '  function visible(){\n'
+                '    var svg=document.documentElement;\n'
+                '    var bb=svg.getBoundingClientRect();\n'
+                '    return bb.width>0 && bb.height>0 && document.visibilityState==="visible";\n'
+                '  }\n'
+                '  function kick(){\n'
                 '    var nodes=document.querySelectorAll("animate,animateTransform");\n'
                 '    for(var i=0;i<nodes.length;i++){try{if(nodes[i].beginElement){nodes[i].beginElement();}}catch(e){}}\n'
+                '    try{document.documentElement.setCurrentTime(0);}catch(e){}\n'
                 '  }\n'
-                '  if(document.visibilityState!=="hidden"){restart();}\n'
-                '  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"){restart();}});\n'
+                '  function waitAndKick(n){ if(visible()||n<=0){kick();} else { requestAnimationFrame(function(){waitAndKick(n-1);}); } }\n'
+                '  if(document.readyState!=="loading"){waitAndKick(120);}\n'
+                '  document.addEventListener("DOMContentLoaded", function(){waitAndKick(120);});\n'
+                '  document.addEventListener("visibilitychange", function(){ if(document.visibilityState==="visible"){waitAndKick(60);} });\n'
                 '})();]]></script>'
             )
             # 注意：替换串中分组引用必须用 \1（单反斜杠），否则会输出字符“\1”破坏 SVG
@@ -467,7 +543,7 @@ def create_svg_content(param_data, unit_suffix):
         return html.ObjectEl(
             data=f"data:image/svg+xml;base64,{svg_base64}",
             type="image/svg+xml",
-            key=f"svg-{unit_suffix}-{int(time.time()*1000)}",
+            key=f"svg-{unit_suffix}-{key_suffix or 'static'}",
             style={
                 "width": "100%",
                 "height": "240px",
@@ -625,7 +701,9 @@ def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
      Output('c_i_unit2_current1', 'items'),
      Output('c_i_unit2_current2', 'items'),
      Output('c_unit1-svg-container', 'children'),
-     Output('c_unit2-svg-container', 'children')],
+     Output('c_unit2-svg-container', 'children'),
+     Output('c_unit1-co2-indicator', 'children'),
+     Output('c_unit2-co2-indicator', 'children')],
     [Input('l-update-data-interval', 'n_intervals'),
      Input('c_unit-svg-init', 'n_intervals'),
      Input('c_unit-tabs', 'activeKey'),
@@ -645,8 +723,11 @@ def update_unit_info_tables(n_intervals, svg_init_tick, active_key, url_params, 
     if not train_no or not carriage_no:
         log.debug("[update_unit_info_tables] 未提供train_no或carriage_no，返回空数据和默认值")
         # 创建空的 SVG 内容
-        empty_svg1 = create_svg_content(None, 'u1')
-        empty_svg2 = create_svg_content(None, 'u2')
+        svg_key_seed = f"{svg_init_tick}-{active_key or ''}"
+        empty_svg1 = create_svg_content(None, 'u1', svg_key_seed)
+        empty_svg2 = create_svg_content(None, 'u2', svg_key_seed)
+        co2_1 = render_co2_indicator_svg(0, f'u1-{svg_key_seed}')
+        co2_2 = render_co2_indicator_svg(0, f'u2-{svg_key_seed}')
         return 0, 0, 0, 0, 0, 0, [{'label': '0','content': '冷凝风机电流-U11'},
                                          {'label': '0','content': '压缩机电流-U11'},
                                          {'label': '0','content': '通风机电流-U11'}], \
@@ -659,15 +740,18 @@ def update_unit_info_tables(n_intervals, svg_init_tick, active_key, url_params, 
                [{'label': '0','content': '冷凝风机电流-U22'},
                                          {'label': '0','content': '压缩机电流-U22'},
                                          {'label': '0','content': '通风机电流-U22'}], \
-               empty_svg1, empty_svg2
+               empty_svg1, empty_svg2, co2_1, co2_2
 
     # 获取数据
     param_data = get_carriage_param_data(train_no, carriage_no)
     if not param_data:
         log.debug("[update_unit_info_tables] 未找到参数数据，返回空数据和默认值")
         # 创建空的 SVG 内容
-        empty_svg1 = create_svg_content(None, 'u1')
-        empty_svg2 = create_svg_content(None, 'u2')
+        svg_key_seed = f"{svg_init_tick}-{active_key or ''}"
+        empty_svg1 = create_svg_content(None, 'u1', svg_key_seed)
+        empty_svg2 = create_svg_content(None, 'u2', svg_key_seed)
+        co2_1 = render_co2_indicator_svg(0, f'u1-{svg_key_seed}')
+        co2_2 = render_co2_indicator_svg(0, f'u2-{svg_key_seed}')
         return 0, 0, 0, 0, 0, 0, [{'label': '0','content': '冷凝风机电流-U11'},
                                          {'label': '0','content': '压缩机电流-U11'},
                                          {'label': '0','content': '通风机电流-U11'}], \
@@ -680,7 +764,7 @@ def update_unit_info_tables(n_intervals, svg_init_tick, active_key, url_params, 
                [{'label': '0','content': '冷凝风机电流-U22'},
                                          {'label': '0','content': '压缩机电流-U22'},
                                          {'label': '0','content': '通风机电流-U22'}], \
-               empty_svg1, empty_svg2
+               empty_svg1, empty_svg2, co2_1, co2_2
 
     log.debug(f"[update_unit_info_tables] 参数数据: {param_data}")
 
@@ -738,7 +822,13 @@ def update_unit_info_tables(n_intervals, svg_init_tick, active_key, url_params, 
 
     # 创建 SVG 内容
     # 根据当前激活页签优先重建对应机组，触发首帧
-    svg1 = create_svg_content(param_data, 'u1')
-    svg2 = create_svg_content(param_data, 'u2')
+    svg_key_seed = f"{svg_init_tick}-{active_key or ''}"
+    svg1 = create_svg_content(param_data, 'u1', svg_key_seed)
+    svg2 = create_svg_content(param_data, 'u2', svg_key_seed)
+    # 覆盖调试：BaseConfig.co2_debug_u1/u2 不为 None 时使用调试值
+    co2_val_u1 = BaseConfig.co2_debug_u1 if BaseConfig.co2_debug_u1 is not None else float(param_data.get('co2_u1', 0) or 0)
+    co2_val_u2 = BaseConfig.co2_debug_u2 if BaseConfig.co2_debug_u2 is not None else float(param_data.get('co2_u2', 0) or 0)
+    co2_1 = render_co2_indicator_svg(co2_val_u1, f'u1-{svg_key_seed}')
+    co2_2 = render_co2_indicator_svg(co2_val_u2, f'u2-{svg_key_seed}')
     
-    return unit1_supply_temp, unit1_humidity, unit1_car_temp, unit2_supply_temp, unit2_humidity, unit2_car_temp, unit1_current1_items, unit1_current2_items, unit2_current1_items, unit2_current2_items, svg1, svg2
+    return unit1_supply_temp, unit1_humidity, unit1_car_temp, unit2_supply_temp, unit2_humidity, unit2_car_temp, unit1_current1_items, unit1_current2_items, unit2_current1_items, unit2_current2_items, svg1, svg2, co2_1, co2_2
