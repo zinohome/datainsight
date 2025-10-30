@@ -377,7 +377,8 @@ def create_svg_content(param_data, unit_suffix):
                 '  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"){restart();}});\n'
                 '})();]]></script>'
             )
-            svg_content = _re.sub(r'(<svg[^>]*>)', r"\\1" + _inject_script, svg_content, count=1)
+            # 注意：替换串中分组引用必须用 \1（单反斜杠），否则会输出字符“\1”破坏 SVG
+            svg_content = _re.sub(r'(<svg[^>]*>)', r"\1" + _inject_script, svg_content, count=1)
         except Exception:
             pass
 
@@ -408,17 +409,30 @@ def create_svg_content(param_data, unit_suffix):
             # 添加调试信息
             log.debug(f"[create_svg_content] {unit_suffix} 数据: fan_temp={fan_temp}, sys1_low={sys1_low_pressure}, sys1_high={sys1_high_pressure}, sys2_high={sys2_high_pressure}, sys2_low={sys2_low_pressure}, fresh_air={fresh_air_temp}, return_air={return_air_temp}, co2={co2_level}, humidity={humidity_level}")
             
-            # 更新 SVG 中的数值
-            svg_content = svg_content.replace('26.90°C', f'{fan_temp:.1f}°C')
-            svg_content = svg_content.replace('27.00°C', f'{fan_temp:.1f}°C')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys1_low_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys1_high_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys2_high_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys2_low_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('27.50°C', f'{fresh_air_temp:.1f}°C')
-            svg_content = svg_content.replace('27.50°C', f'{return_air_temp:.1f}°C')
-            svg_content = svg_content.replace('427.00ppm', f'{co2_level:.0f}ppm')
-            svg_content = svg_content.replace('49.00%', f'{humidity_level:.1f}%')
+            # 更新 SVG 中的数值（基于唯一 id 精确替换，避免重复文本替换冲突）
+            import re as _re2
+
+            def _replace_tspan_text(svg: str, tspan_id: str, new_text: str) -> str:
+                pattern = rf'(\<tspan[^>]*id="{_re2.escape(tspan_id)}"[^>]*\>)([^<]*)(\</tspan\>)'
+                return _re2.sub(pattern, lambda m: m.group(1) + new_text + m.group(3), svg, count=1)
+
+            id_suffix = '-1' if unit_suffix == 'u1' else '-2'
+
+            # 风机温度（两个送风值共用同一温度）
+            svg_content = _replace_tspan_text(svg_content, f'fan1-temp-value{id_suffix}', f'{fan_temp:.1f}°C')
+            svg_content = _replace_tspan_text(svg_content, f'fan2-temp-value{id_suffix}', f'{fan_temp:.1f}°C')
+
+            # 压力值（分别定点替换）
+            svg_content = _replace_tspan_text(svg_content, f'sys1-low-pressure-value{id_suffix}', f'{sys1_low_pressure:.2f}Mpa')
+            svg_content = _replace_tspan_text(svg_content, f'sys1-high-pressure-value{id_suffix}', f'{sys1_high_pressure:.2f}Mpa')
+            svg_content = _replace_tspan_text(svg_content, f'sys2-high-pressure-value{id_suffix}', f'{sys2_high_pressure:.2f}Mpa')
+            svg_content = _replace_tspan_text(svg_content, f'sys2-low-pressure-value{id_suffix}', f'{sys2_low_pressure:.2f}Mpa')
+
+            # 新风/回风温度、CO2、湿度
+            svg_content = _replace_tspan_text(svg_content, f'fresh-air-temp-value{id_suffix}', f'{fresh_air_temp:.1f}°C')
+            svg_content = _replace_tspan_text(svg_content, f'return-air-temp-value{id_suffix}', f'{return_air_temp:.1f}°C')
+            svg_content = _replace_tspan_text(svg_content, f'co2-level-value{id_suffix}', f'{co2_level:.0f}ppm')
+            svg_content = _replace_tspan_text(svg_content, f'humidity-level-value{id_suffix}', f'{humidity_level:.1f}%')
             
             # 始终显示动画和文字（不管数据是否为0）
             svg_content = svg_content.replace('data-running-status="off"', 'data-running-status="on"')
@@ -613,13 +627,15 @@ def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
      Output('c_unit1-svg-container', 'children'),
      Output('c_unit2-svg-container', 'children')],
     [Input('l-update-data-interval', 'n_intervals'),
+     Input('c_unit-svg-init', 'n_intervals'),
+     Input('c_unit-tabs', 'activeKey'),
      Input('c_url-params-store', 'data'),
      Input('c_query_button', 'nClicks'),
      Input('c_train_no', 'value'),
      Input('c_carriage_no', 'value')],
     prevent_initial_call=False
 )
-def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, carriage_no_value):
+def update_unit_info_tables(n_intervals, svg_init_tick, active_key, url_params, n_clicks, train_no_value, carriage_no_value):
     # 使用新的输入参数值
     train_no = train_no_value
     carriage_no = carriage_no_value
@@ -721,6 +737,7 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
     unit2_current2_items = format_current_items(unit2_current2_data, 'U22')
 
     # 创建 SVG 内容
+    # 根据当前激活页签优先重建对应机组，触发首帧
     svg1 = create_svg_content(param_data, 'u1')
     svg2 = create_svg_content(param_data, 'u2')
     

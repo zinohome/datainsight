@@ -30,6 +30,13 @@ def render(themetoken):
             id="l-update-data-interval",
             interval=BaseConfig.line_update_data_interval,  # 示例，每10秒更新一次
         ),
+        # 机组SVG首帧自启动一次性触发
+        dcc.Interval(
+            id='c_unit-svg-init',
+            interval=200,
+            n_intervals=0,
+            max_intervals=1
+        ),
         # 添加主题模式存储 - 初始设为深色
         dcc.Store(id="theme-mode-store", data="dark"),
         # 仪表盘网格布局
