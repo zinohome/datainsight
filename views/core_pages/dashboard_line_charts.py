@@ -648,97 +648,115 @@ def render(themetoken):
                                 ),
                                 span=8,
                             ),
-                            # # 典型故障图表
-                            # fac.AntdCol(
-                            #     blank_card(
-                            #         rootStyle={"background": themetoken["colorBgCard"]},
-                            #         children=fac.AntdRow(
-                            #             [
-                            #                 fact.AntdWordCloud(
-                            #                     id="l_f_fault-wordcloud",
-                            #                     wordField="word",
-                            #                     weightField="value",
-                            #                     height=220,
-                            #                     colorField='word',
-                            #                     wordStyle={'fontSize': [12, 36]},
-                            #                 ),
-                            #             ],
-                            #             style={"height": "220px",
-                            #                    "alignItems": "flex-start",
-                            #                    "margin": 0,
-                            #                    "padding": 0}
-                            #         ),
-                            #     ),
-                            #     span=8,
-                            #     style={"marginTop": "150px"}
-                            # ),
-                            # # 典型预警图表
-                            # fac.AntdCol(
-                            #     blank_card(
-                            #         rootStyle={"background": themetoken["colorBgCard"]},
-                            #         children=fac.AntdRow(
-                            #             [
-                            #                 fact.AntdWordCloud(
-                            #                     id="l_w_warning-wordcloud",
-                            #                     wordField="word",
-                            #                     weightField="value",
-                            #                     height=220,
-                            #                     colorField='word',
-                            #                     wordStyle={'fontSize': [12, 36]},
-                            #                 ),
-                            #             ],
-                            #             style={"height": "220px",
-                            #                    "alignItems": "flex-start",
-                            #                    "margin": 0,
-                            #                    "padding": 0}
-                            #         ),
-                            #     ),
-                            #     span=8,
-                            #     style={"marginTop": "150px"}
-                            # ),
-                            # 部件寿命图表
+                             # 典型故障图表
+                             fac.AntdCol(
+                                 blank_card(
+                                     rootStyle={"background": themetoken["colorBgCard"]},
+                                     children=fac.AntdRow(
+                                         [
+                                             fact.AntdWordCloud(
+                                                 id="l_f_fault-wordcloud",
+                                                 wordField="word",
+                                                 weightField="value",
+                                                 height=220,
+                                                 colorField='word',
+                                                 wordStyle={'fontSize': [12, 36]},
+                                             ),
+                                         ],
+                                         style={"height": "220px",
+                                                "alignItems": "flex-start",
+                                                "margin": 0,
+                                                "padding": 0}
+                                     ),
+                                 ),
+                                 span=8,
+                             ),
+                             # 典型预警图表
+                             fac.AntdCol(
+                                 blank_card(
+                                     rootStyle={"background": themetoken["colorBgCard"]},
+                                     children=fac.AntdRow(
+                                         [
+                                             fact.AntdWordCloud(
+                                                 id="l_w_warning-wordcloud",
+                                                 wordField="word",
+                                                 weightField="value",
+                                                 height=220,
+                                                 colorField='word',
+                                                 wordStyle={'fontSize': [12, 36]},
+                                             ),
+                                         ],
+                                         style={"height": "220px",
+                                                "alignItems": "flex-start",
+                                                "margin": 0,
+                                                "padding": 0}
+                                     ),
+                                 ),
+                                 span=8,
+                             ),
+                            # 部件寿命图表（分组柱状图：最高、平均、最小值）
                             fac.AntdCol(
                                 blank_card(
-                                    rootStyle={"background": themetoken["colorBgCard"]},
+                                    rootStyle={
+                                        "background": themetoken["colorBgCard"],
+                                        "height": "350px",
+                                        "display": "flex",
+                                        "flexDirection": "column"
+                                    },
                                     children=fac.AntdRow(
                                         [
-                                            fact.AntdBar(
+                                            fact.AntdColumn(
                                                 id='l_h_health_bar',
-                                                data=[
-                                                    {
-                                                        'carriage': f'12101-{i}',
-                                                        'ratio': random.randint(0, 10),
-                                                        'param': f'item{j}',
+                                                data=[],  # 初始为空，由回调填充
+                                                xField='device',      # X轴：设备名称
+                                                yField='value',       # Y轴：寿命值（已耗）
+                                                seriesField='type',   # 系列字段：用于分组（最高值/平均值/最小值）
+                                                isGroup=True,
+                                                # 颜色配置：根据 seriesField (type) 的值映射颜色
+                                                # 最高值=黄色，平均值=绿色，最小值=蓝色
+                                                # 颜色数组按 type 字段值的出现顺序映射
+                                                color=['#ffeb3b', '#4caf50', '#2196f3'],  # 黄色、绿色、蓝色
+                                                #label={
+                                                #    'position': 'middle',
+                                                #    'formatter': {'func': '(item) => item.value.toFixed(0)'},
+                                                #    'style': {'fill': '#fff', 'fontSize': 12}
+                                                #},
+                                                legend={
+                                                    'position': 'top-left',
+                                                    'flipPage': False
+                                                },
+                                                tooltip={
+                                                    'shared': True,
+                                                    'showMarkers': False
+                                                },
+                                                # Y轴配置：根据数据动态调整范围和刻度
+                                                # 使用 meta 配置字段的元信息，包括 Y 轴的范围和格式化
+                                                meta={
+                                                    'value': {
+                                                        'min': 0,           # 最小值从0开始（不设置则从数据最小值开始）
+                                                        # 'max' 不设置时会自动根据数据最大值调整
+                                                        'nice': True,        # 美化刻度线（自动调整到友好的刻度值）
+                                                        'tickCount': 6,      # 期望的刻度数量
+                                                        'formatter': {'func': '(val) => val.toLocaleString()'}  # 格式化：添加千位分隔符
                                                     }
-                                                    for i in range(1, 7)
-                                                    for j in range(1, 15)
-                                                ],
-                                                xField='ratio',
-                                                yField='carriage',
-                                                seriesField='param',
-                                                isStack=True,
-                                                isPercent=False,
-                                                label={'formatter': {'func': '(item) => item.ratio.toFixed(2)'}},
+                                                },
                                                 style={
-                                                    'height': '100%',
+                                                    'height': '300px',
                                                     'width': '100%',
                                                     'border': 'none',
-                                                    'border-collapse': 'collapse',
-                                                    'border-spacing': '0',
                                                     'backgroundColor': 'transparent'
                                                 },
                                             )
                                         ],
-                                        style={"height": "250px",
+                                        style={"height": "300px",
                                                "alignItems": "flex-start",
                                                "margin": 0,
                                                "padding": 0,
-                                               "width": "100%",}
+                                               "width": "100%"}
                                     ),
                                 ),
                                 span=8,
-                                offset=16,
-                                style={"marginTop": "130px"}
+                                style={"marginTop": "150px"}
                             ),
                         ],
                         gutter=[10, 10],

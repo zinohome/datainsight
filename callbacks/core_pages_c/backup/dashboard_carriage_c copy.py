@@ -2,16 +2,11 @@
 import heapq
 import random
 import time
-import base64
 from datetime import datetime, timedelta
 import pytz
 
-from dash import callback, Output, Input, State, callback_context, no_update
-from dash import html
+from dash import callback, Output, Input, State, callback_context
 from configs import BaseConfig
-
-# 获取项目前缀
-prefix = BaseConfig.project_prefix
 from orm.db import db, log_pool_status, _sentinel
 from orm.chart_view_fault_timed import Chart_view_fault_timed
 import pandas as pd
@@ -308,165 +303,6 @@ def get_carriage_base_data(train_no=None):
 
 
 # 获取车厢参数数据的函数
-def create_svg_content(param_data, unit_suffix):
-    """
-    根据参数数据创建 SVG 内容
-    unit_suffix: 'u1' 或 'u2'，用于区分机组一和机组二
-    """
-    try:
-        # 读取 SVG 文件内容
-        with open('assets/imgs/newAC.svg', 'r', encoding='utf-8') as f:
-            svg_content = f.read()
-        
-        # 为不同机组创建不同的 ID
-        if unit_suffix == 'u1':
-            svg_content = svg_content.replace('id="ac-unit-svg"', 'id="ac-unit-svg-1"')
-            svg_content = svg_content.replace('id="fan1-temp-text"', 'id="fan1-temp-text-1"')
-            svg_content = svg_content.replace('id="fan2-temp-text"', 'id="fan2-temp-text-1"')
-            svg_content = svg_content.replace('id="fan1-temp-value"', 'id="fan1-temp-value-1"')
-            svg_content = svg_content.replace('id="fan2-temp-value"', 'id="fan2-temp-value-1"')
-            svg_content = svg_content.replace('id="sys1-low-pressure-text"', 'id="sys1-low-pressure-text-1"')
-            svg_content = svg_content.replace('id="sys1-high-pressure-text"', 'id="sys1-high-pressure-text-1"')
-            svg_content = svg_content.replace('id="sys2-high-pressure-text"', 'id="sys2-high-pressure-text-1"')
-            svg_content = svg_content.replace('id="sys2-low-pressure-text"', 'id="sys2-low-pressure-text-1"')
-            svg_content = svg_content.replace('id="fresh-air-temp-text"', 'id="fresh-air-temp-text-1"')
-            svg_content = svg_content.replace('id="return-air-temp-text"', 'id="return-air-temp-text-1"')
-            svg_content = svg_content.replace('id="co2-level-text"', 'id="co2-level-text-1"')
-            svg_content = svg_content.replace('id="humidity-level-text"', 'id="humidity-level-text-1"')
-            svg_content = svg_content.replace('id="sys1-low-pressure-value"', 'id="sys1-low-pressure-value-1"')
-            svg_content = svg_content.replace('id="sys1-high-pressure-value"', 'id="sys1-high-pressure-value-1"')
-            svg_content = svg_content.replace('id="sys2-high-pressure-value"', 'id="sys2-high-pressure-value-1"')
-            svg_content = svg_content.replace('id="sys2-low-pressure-value"', 'id="sys2-low-pressure-value-1"')
-            svg_content = svg_content.replace('id="fresh-air-temp-value"', 'id="fresh-air-temp-value-1"')
-            svg_content = svg_content.replace('id="return-air-temp-value"', 'id="return-air-temp-value-1"')
-            svg_content = svg_content.replace('id="co2-level-value"', 'id="co2-level-value-1"')
-            svg_content = svg_content.replace('id="humidity-level-value"', 'id="humidity-level-value-1"')
-        else:  # u2
-            svg_content = svg_content.replace('id="ac-unit-svg"', 'id="ac-unit-svg-2"')
-            svg_content = svg_content.replace('id="fan1-temp-text"', 'id="fan1-temp-text-2"')
-            svg_content = svg_content.replace('id="fan2-temp-text"', 'id="fan2-temp-text-2"')
-            svg_content = svg_content.replace('id="fan1-temp-value"', 'id="fan1-temp-value-2"')
-            svg_content = svg_content.replace('id="fan2-temp-value"', 'id="fan2-temp-value-2"')
-            svg_content = svg_content.replace('id="sys1-low-pressure-text"', 'id="sys1-low-pressure-text-2"')
-            svg_content = svg_content.replace('id="sys1-high-pressure-text"', 'id="sys1-high-pressure-text-2"')
-            svg_content = svg_content.replace('id="sys2-high-pressure-text"', 'id="sys2-high-pressure-text-2"')
-            svg_content = svg_content.replace('id="sys2-low-pressure-text"', 'id="sys2-low-pressure-text-2"')
-            svg_content = svg_content.replace('id="fresh-air-temp-text"', 'id="fresh-air-temp-text-2"')
-            svg_content = svg_content.replace('id="return-air-temp-text"', 'id="return-air-temp-text-2"')
-            svg_content = svg_content.replace('id="co2-level-text"', 'id="co2-level-text-2"')
-            svg_content = svg_content.replace('id="humidity-level-text"', 'id="humidity-level-text-2"')
-            svg_content = svg_content.replace('id="sys1-low-pressure-value"', 'id="sys1-low-pressure-value-2"')
-            svg_content = svg_content.replace('id="sys1-high-pressure-value"', 'id="sys1-high-pressure-value-2"')
-            svg_content = svg_content.replace('id="sys2-high-pressure-value"', 'id="sys2-high-pressure-value-2"')
-            svg_content = svg_content.replace('id="sys2-low-pressure-value"', 'id="sys2-low-pressure-value-2"')
-            svg_content = svg_content.replace('id="fresh-air-temp-value"', 'id="fresh-air-temp-value-2"')
-            svg_content = svg_content.replace('id="return-air-temp-value"', 'id="return-air-temp-value-2"')
-            svg_content = svg_content.replace('id="co2-level-value"', 'id="co2-level-value-2"')
-            svg_content = svg_content.replace('id="humidity-level-value"', 'id="humidity-level-value-2"')
-        
-        # 在 SVG 中注入脚本：加载与可见时强制启动所有 SMIL 动画
-        try:
-            import re as _re
-            _inject_script = (
-                '<script><![CDATA[(function(){\n'
-                '  function restart(){\n'
-                '    var nodes=document.querySelectorAll("animate,animateTransform");\n'
-                '    for(var i=0;i<nodes.length;i++){try{if(nodes[i].beginElement){nodes[i].beginElement();}}catch(e){}}\n'
-                '  }\n'
-                '  if(document.visibilityState!=="hidden"){restart();}\n'
-                '  document.addEventListener("visibilitychange",function(){if(document.visibilityState==="visible"){restart();}});\n'
-                '})();]]></script>'
-            )
-            svg_content = _re.sub(r'(<svg[^>]*>)', r"\\1" + _inject_script, svg_content, count=1)
-        except Exception:
-            pass
-
-        # 更新数值
-        if param_data:
-            # 机组一数据映射
-            if unit_suffix == 'u1':
-                fan_temp = param_data.get('送风温度_u1', 0)
-                sys1_low_pressure = param_data.get('吸气压力_u11', 0)
-                sys1_high_pressure = param_data.get('高压压力_u11', 0)
-                sys2_high_pressure = param_data.get('高压压力_u12', 0)
-                sys2_low_pressure = param_data.get('吸气压力_u12', 0)
-                fresh_air_temp = param_data.get('新风温度_u1', 0)
-                return_air_temp = param_data.get('回风温度_u1', 0)
-                co2_level = param_data.get('co2_u1', 0)
-                humidity_level = param_data.get('车厢湿度_1', 0)
-            else:  # u2
-                fan_temp = param_data.get('送风温度_u2', 0)
-                sys1_low_pressure = param_data.get('吸气压力_u21', 0)
-                sys1_high_pressure = param_data.get('高压压力_u21', 0)
-                sys2_high_pressure = param_data.get('高压压力_u22', 0)
-                sys2_low_pressure = param_data.get('吸气压力_u22', 0)
-                fresh_air_temp = param_data.get('新风温度_u2', 0)
-                return_air_temp = param_data.get('回风温度_u2', 0)
-                co2_level = param_data.get('co2_u2', 0)
-                humidity_level = param_data.get('车厢湿度_2', 0)
-            
-            # 添加调试信息
-            log.debug(f"[create_svg_content] {unit_suffix} 数据: fan_temp={fan_temp}, sys1_low={sys1_low_pressure}, sys1_high={sys1_high_pressure}, sys2_high={sys2_high_pressure}, sys2_low={sys2_low_pressure}, fresh_air={fresh_air_temp}, return_air={return_air_temp}, co2={co2_level}, humidity={humidity_level}")
-            
-            # 更新 SVG 中的数值
-            svg_content = svg_content.replace('26.90°C', f'{fan_temp:.1f}°C')
-            svg_content = svg_content.replace('27.00°C', f'{fan_temp:.1f}°C')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys1_low_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys1_high_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys2_high_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('1.00Mpa', f'{sys2_low_pressure:.2f}Mpa')
-            svg_content = svg_content.replace('27.50°C', f'{fresh_air_temp:.1f}°C')
-            svg_content = svg_content.replace('27.50°C', f'{return_air_temp:.1f}°C')
-            svg_content = svg_content.replace('427.00ppm', f'{co2_level:.0f}ppm')
-            svg_content = svg_content.replace('49.00%', f'{humidity_level:.1f}%')
-            
-            # 始终显示动画和文字（不管数据是否为0）
-            svg_content = svg_content.replace('data-running-status="off"', 'data-running-status="on"')
-            svg_content = svg_content.replace('visibility: hidden', 'visibility: visible')
-            # 触发所有动画开始
-            svg_content = svg_content.replace('begin="indefinite"', 'begin="0s"')
-        else:
-            # 无数据时停止动画和隐藏
-            svg_content = svg_content.replace('data-running-status="on"', 'data-running-status="off"')
-            svg_content = svg_content.replace('visibility: visible', 'visibility: hidden')
-        
-        # 优化SVG：贴齐左上角，尽量填充容器，减少内边距留白
-        import re, base64
-        # 强制使用左上对齐
-        if 'preserveAspectRatio' in svg_content:
-            svg_content = re.sub(r'preserveAspectRatio="[^"]*"', 'preserveAspectRatio="xMinYMin meet"', svg_content, count=1)
-        else:
-            svg_content = svg_content.replace('<svg ', '<svg preserveAspectRatio="xMinYMin meet" ', 1)
-        # 尽量让根节点宽高随容器撑满
-        if 'width="' in svg_content:
-            svg_content = re.sub(r'width="[^"]*"', 'width="100%"', svg_content, count=1)
-        else:
-            svg_content = svg_content.replace('<svg ', '<svg width="100%" ', 1)
-        if 'height="' in svg_content:
-            svg_content = re.sub(r'height="[^"]*"', 'height="100%"', svg_content, count=1)
-        else:
-            svg_content = svg_content.replace('<svg ', '<svg height="100%" ', 1)
-
-        # 使用 html.ObjectEl 来渲染 SVG（支持动画，无滚动条）
-        svg_base64 = base64.b64encode(svg_content.encode('utf-8')).decode('utf-8')
-        
-        return html.ObjectEl(
-            data=f"data:image/svg+xml;base64,{svg_base64}",
-            type="image/svg+xml",
-            key=f"svg-{unit_suffix}-{int(time.time()*1000)}",
-            style={
-                "width": "100%",
-                "height": "240px",
-                "border": "none",
-                "overflow": "hidden",
-                "display": "block"  # 消除内联替换元素基线间隙
-            }
-        )
-        
-    except Exception as e:
-        log.error(f"[create_svg_content] 创建 SVG 内容失败: {e}")
-        return html.Div("SVG 加载失败")
-
 def get_carriage_param_data(train_no=None, carriage_no=None):
     # 构建查询
     query = ChartCarriageParam.select()
@@ -600,7 +436,9 @@ def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
 
 # 更新机组信息表格的回调函数
 @callback(
-    [Output('c_i_unit1_supply_temp', 'percent'),
+    [Output('c_i_info_unit1-table', 'data'),
+     Output('c_i_info_unit2-table', 'data'),
+     Output('c_i_unit1_supply_temp', 'percent'),
      Output('c_i_unit1_humidity', 'percent'),
      Output('c_i_unit1_car_temp', 'percent'),
      Output('c_i_unit2_supply_temp', 'percent'),
@@ -609,9 +447,7 @@ def get_carriage_param_current_data(train_no=None, carriage_no=None, unit=None):
      Output('c_i_unit1_current1', 'items'),
      Output('c_i_unit1_current2', 'items'),
      Output('c_i_unit2_current1', 'items'),
-     Output('c_i_unit2_current2', 'items'),
-     Output('c_unit1-svg-container', 'children'),
-     Output('c_unit2-svg-container', 'children')],
+     Output('c_i_unit2_current2', 'items')],
     [Input('l-update-data-interval', 'n_intervals'),
      Input('c_url-params-store', 'data'),
      Input('c_query_button', 'nClicks'),
@@ -628,10 +464,7 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
     # 如果没有train_no或carriage_no，返回空数据
     if not train_no or not carriage_no:
         log.debug("[update_unit_info_tables] 未提供train_no或carriage_no，返回空数据和默认值")
-        # 创建空的 SVG 内容
-        empty_svg1 = create_svg_content(None, 'u1')
-        empty_svg2 = create_svg_content(None, 'u2')
-        return 0, 0, 0, 0, 0, 0, [{'label': '0','content': '冷凝风机电流-U11'},
+        return [], [], 0, 0, 0, 0, 0, 0,[{'label': '0','content': '冷凝风机电流-U11'},
                                          {'label': '0','content': '压缩机电流-U11'},
                                          {'label': '0','content': '通风机电流-U11'}], \
                [{'label': '0','content': '冷凝风机电流-U12'},
@@ -642,17 +475,13 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
                                          {'label': '0','content': '通风机电流-U21'}], \
                [{'label': '0','content': '冷凝风机电流-U22'},
                                          {'label': '0','content': '压缩机电流-U22'},
-                                         {'label': '0','content': '通风机电流-U22'}], \
-               empty_svg1, empty_svg2
+                                         {'label': '0','content': '通风机电流-U22'}]
 
     # 获取数据
     param_data = get_carriage_param_data(train_no, carriage_no)
     if not param_data:
         log.debug("[update_unit_info_tables] 未找到参数数据，返回空数据和默认值")
-        # 创建空的 SVG 内容
-        empty_svg1 = create_svg_content(None, 'u1')
-        empty_svg2 = create_svg_content(None, 'u2')
-        return 0, 0, 0, 0, 0, 0, [{'label': '0','content': '冷凝风机电流-U11'},
+        return [], [], 0, 0, 0, 0, 0, 0,[{'label': '0','content': '冷凝风机电流-U11'},
                                          {'label': '0','content': '压缩机电流-U11'},
                                          {'label': '0','content': '通风机电流-U11'}], \
                [{'label': '0','content': '冷凝风机电流-U12'},
@@ -663,12 +492,37 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
                                          {'label': '0','content': '通风机电流-U21'}], \
                [{'label': '0','content': '冷凝风机电流-U22'},
                                          {'label': '0','content': '压缩机电流-U22'},
-                                         {'label': '0','content': '通风机电流-U22'}], \
-               empty_svg1, empty_svg2
+                                         {'label': '0','content': '通风机电流-U22'}]
 
     log.debug(f"[update_unit_info_tables] 参数数据: {param_data}")
 
-    # 计算进度条数据（保留用于其他组件）
+    # 格式化机组1表格数据
+    unit1_data = [{
+        'pressure1': {'tag': f"{param_data.get('吸气压力_u11', 0):.2f} MPa", 'color': 'cyan'},
+        'pressure2': {'tag': f"{param_data.get('吸气压力_u12', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure1': {'tag': f"{param_data.get('高压压力_u11', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure2': {'tag': f"{param_data.get('高压压力_u12', 0):.2f} MPa", 'color': 'cyan'},
+        'temp1': {'tag': f"{param_data.get('新风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'temp2': {'tag': f"{param_data.get('回风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'temp3': {'tag': f"{param_data.get('送风温度_u1', 0):.1f}°C", 'color': 'cyan'},
+        'co2': {'tag': f"{param_data.get('co2_u1', 0):.0f} ppm", 'color': 'cyan'},
+        'carTemp': {'tag': f"{param_data.get('车厢温度_1', 0):.1f}°C", 'color': 'cyan'},
+        'humidity': {'tag': f"{param_data.get('车厢湿度_1', 0):.1f}%", 'color': 'cyan'}
+    }]
+
+    # 格式化机组2表格数据
+    unit2_data = [{
+        'pressure1': {'tag': f"{param_data.get('吸气压力_u21', 0):.2f} MPa", 'color': 'cyan'},
+        'pressure2': {'tag': f"{param_data.get('吸气压力_u22', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure1': {'tag': f"{param_data.get('高压压力_u21', 0):.2f} MPa", 'color': 'cyan'},
+        'highPressure2': {'tag': f"{param_data.get('高压压力_u22', 0):.2f} MPa", 'color': 'cyan'},
+        'temp1': {'tag': f"{param_data.get('新风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'temp2': {'tag': f"{param_data.get('回风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'temp3': {'tag': f"{param_data.get('送风温度_u2', 0):.1f}°C", 'color': 'cyan'},
+        'co2': {'tag': f"{param_data.get('co2_u2', 0):.0f} ppm", 'color': 'cyan'},
+        'carTemp': {'tag': f"{param_data.get('车厢温度_2', 0):.1f}°C", 'color': 'cyan'},
+        'humidity': {'tag': f"{param_data.get('车厢湿度_2', 0):.1f}%", 'color': 'cyan'}
+    }]
     # 计算各参数的百分比值（除以100并保留三位小数）
     unit1_supply_temp = float(f"{param_data.get('送风温度_u1', 0):.1f}")
     unit1_humidity = float(f"{param_data.get('车厢湿度_1', 0):.1f}")
@@ -720,8 +574,4 @@ def update_unit_info_tables(n_intervals, url_params, n_clicks, train_no_value, c
     unit2_current1_items = format_current_items(unit2_current1_data, 'U21')
     unit2_current2_items = format_current_items(unit2_current2_data, 'U22')
 
-    # 创建 SVG 内容
-    svg1 = create_svg_content(param_data, 'u1')
-    svg2 = create_svg_content(param_data, 'u2')
-    
-    return unit1_supply_temp, unit1_humidity, unit1_car_temp, unit2_supply_temp, unit2_humidity, unit2_car_temp, unit1_current1_items, unit1_current2_items, unit2_current1_items, unit2_current2_items, svg1, svg2
+    return unit1_data, unit2_data, unit1_supply_temp, unit1_humidity, unit1_car_temp, unit2_supply_temp, unit2_humidity, unit2_car_temp, unit1_current1_items, unit1_current2_items, unit2_current1_items, unit2_current2_items

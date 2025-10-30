@@ -19,6 +19,8 @@ from orm.chart_line_fault_type import ChartLineFaultType
 from orm.chart_line_health_status_count import ChartLineHealthStatusCount
 # 导入共享的动态模型
 from utils.dynamic_models import get_dynamic_health_model, get_dynamic_fault_model
+# 导入Peewee聚合函数
+from peewee import fn
 
 
 prefix = BaseConfig.project_prefix
@@ -137,6 +139,116 @@ def get_health_status_count_data():
             log.warning(f"显式释放连接失败: {str(e)}")
 
 
+# 获取部件寿命图表聚合数据（最高、平均、最小值）
+def get_health_bar_aggregate_data():
+    """
+    获取6个指定设备的所有车辆/车厢聚合数据
+    计算每个设备的最高、平均、最小寿命值（已耗字段）
+    
+    Returns:
+        list: 格式化的图表数据，用于分组柱状图
+    """
+    try:
+        with db.atomic():
+            # 使用动态模型
+            DynamicHealthModel = get_dynamic_health_model()
+            
+            # 从配置中获取目标设备列表
+            target_devices = BaseConfig.health_bar_devices
+            
+            if not target_devices:
+                log.warning("[get_health_bar_aggregate_data] 配置中未找到设备列表，返回空数据")
+                return []
+            
+            # 定义设备显示顺序（用于排序）- 按配置顺序
+            device_order = {device: idx for idx, device in enumerate(target_devices)}
+            
+            # 使用Peewee聚合函数进行分组统计
+            query = (
+                DynamicHealthModel
+                .select(
+                    DynamicHealthModel.部件,
+                    fn.MAX(DynamicHealthModel.已耗).alias('max_value'),
+                    fn.AVG(DynamicHealthModel.已耗).alias('avg_value'),
+                    fn.MIN(DynamicHealthModel.已耗).alias('min_value')
+                )
+                .where(DynamicHealthModel.部件.in_(target_devices))
+                .group_by(DynamicHealthModel.部件)
+            )
+            
+            # 执行查询
+            results = list(query.dicts())
+            
+            # 转换数据格式，用于分组柱状图
+            # 格式: [{device: '设备名', type: 'max', value: 值}, ...]
+            bar_data = []
+            # 建立显示名称到数据库名称的映射（用于排序）
+            display_to_db_map = {}
+            
+            for row in results:
+                device_name_db = row['部件']  # 数据库中的完整名称
+                # 生成简化的显示名称：移除"累计运行时间"等字样，保留核心设备名和编号
+                # 例如："冷凝风机累计运行时间-U11" -> "冷凝风机-U11"
+                device_name_display = device_name_db.replace('累计运行时间', '').replace('累计', '')
+                # 保存映射关系
+                display_to_db_map[device_name_display] = device_name_db
+                
+                max_val = round(float(row['max_value']) if row['max_value'] is not None else 0, 2)
+                avg_val = round(float(row['avg_value']) if row['avg_value'] is not None else 0, 2)
+                min_val = round(float(row['min_value']) if row['min_value'] is not None else 0, 2)
+                
+                # 添加三条记录：最高值、平均值、最小值
+                # 注意：类型顺序对应颜色：max=黄色, avg=绿色, min=蓝色
+                bar_data.extend([
+                    {
+                        'device': device_name_display,  # 使用简化后的显示名称
+                        'type': '最高值',  # 用于图例显示
+                        'type_key': 'max',  # 用于排序
+                        'value': max_val,
+                        'color': '#ffeb3b'  # 黄色
+                    },
+                    {
+                        'device': device_name_display,
+                        'type': '平均值',
+                        'type_key': 'avg',
+                        'value': avg_val,
+                        'color': '#4caf50'  # 绿色
+                    },
+                    {
+                        'device': device_name_display,
+                        'type': '最小值',
+                        'type_key': 'min',
+                        'value': min_val,
+                        'color': '#2196f3'  # 蓝色
+                    }
+                ])
+            
+            # 按设备顺序排序（确保显示顺序一致）
+            # 排序时通过映射找到数据库名称，然后使用device_order获取顺序
+            bar_data.sort(key=lambda x: (
+                device_order.get(display_to_db_map.get(x['device'], ''), 999),  # 设备顺序
+                {'max': 0, 'avg': 1, 'min': 2}.get(x['type_key'], 3)  # 类型顺序：最高、平均、最小
+            ))
+            
+            return bar_data
+            
+    except Exception as e:
+        log.error(f"[get_health_bar_aggregate_data] 获取聚合数据失败: {e}")
+        return []
+    finally:
+        # 强制将当前连接放回连接池
+        try:
+            conn = db.connection()
+            key = db.conn_key(conn)
+            with db._pool_lock:
+                if key in db._in_use:
+                    pool_conn = db._in_use.pop(key)
+                    heapq.heappush(db._connections, (pool_conn.timestamp, _sentinel(), conn))
+                    log.debug(f"显式放回连接 {key} 到连接池")
+        except Exception as e:
+            log.warning(f"显式释放连接失败: {str(e)}")
+
+
 # 获取健康数据的方法
 def get_health_data():
     # 查询健康数据
@@ -182,24 +294,8 @@ def get_health_data():
                     '操作': {'href': f'/{prefix}/health?train_no={str(item.车号)}&carriage_no={str(item.车厢号)}', 'target': '_self'}
                 } for item in health_query]
 
-        # 构建l_h_health_bar数据
-        bar_data = []
-        
-        # 从BaseConfig.health_bar_data_rnd按轮播顺序选择一个数给select_train
-        if not hasattr(get_health_data, 'select_index'):
-            get_health_data.select_index = 0
-        health_bar_data = BaseConfig.health_bar_data_rnd
-        select_train = health_bar_data[get_health_data.select_index % len(health_bar_data)] if health_bar_data else None
-        get_health_data.select_index += 1
-
-        # 筛选出select_train的车厢数据
-        for item in formatted_health:
-            if item['车号'] == select_train:
-                bar_data.append({
-                    'carriage': f"{item['车号']}-{item['车厢号']}",
-                    'ratio': round(item['耗用率'] * 100, 2),
-                    'param': item['部件'].replace('-', '')
-                })
+        # 构建l_h_health_bar数据 - 使用聚合统计
+        bar_data = get_health_bar_aggregate_data()
         
         return new_formatted_health, bar_data
     finally:

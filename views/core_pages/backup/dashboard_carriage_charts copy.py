@@ -228,116 +228,129 @@ def render(themetoken):
                                     chart=fac.AntdRow(
                                             fac.AntdCol(
                                             [
-                                                # 机组状态显示区域
+                                                # 机组一图表和数据
                                                     fac.AntdRow(
                                                         [
                                                             fac.AntdCol(
-                                                                fac.AntdTabs(
-                                                                    id='c_unit-tabs',
-                                                                    tabPosition='left',
-                                                                    destroyInactiveTabPane=False,
-                                                                    tabPaneAnimated=False,
-                                                                    inkBarAnimated=False,
-                                                                    items=[
-                                                                        {
-                                                                            "key": "unit1",
-                                                                            "label": "机组一",
-                                                                            "children": fac.AntdRow(
-                                                                                [
-                                                                                    fac.AntdCol(
-                                                                                        html.Div(
-                                                                                            id='c_unit1-svg-container',
-                                                                                            style={
-                                                                                                "height": "360px",
-                                                                                                "width": "100%",
-                                                                                                "overflow": "hidden",
-                                                                                                "marginTop": "-6px",
-                                                                                                "position": "relative",
-                                                                                                "zIndex": 0
-                                                                                            }
-                                                                                        ),
-                                                                                        span=20
-                                                                                    ),
-                                                                                    fac.AntdCol(
-                                                                                        html.Img(
-                                                                                            src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit1.svg",
-                                                                                            style={
-                                                                                                "width": "80px",
-                                                                                                "height": "80px",
-                                                                                                "objectFit": "contain",
-                                                                                                "display": "block"
-                                                                                            }
-                                                                                        ),
-                                                                                        style={
-                                                                                            "textAlign": "right",
-                                                                                            "overflow": "visible",
-                                                                                            "display": "flex",
-                                                                                            "alignItems": "flex-start",
-                                                                                            "justifyContent": "flex-end",
-                                                                                            "zIndex": 1
-                                                                                        },
-                                                                                        span=4
-                                                                                    ),
-                                                                                ],
-                                                                                align="middle",
-                                                                                justify="start",
-                                                                                style={"height": "360px"}
-                                                                            )
-                                                                        },
-                                                                        {
-                                                                            "key": "unit2",
-                                                                            "label": "机组二",
-                                                                            "children": fac.AntdRow(
-                                                                                [
-                                                                                    fac.AntdCol(
-                                                                                        html.Div(
-                                                                                            id='c_unit2-svg-container',
-                                                                                            style={
-                                                                                                "height": "360px",
-                                                                                                "width": "100%",
-                                                                                                "overflow": "hidden",
-                                                                                                "marginTop": "-6px",
-                                                                                                "position": "relative",
-                                                                                                "zIndex": 0
-                                                                                            }
-                                                                                        ),
-                                                                                        span=20
-                                                                                    ),
-                                                                                    fac.AntdCol(
-                                                                                        html.Img(
-                                                                                            src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit2.svg",
-                                                                                            style={
-                                                                                                "width": "80px",
-                                                                                                "height": "80px",
-                                                                                                "objectFit": "contain",
-                                                                                                "display": "block"
-                                                                                            }
-                                                                                        ),
-                                                                                        style={
-                                                                                            "textAlign": "right",
-                                                                                            "overflow": "visible",
-                                                                                            "display": "flex",
-                                                                                            "alignItems": "flex-start",
-                                                                                            "justifyContent": "flex-end",
-                                                                                            "zIndex": 1
-                                                                                        },
-                                                                                        span=4
-                                                                                    ),
-                                                                                ],
-                                                                                align="middle",
-                                                                                justify="start",
-                                                                                style={"height": "360px"}
-                                                                            )
-                                                                        }
-                                                                    ],
-                                                                    style={"height": "360px"}
+                                                                html.Img(
+                                                                    src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit1.svg",
+                                                                    style={"width": "100px", "height": "100px", "objectFit": "contain"}
                                                                 ),
-                                                                span=24
+                                                                style={"textAlign": "right"},
+                                                                span=2
+                                                            ),
+                                                            fac.AntdCol(
+                                                                fac.AntdTable(
+                                                                    id='c_i_info_unit1-table',
+                                                                    columns=[
+                                                                        {
+                                                                            "title": title,
+                                                                            "dataIndex": dataIndex,
+                                                                            "width": '{:.2f}%'.format(100 / 10),
+                                                                            "align": "center",
+                                                                            "headerCellStyle": {
+                                                                                "fontWeight": 'bold',
+                                                                                "border": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent'
+                                                                            },
+                                                                            "cellStyle": {
+                                                                                "borderRight": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent',
+                                                                            },
+                                                                            "renderOptions": {'renderType': 'tags'},
+                                                                        }
+                                                                        for title, dataIndex in [
+                                                                            ("吸气压力1", "pressure1"),
+                                                                            ("吸气压力2", "pressure2"),
+                                                                            ("高压压力1", "highPressure1"),
+                                                                            ("高压压力2", "highPressure2"),
+                                                                            ("新风温度", "temp1"),
+                                                                            ("回风温度", "temp2"),
+                                                                            ("送风温度", "temp3"),
+                                                                            ("CO2浓度", "co2"),
+                                                                            ("车厢温度", "carTemp"),
+                                                                            ("车厢湿度", "humidity")
+                                                                        ]
+                                                                    ],
+                                                                    size="small",
+                                                                    pagination=False,
+                                                                    bordered=False,
+                                                                    mode = 'client-side',
+                                                                    className = "cfault-table",
+                                                                    style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
+                                                                ),
+                                                                span=20,
+                                                            ),
+                                                        ],
+                                                        align="bottom",
+                                                        justify="center",
+                                                        style={"height": "100px", "marginBottom": "5px"}
+                                                    ),
+                                                # 机组二图表和数据
+                                                    fac.AntdRow(
+                                                        [
+                                                            fac.AntdCol(
+                                                                html.Img(
+                                                                    src=f"/{BaseConfig.project_prefix}/assets/imgs/circle_svg_unit2.svg",
+                                                                    style={"width": "100px", "height": "100px", "objectFit": "contain"}
+                                                                ),
+                                                                style={"textAlign": "right"},
+                                                                span=2
+                                                            ),
+                                                            fac.AntdCol(
+                                                                fac.AntdTable(
+                                                                    id='c_i_info_unit2-table',
+                                                                    columns=[
+                                                                        {
+                                                                            "title": title,
+                                                                            "dataIndex": dataIndex,
+                                                                            "width": '{:.2f}%'.format(100 / 10),
+                                                                            "align": "center",
+                                                                            "headerCellStyle": {
+                                                                                "fontWeight": 'bold',
+                                                                                "border": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent'
+                                                                            },
+                                                                            "cellStyle": {
+                                                                                "borderRight": 'none',
+                                                                                "borderBottom": '1px solid #e8e8e8',
+                                                                                "color": themetoken["colorText"],
+                                                                                "backgroundColor": 'transparent',
+                                                                            },
+                                                                            "renderOptions": {'renderType': 'tags'},
+                                                                        }
+                                                                        for title, dataIndex in [
+                                                                            ("吸气压力1", "pressure1"),
+                                                                            ("吸气压力2", "pressure2"),
+                                                                            ("高压压力1", "highPressure1"),
+                                                                            ("高压压力2", "highPressure2"),
+                                                                            ("新风温度", "temp1"),
+                                                                            ("回风温度", "temp2"),
+                                                                            ("送风温度", "temp3"),
+                                                                            ("CO2浓度", "co2"),
+                                                                            ("车厢温度", "carTemp"),
+                                                                            ("车厢湿度", "humidity")
+                                                                        ]
+                                                                    ],
+                                                                    size="small",
+                                                                    pagination=False,
+                                                                    bordered=False,
+                                                                    mode = 'client-side',
+                                                                    className = "cfault-table",
+                                                                    style={"height": "100%", "width": "100%", "border": 'none', "border-collapse": 'collapse', "border-spacing": '0', "backgroundColor": 'transparent'}
+                                                                ),
+                                                                span=20
                                                             )
                                                         ],
-                                                        align="middle",
+                                                        align="top",
                                                         justify="center",
-                                                        style={"height": "360px", "marginBottom": "5px"}
+                                                        style={"height": "100px", "marginBottom": "5px"}
                                                     )
                                             ],
                                             span=24,

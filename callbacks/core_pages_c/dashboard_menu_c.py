@@ -232,7 +232,7 @@ def register_dashboard_menu_callbacks(app):
     def handle_fault_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
-        
+
         # 防抖逻辑：300ms内只允许一次跳转
         current_time = time.time()
         callback_id = 'fault_menu_click'
@@ -264,7 +264,7 @@ def register_dashboard_menu_callbacks(app):
     def handle_health_menu_click(nClicks, current_pathname, current_search):
         if nClicks is None:
             return no_update
-        
+
         # 防抖逻辑：300ms内只允许一次跳转
         current_time = time.time()
         callback_id = 'health_menu_click'

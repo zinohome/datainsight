@@ -49,7 +49,7 @@ def render():
             "icon_src": f"/{prefix}/assets/imgs/new-icon/health-icon.svg",
             "icon_src_active": f"/{prefix}/assets/imgs/new-icon/health-icon-active.svg",
         },
-    ]
+        ]
     
     # 定义自定义的菜单项标题
     custom_menu_item_titles = {
