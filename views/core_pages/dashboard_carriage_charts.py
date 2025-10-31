@@ -290,7 +290,7 @@ def render(themetoken):
                                                                                 ],
                                                                                 align="middle",
                                                                                 justify="start",
-                                                                                style={"height": "360px"}
+                                                                                style={"height": "240px"}
                                                                             )
                                                                         },
                                                                         {
@@ -336,18 +336,18 @@ def render(themetoken):
                                                                                 ],
                                                                                 align="middle",
                                                                                 justify="start",
-                                                                                style={"height": "360px"}
+                                                                                style={"height": "240px"}
                                                                             )
                                                                         }
                                                                     ],
-                                                                    style={"height": "360px"}
+                                                                    style={"height": "240px"}
                                                                 ),
                                                                 span=24
                                                             )
                                                         ],
                                                         align="middle",
                                                         justify="center",
-                                                        style={"height": "360px", "marginBottom": "5px"}
+                                                        style={"height": "240px", "marginBottom": "5px"}
                                                     )
                                             ],
                                             span=24,
